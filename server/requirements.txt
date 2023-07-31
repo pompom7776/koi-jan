@@ -1,0 +1,4 @@
+eventlet
+cryptography
+python-socketio
+mahjong

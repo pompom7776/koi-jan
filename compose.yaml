@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    volumes:
+      - ./server:/server
+    tty: true
+    stdin_open: true
+    ports:
+      - "8888:8888"
+    networks:
+      - web
+
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+    ports:
+      - "5173:5173"
+    tty: true
+    stdin_open: true
+    networks:
+      - web
+
+networks:
+  web:
