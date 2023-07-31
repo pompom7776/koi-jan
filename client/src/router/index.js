@@ -5,8 +5,7 @@ import WaitingRoom from "../views/WaitingRoom.vue";
 import Game from "../views/Game.vue";
 
 const routes = [
-  { path: "/", component: Home },
-  { path: "/room", component: Room },
+  { path: "/", component: Room },
   { path: "/room/:roomId/waiting", component: WaitingRoom },
   { path: "/room/:roomId/game", component: Game },
 ];
