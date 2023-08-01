@@ -221,7 +221,10 @@ onMounted(() => {
 <template>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
+    rel="stylesheet"
+  />
   <div class="body">
     <div class="container" v-if="displayFlag">
       <div class="top-content content" v-if="topPlayer">
@@ -287,11 +290,22 @@ onMounted(() => {
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
         <div class="tiles" v-for="tile in bottomPlayer.value.hand.tiles">
-          <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :isRedDora="tile.bonus" />
+          <MahjongTile
+            @click="discardTile(tile)"
+            :tile="tile.name"
+            :scale="0.5"
+            :rotate="0"
+            :isRedDora="tile.bonus"
+          />
         </div>
         <div class="tsumo" v-if="bottomPlayer.value.hand.tsumo">
-          <MahjongTile @click="discardTile(bottomPlayer.value.hand.tsumo)" :tile="bottomPlayer.value.hand.tsumo.name"
-            :scale="0.5" :rotate="0" :isRedDora="bottomPlayer.value.hand.tsumo.bonus" />
+          <MahjongTile
+            @click="discardTile(bottomPlayer.value.hand.tsumo)"
+            :tile="bottomPlayer.value.hand.tsumo.name"
+            :scale="0.5"
+            :rotate="0"
+            :isRedDora="bottomPlayer.value.hand.tsumo.bonus"
+          />
         </div>
         <div class="calls" v-for="call in bottomPlayer.value.hand.calls">
           <div class="pon" v-if="call.type == 'pon'">
@@ -311,7 +325,14 @@ onMounted(() => {
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
             </div>
-            <button @click="vote(player.id)">{{ player.name }}に投票</button>
+            <div v-if="player.id == playerId">
+              <button class="disable-vote" disabled @click="vote(player.id)">
+                {{ player.name }}に投票
+              </button>
+            </div>
+            <div v-else>
+              <button @click="vote(player.id)">{{ player.name }}に投票</button>
+            </div>
           </div>
         </div>
       </div>
@@ -350,14 +371,20 @@ onMounted(() => {
         </div>
         <div class="right-discarded discarded" v-if="rightPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in rightPlayer.value.discarded_tiles">
+            <div
+              class="tiles"
+              v-for="tile in rightPlayer.value.discarded_tiles"
+            >
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
         <div class="bottom-discarded discarded" v-if="bottomPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in bottomPlayer.value.discarded_tiles">
+            <div
+              class="tiles"
+              v-for="tile in bottomPlayer.value.discarded_tiles"
+            >
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
@@ -387,10 +414,18 @@ onMounted(() => {
       </div>
       <div class="all_button">
         <div class="button-container">
-          <button @click="riichi" v-if="action.riichi && riichiFlag" class="riichi">
+          <button
+            @click="riichi"
+            v-if="action.riichi && riichiFlag"
+            class="riichi"
+          >
             リーチ: ON
           </button>
-          <button @click="riichi" v-if="action.riichi && !riichiFlag" class="riichi">
+          <button
+            @click="riichi"
+            v-if="action.riichi && !riichiFlag"
+            class="riichi"
+          >
             リーチ: OFF
           </button>
           <button @click="pon" v-if="action.pon">ポン</button>
@@ -398,7 +433,11 @@ onMounted(() => {
           <button @click="ron" v-if="action.ron">ロン</button>
           <button @click="skipRon" v-if="action.ron">スキップ</button>
           <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button>
-          <button @click="discardTile(bottomPlayer.value.hand.tsumo)" v-if="action.tsumo" class="tsumo">
+          <button
+            @click="discardTile(bottomPlayer.value.hand.tsumo)"
+            v-if="action.tsumo"
+            class="tsumo"
+          >
             スキップ
           </button>
         </div>
@@ -724,5 +763,14 @@ button:hover {
   background-color: rgb(254, 244, 242, 0.5);
   color: rgb(107, 76, 83, 0.8);
   border: 3px solid rgb(107, 76, 83, 0.8);
+}
+
+.disable-vote {
+  background-color: #ffe6f0;
+}
+
+.disable-vote:hover {
+  background-color: #ffe6f0;
+  color: #fff;
 }
 </style>
