@@ -274,16 +274,6 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div class="result" v-if="endFlag">
-          <div v-for="player in players">
-            {{ player.name }} : {{ player.score_info }}
-          </div>
-          <div>
-            <p>テーマ : 理想のデート</p>
-            <p>枚数 : 3枚</p>
-          </div>
-          <button @click="closeEndDisplay">閉じる</button>
-        </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
         <div class="tiles" v-for="tile in bottomPlayer.value.hand.tiles">
