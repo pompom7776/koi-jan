@@ -37,6 +37,7 @@ class Player:
         self.is_riichi: bool = False
         self.selected_tiles = []
         self.voted: int = 0
+        self.round_score = 1000
 
         self.action = Action()
         self.stop_ron = eventlet.event.Event()
@@ -70,6 +71,7 @@ class Player:
         self.score_info = Score()
         self.selected_tiles = []
         self.voted = 0
+        self.round_score = 1000
 
     def next_round(self):
         self.hand: Hand = Hand()
@@ -83,6 +85,7 @@ class Player:
         self.score_info = Score()
         self.selected_tiles = []
         self.voted = 0
+        self.round_score = 1000
 
     @property
     def id(self):

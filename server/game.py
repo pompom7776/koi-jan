@@ -163,11 +163,9 @@ class Game:
                                               is_tsumo=True,
                                               is_riichi=player.is_riichi)
 
-        player.score += score_info.cost
+        player.round_score = score_info.cost
         player.action.tsumo = False
         player.action.pon = False
-        # self.table.round += 1
-        # self.table.honba = 0
         self.skip_players.append(player.id)
         self.flag.agari += 1
 
@@ -194,11 +192,9 @@ class Game:
                                               is_tsumo=False,
                                               is_riichi=player.is_riichi)
 
-        player.score += score_info.cost
+        player.round_score = score_info.cost
         player.action.ron = False
         player.action.pon = False
-        self.table.round += 1
-        self.table.honba = 0
         self.skip_players.append(player.id)
         self.flag.agari += 1
 
