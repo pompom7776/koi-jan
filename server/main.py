@@ -221,7 +221,7 @@ def play_round(room: Game):
             room.next_round()
             break
 
-        if room.flag.agari == 4:
+        if room.flag.agari >= 3:
             socket_io.emit("update_game_info",
                            room.to_dict(), room=room.room_id)
 
@@ -549,7 +549,7 @@ def on_vote(socket_id: str, pid: str):
     if room.votes == 4:
         print("vote done")
         for p in room.players:
-            p.score *= p.voted
+            p.score = p.round_score * (p.voted + 1)
         room.votes = 0
         room.stop_vote.send()
 
