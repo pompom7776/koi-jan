@@ -59,6 +59,7 @@ class Player:
             "score_info": self.score_info.__dict__,
             "selected_tiles": selected_tiles,
             "voted": self.voted,
+            "round_score": self.round_score,
         }
 
     def initialize(self):
