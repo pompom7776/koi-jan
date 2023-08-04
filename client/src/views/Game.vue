@@ -126,8 +126,16 @@ const windDirections = {
   north: "北",
 };
 
-const getWindDirection = (roundWind) => {
-  return windDirections[roundWind] || roundWind;
+const getImgDirection = (pid) => {
+  if (pid == currentPlayerId.value) {
+    return {
+      width: "6vw",
+    };
+  } else {
+    return {
+      width: "4vw",
+    };
+  }
 };
 
 const showModal = ref(false);
@@ -382,22 +390,34 @@ onMounted(() => {
       </div>
       <div class="all_direction">
         <div class="top-direction direction" v-if="topPlayer">
-          <img :src="`/${topPlayer.value.seat_wind}.png`" width="100%" />
+          <img
+            :style="getImgDirection(topPlayer.value.id)"
+            :src="`/${topPlayer.value.seat_wind}.png`"
+          />
           <p class="name-direction">{{ topPlayer.value.name }}</p>
           <p class="score-direction">{{ topPlayer.value.score }}点</p>
         </div>
         <div class="left-direction direction" v-if="leftPlayer">
-          <img :src="`/${leftPlayer.value.seat_wind}.png`" width="100%" />
+          <img
+            :style="getImgDirection(leftPlayer.value.id)"
+            :src="`/${leftPlayer.value.seat_wind}.png`"
+          />
           <p class="name-direction">{{ leftPlayer.value.name }}</p>
           <p class="score-direction">{{ leftPlayer.value.score }}点</p>
         </div>
         <div class="right-direction direction" v-if="rightPlayer">
-          <img :src="`/${rightPlayer.value.seat_wind}.png`" width="100%" />
+          <img
+            :style="getImgDirection(rightPlayer.value.id)"
+            :src="`/${rightPlayer.value.seat_wind}.png`"
+          />
           <p class="name-direction">{{ rightPlayer.value.name }}</p>
           <p class="score-direction">{{ rightPlayer.value.score }}点</p>
         </div>
         <div class="bottom-direction direction" v-if="bottomPlayer">
-          <img :src="`/${bottomPlayer.value.seat_wind}.png`" width="100%" />
+          <img
+            :style="getImgDirection(bottomPlayer.value.id)"
+            :src="`/${bottomPlayer.value.seat_wind}.png`"
+          />
           <p class="name-direction">{{ bottomPlayer.value.name }}</p>
           <p class="score-direction">{{ bottomPlayer.value.score }}点</p>
         </div>
