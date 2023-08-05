@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useHoverStore } from "@/stores/hover";
 
 const props = defineProps(["scale", "tile", "rotate"]);
 const tile = props.tile;
@@ -50,6 +51,16 @@ const size = computed(() => ({
   height: `${5 * scale}vw`,
 }));
 
+const getHighlight = computed(() => {
+  const hoverTile = hoverStore.hoverTile;
+  if (tile == hoverTile) {
+    return {
+      filter: "opacity(0.4) drop-shadow(0 0 0 red)",
+    };
+  }
+  return {};
+});
+
 const getStyle = computed(() => {
   var margin_width = 0;
   var margin_bottom = 0;
@@ -74,16 +85,20 @@ const getTileClass = (tile) => {
   return classes.join(" ");
 };
 
+const hoverStore = useHoverStore();
+
 const tileStyle = ref({});
 const handleTileHover = (isHovered) => {
   hovered.value = isHovered;
   if (isHovered) {
+    hoverStore.setHoverTile(tile);
     tileStyle.value = {
       transform: `rotate(${rotate}deg) translateY(-1.2vw)`,
       transition: "0.3s",
       cursor: "pointer",
     };
   } else {
+    hoverStore.removeHoverTile();
     tileStyle.value = {
       transform: `rotate(${rotate}deg)`,
       transition: "0.3s",
@@ -96,14 +111,24 @@ const getImagePath = (tile) => {
 };
 </script>
 <template>
-  <div v-if="tile === '-'" :class="getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
-    @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
+  <div
+    v-if="tile === '-'"
+    :class="getTileClass(tile)"
+    :style="{ ...getStyle, ...tileStyle }"
+    @mouseover="handleTileHover(true)"
+    @mouseleave="handleTileHover(false)"
+  >
     {{ tile }}
   </div>
-  <div v-else class="getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }" @mouseover="handleTileHover(true)"
-    @mouseleave="handleTileHover(false)">
+  <div
+    v-else
+    class="getTileClass(tile)"
+    :style="{ ...getStyle, ...tileStyle }"
+    @mouseover="handleTileHover(true)"
+    @mouseleave="handleTileHover(false)"
+  >
     <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
-    <img :style="{ ...getStyle }" :src="getImagePath(tile)" />
+    <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
   </div>
 </template>
 <style>
