@@ -117,7 +117,7 @@ const getImagePath = (tile) => {
     {{ tile }}
   </div>
   <div v-else>
-    <div v-if="limit" class="liimit-riichi getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
+    <div v-if="limit" class="limit-riichi getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
       @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
       <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
       <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
