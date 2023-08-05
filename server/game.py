@@ -23,7 +23,7 @@ class Game:
         self.player_ids = [p.id for p in players]
         self.table: Table = Table()
         self.current_player: id = 0
-        self.turn: int = 0
+        self.turn: int = 1
 
         self.flag: Flag = Flag()
         self.stop_tsumo = eventlet.event.Event()
@@ -52,6 +52,7 @@ class Game:
 
     def setup_game(self):
         self.table.initialize(self.player_ids)
+        self.turn = 1
         self.flag = Flag()
         for player in self.players:
             player.action = Action()
@@ -74,6 +75,7 @@ class Game:
 
     def next_round(self):
         self.table.next_round(self.player_ids)
+        self.turn = 1
         self.flag = Flag()
         for player in self.players:
             player.next_round()
