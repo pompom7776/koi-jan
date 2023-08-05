@@ -92,7 +92,7 @@ class Game:
         tile = self.table.wall.draw_tile()
         player.hand.update_tsumo(tile)
 
-        shanten = score.shanten(player.hand)
+        shanten = score.shanten(player.hand.get_all_tiles())
         if player.hand.calls == []:
             if shanten <= 0:
                 player.action.riichi = True
@@ -153,6 +153,16 @@ class Game:
 
     def update_current_player(self, player_id: int):
         self.current_player = player_id
+
+    def check_riichi_tile(self, player: Player):
+        all_tiles = player.hand.get_all_tiles()
+        for t in all_tiles:
+            tmp_tiles = list(filter(lambda tile: tile.id != t.id, all_tiles))
+            shanten = score.shanten(tmp_tiles)
+            if shanten <= 0:
+                t.can_riichi = True
+            else:
+                t.can_riichi = False
 
     def tsumo_agari(self, player: Player):
         score_info: score.Score = score.agari(hand=player.hand,
