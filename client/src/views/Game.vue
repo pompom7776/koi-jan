@@ -219,6 +219,7 @@ onMounted(() => {
   });
 
   socket.on("vote_start", () => {
+    riichiFlag.value = false;
     discardFlag.value = false;
     voteFlag.value = true;
     selectFlag.value = 0;
@@ -287,23 +288,77 @@ onMounted(() => {
         </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div class="tiles" v-for="tile in bottomPlayer.value.hand.tiles">
+        <div
+          v-if="!riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand.tiles"
+        >
           <MahjongTile
             @click="discardTile(tile)"
             :tile="tile.name"
             :scale="0.5"
             :rotate="0"
             :isRedDora="tile.bonus"
+            :limit="false"
           />
         </div>
-        <div class="tsumo" v-if="bottomPlayer.value.hand.tsumo">
-          <MahjongTile
-            @click="discardTile(bottomPlayer.value.hand.tsumo)"
-            :tile="bottomPlayer.value.hand.tsumo.name"
-            :scale="0.5"
-            :rotate="0"
-            :isRedDora="bottomPlayer.value.hand.tsumo.bonus"
-          />
+        <div
+          v-if="riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand.tiles"
+        >
+          <div v-if="tile.can_riichi">
+            <MahjongTile
+              @click="discardTile(tile)"
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :isRedDora="tile.bonus"
+              :limit="false"
+            />
+          </div>
+          <div v-if="!tile.can_riichi">
+            <MahjongTile
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :isRedDora="tile.bonus"
+              :limit="true"
+            />
+          </div>
+        </div>
+        <div v-if="bottomPlayer.value.hand.tsumo" class="tsumo">
+          <div v-if="riichiFlag">
+            <div v-if="!bottomPlayer.value.hand.tsumo.can_riichi">
+              <MahjongTile
+                :tile="bottomPlayer.value.hand.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :isRedDora="bottomPlayer.value.hand.tsumo.bonus"
+                :limit="true"
+              />
+            </div>
+            <div v-if="bottomPlayer.value.hand.tsumo.can_riichi">
+              <MahjongTile
+                @click="discardTile(bottomPlayer.value.hand.tsumo)"
+                :tile="bottomPlayer.value.hand.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :isRedDora="bottomPlayer.value.hand.tsumo.bonus"
+                :limit="false"
+              />
+            </div>
+          </div>
+          <div v-if="!riichiFlag">
+            <MahjongTile
+              @click="discardTile(bottomPlayer.value.hand.tsumo)"
+              :tile="bottomPlayer.value.hand.tsumo.name"
+              :scale="0.5"
+              :rotate="0"
+              :isRedDora="bottomPlayer.value.hand.tsumo.bonus"
+              :limit="false"
+            />
+          </div>
         </div>
         <div class="calls" v-for="call in bottomPlayer.value.hand.calls">
           <div class="pon" v-if="call.type == 'pon'">
@@ -342,7 +397,7 @@ onMounted(() => {
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="bahuu">{{ windDirections[table.round_wind] }}</div>
+          <div class="round-wind">{{ windDirections[table.round_wind] }}</div>
           <div class="center-all">
             <div>部屋番号 : {{ roomId }}</div>
             <div>残り枚数 : {{ table.wall_num }}</div>
@@ -691,7 +746,7 @@ button:hover {
   left: 14vw;
 }
 
-.bahuu {
+.round-wind {
   position: absolute;
   top: 3.5vw;
   left: 15.8vw;

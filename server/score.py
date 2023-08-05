@@ -103,9 +103,8 @@ def convert_34_tiles(tiles: List[Tile]):
                                              honors=honors)
 
 
-def shanten(hand: Hand):
-    tiles = hand.get_all_tiles()
-    char_tiles = convert_34_tiles(tiles)
+def shanten(hand: List):
+    char_tiles = convert_34_tiles(hand)
 
     shanten = Shanten()
 

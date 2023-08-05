@@ -6,6 +6,7 @@ class Tile:
         self.rank = rank
         self.name = name
         self.bonus = bonus
+        self.can_riichi = False
 
     # 例: id: 1, suit: souzu, rank: 1, name: 1s
     def __str__(self):
@@ -13,4 +14,5 @@ class Tile:
                 f"suit: {self.suit}, "
                 f"rank: {self.rank}, "
                 f"name: {self.name}, "
-                f"bonus: {self.bonus}")
+                f"bonus: {self.bonus},"
+                f"can_riichi: {self.can_riichi}")

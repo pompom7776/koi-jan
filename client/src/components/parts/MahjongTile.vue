@@ -2,10 +2,11 @@
 import { computed, ref } from "vue";
 import { useHoverStore } from "@/stores/hover";
 
-const props = defineProps(["scale", "tile", "rotate"]);
+const props = defineProps(["scale", "tile", "rotate", "limit"]);
 const tile = props.tile;
 const scale = props.scale;
 const rotate = props.rotate;
+const limit = props.limit;
 
 const hovered = ref(false);
 
@@ -111,24 +112,21 @@ const getImagePath = (tile) => {
 };
 </script>
 <template>
-  <div
-    v-if="tile === '-'"
-    :class="getTileClass(tile)"
-    :style="{ ...getStyle, ...tileStyle }"
-    @mouseover="handleTileHover(true)"
-    @mouseleave="handleTileHover(false)"
-  >
+  <div v-if="tile === '-'" :class="getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
+    @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
     {{ tile }}
   </div>
-  <div
-    v-else
-    class="getTileClass(tile)"
-    :style="{ ...getStyle, ...tileStyle }"
-    @mouseover="handleTileHover(true)"
-    @mouseleave="handleTileHover(false)"
-  >
-    <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
-    <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
+  <div v-else>
+    <div v-if="limit" class="limit-riichi getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
+      @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
+      <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
+      <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
+    </div>
+    <div v-else class="getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }" @mouseover="handleTileHover(true)"
+      @mouseleave="handleTileHover(false)">
+      <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
+      <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
+    </div>
   </div>
 </template>
 <style>
@@ -162,5 +160,13 @@ const getImagePath = (tile) => {
   border-radius: 50%;
   padding: 10px;
   border: 2px solid white;
+}
+
+.limit-riichi {
+  background: #000;
+}
+
+.limit-riichi img {
+  opacity: 0.5;
 }
 </style>
