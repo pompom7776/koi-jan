@@ -450,8 +450,18 @@ def on_riichi(socket_id: str):
         (player for player in players
          if player.socket_id == socket_id),
         None)
+    if player is None:
+        return
+    room = next(
+        (room for room in rooms if room.room_id == player.room_id),
+        None)
+    if room is None:
+        return
+
     player.is_riichi = not player.is_riichi
+    room.check_riichi_tile(player)
     socket_io.emit("riichi", player.is_riichi, room=socket_id)
+    socket_io.emit("update_game_info", room.to_dict(), room=socket_id)
 
 
 @socket_io.on("tsumo_agari")
