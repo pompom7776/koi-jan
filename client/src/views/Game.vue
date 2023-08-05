@@ -219,6 +219,7 @@ onMounted(() => {
   });
 
   socket.on("vote_start", () => {
+    riichiFlag.value = false;
     discardFlag.value = false;
     voteFlag.value = true;
     selectFlag.value = 0;
