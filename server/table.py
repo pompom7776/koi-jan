@@ -27,6 +27,8 @@ class Table:
         self.dora = []
         for _ in range(5):
             self.dora.append(self.wall.draw_tile())
+        for _ in range(9):
+            self.wall.dead_tiles.append(self.wall.draw_tile())
         self.round = 1
         self.honba = 0
 

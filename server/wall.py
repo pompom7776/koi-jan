@@ -5,6 +5,7 @@ from tile import Tile
 class Wall:
     def __init__(self):
         self.tiles = []
+        self.dead_tiles = []
 
     def add_tile(self, tile):
         self.tiles.append(tile)
