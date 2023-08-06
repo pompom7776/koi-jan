@@ -3,7 +3,7 @@ from typing import List
 from mahjong.shanten import Shanten
 from mahjong.tile import TilesConverter
 from mahjong.hand_calculating.hand import HandCalculator
-from mahjong.hand_calculating.hand_config import HandConfig
+from mahjong.hand_calculating.hand_config import HandConfig, OptionalRules
 from mahjong.meld import Meld
 from mahjong.constants import EAST, SOUTH, WEST, NORTH
 
@@ -146,7 +146,8 @@ def agari(hand: Hand,
     config = HandConfig(is_tsumo=is_tsumo,
                         is_riichi=is_riichi,
                         player_wind=winds[seat_wind],
-                        round_wind=winds[round_wind])
+                        round_wind=winds[round_wind],
+                        options=OptionalRules(has_open_tanyao=True))
 
     result = calculator.estimate_hand_value(char_tiles,
                                             win_tile,
