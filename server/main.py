@@ -527,9 +527,13 @@ def on_select_tile(socket_id: str, tid: str):
     print("tile", tile_id)
     print("hand", player.hand.to_dict())
     tiles = player.hand.get_all_tiles()
-    tile = next((tile for tile in tiles if tile.id == tile_id), None)
-    player.selected_tiles.append(tile)
-    socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
+    tile = next((t for t in tiles if t.id == tile_id), None)
+    selected_tile = next(
+        (t for t in player.selected_tiles if t.id == tile_id), None)
+    if selected_tile is None:
+        player.selected_tiles.append(tile)
+        socket_io.emit("selected", room=socket_id)
+        socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
 
 
 @socket_io.on("cancel_tile")
