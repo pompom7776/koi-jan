@@ -208,7 +208,7 @@ def on_setting_game(socket_id: str, rid: str):
 def play_round(room: Game):
     print("-- play round --")
     while True:
-        if room.table.wall.get_remaining() == 75:
+        if room.table.wall.get_remaining() == 0:
             socket_io.emit("update_game_info",
                            room.to_dict(), room=room.room_id)
 
