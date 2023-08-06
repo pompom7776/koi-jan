@@ -569,7 +569,7 @@ img {
 }
 
 .top-discarded {
-  top: 31.5%;
+  top: 34%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(180deg);
 }
@@ -587,7 +587,7 @@ img {
 }
 
 .bottom-discarded {
-  top: 68.5%;
+  top: 66%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -608,11 +608,12 @@ img {
 
 .discarded {
   position: absolute;
-  width: 30%;
+  width: 15vw;
   height: 10%;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   font-size: 1.1vw;
   flex-direction: row;
