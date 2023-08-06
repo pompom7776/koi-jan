@@ -80,7 +80,6 @@ const discardTile = (tile) => {
 
   if (voteFlag.value && selectFlag.value < 3) {
     socket.emit("select_tile", tile.id);
-    selectFlag.value += 1;
   }
 };
 
@@ -228,6 +227,10 @@ onMounted(() => {
     discardFlag.value = false;
     voteFlag.value = true;
     selectFlag.value = 0;
+  });
+
+  socket.on("selected", () => {
+    selectFlag.value += 1;
   });
 });
 </script>
