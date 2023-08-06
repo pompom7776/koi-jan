@@ -532,6 +532,29 @@ def on_select_tile(socket_id: str, tid: str):
     socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
 
 
+@socket_io.on("cancel_tile")
+def on_cancel_tile(socket_id: str, tid: str):
+    print("cancel_tile")
+    tile_id = int(tid)
+    player = next(
+        (player for player in players
+         if player.socket_id == socket_id),
+        None)
+    if player is None:
+        return
+    room = next(
+        (room for room in rooms if room.room_id == player.room_id),
+        None)
+    if room is None:
+        return
+
+    print("tile", tile_id)
+    print("hand", player.hand.to_dict())
+    player.selected_tiles = [tile for tile in player.selected_tiles
+                             if tile.id != tile_id]
+    socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
+
+
 @socket_io.on("vote")
 def on_vote(socket_id: str, pid: str):
     player_id = int(pid)
