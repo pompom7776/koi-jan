@@ -104,6 +104,22 @@ class Game:
         if shanten == -1 and agari.__dict__["yaku"] != []:
             player.action.tsumo = True
 
+    def dead_tsumo(self, player_id: int):
+        player = next((player for player in self.players
+                       if player.id == player_id), None)
+        tile = self.table.wall.draw_dead_tile()
+        player.hand.update_tsumo(tile)
+
+        shanten = score.shanten(player.hand.get_all_tiles())
+        if player.hand.calls == []:
+            if shanten <= 0:
+                player.action.riichi = True
+        agari = score.agari(player.hand, player.hand.tsumo, [],
+                            self.table.round_wind, player.seat_wind,
+                            True, player.is_riichi)
+        if shanten == -1 and agari.__dict__["yaku"] != []:
+            player.action.tsumo = True
+
     def pon(self, player: Player):
         call: CallTiles = CallTiles()
         call.type = "pon"
@@ -118,6 +134,23 @@ class Game:
 
         self.tmp_call_from = TileFromPlayer()
         player.action.pon = False
+        player.action.kan = False
+
+    def dai_min_kan(self, player: Player):
+        call: CallTiles = CallTiles()
+        call.type = "dai_min_kan"
+        call.tiles = [t for t in player.hand.tiles
+                      if t.name == self.tmp_call_from.tile.name][:3]
+        call.tiles.append(self.tmp_call_from.tile)
+        call.from_tile = self.tmp_call_from
+        player.hand.calls.append(call)
+        for tile in call.tiles:
+            player.hand.tiles = list(
+                filter(lambda t: t.id != tile.id, player.hand.tiles))
+
+        self.tmp_call_from = TileFromPlayer()
+        player.action.kan = False
+        player.action.pon = False
 
     def discard_tile(self, player: Player, tile_id: int):
         remove_tile = player.hand.update_hand(tile_id)
@@ -126,6 +159,7 @@ class Game:
         player.action.tsumo = False
         player.action.ron = False
         pon_waiter = None
+        kan_waiter = None
         ron_waiter = None
         for p in self.players:
             if p.id != player.id:
@@ -134,11 +168,16 @@ class Game:
                     pon_waiter = p
                     self.tmp_call_from.player_id = player.id
                     self.tmp_call_from.tile = remove_tile
+                if p.hand.can_kan(remove_tile) and not p.is_riichi:
+                    p.action.kan = True
+                    kan_waiter = p
+                    self.tmp_call_from.player_id = player.id
+                    self.tmp_call_from.tile = remove_tile
                 if self.check_ron(remove_tile, p):
                     ron_waiter = p
                     self.tmp_ron = remove_tile
                     p.action.ron = True
-        return pon_waiter, ron_waiter, remove_tile
+        return pon_waiter, kan_waiter, ron_waiter, remove_tile
 
     def deal_tiles(self):
         for player in self.players:
@@ -169,7 +208,7 @@ class Game:
     def tsumo_agari(self, player: Player):
         score_info: score.Score = score.agari(hand=player.hand,
                                               win_tile=player.hand.tsumo,
-                                              dora=self.table.dora,
+                                              dora=self.table.dora[:self.table.dora_num],
                                               round_wind=self.table.round_wind,
                                               seat_wind=player.seat_wind,
                                               is_tsumo=True,
@@ -198,7 +237,7 @@ class Game:
         player.hand.tiles.append(self.tmp_ron)
         score_info: score.Score = score.agari(hand=player.hand,
                                               win_tile=self.tmp_ron,
-                                              dora=self.table.dora,
+                                              dora=self.table.dora[:self.table.dora_num],
                                               round_wind=self.table.round_wind,
                                               seat_wind=player.seat_wind,
                                               is_tsumo=False,

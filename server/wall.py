@@ -44,5 +44,11 @@ class Wall:
         else:
             raise IndexError("The wall is empty.")
 
+    def draw_dead_tile(self):
+        if self.dead_tiles:
+            return self.dead_tiles.pop()
+        else:
+            raise IndexError("The dead wall is empty.")
+
     def get_remaining(self):
         return len(self.tiles)
