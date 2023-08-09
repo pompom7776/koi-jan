@@ -50,7 +50,7 @@ class Table:
             self.dora.append(self.wall.draw_tile())
 
     def to_dict(self):
-        dora = [t.__dict__ for t in self.dora]
+        dora = [t.__dict__.copy() for t in self.dora]
         for i in range(self.dora_num, len(self.dora)):
             dora[i]["suit"] = "-"
             dora[i]["name"] = "-"
