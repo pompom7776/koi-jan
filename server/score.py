@@ -126,10 +126,17 @@ def agari(hand: Hand,
     calculator = HandCalculator()
 
     if hand.calls != []:
-        melds = [
+        melds = []
+        pons = [
             Meld(Meld.PON, convert_136_tiles(call.tiles))
-            for call in hand.calls
+            for call in hand.calls if call.type == "pon"
         ]
+        melds.extend(pons)
+        kans = [
+            Meld(Meld.KAN, convert_136_tiles(call.tiles))
+            for call in hand.calls if call.type == "dai_min_kan"
+        ]
+        melds.extend(kans)
     else:
         melds = None
 
