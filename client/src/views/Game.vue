@@ -104,6 +104,14 @@ const skipPon = () => {
   socket.emit("skip_pon");
 };
 
+const daiMinKan = () => {
+  socket.emit("dai_min_kan");
+};
+
+const skipDaiMinKan = () => {
+  socket.emit("skip_dai_min_kan");
+};
+
 const ron = () => {
   socket.emit("ron");
 };
@@ -256,6 +264,13 @@ onMounted(() => {
               </div>
             </div>
           </div>
+          <div class="kan" v-if="call.type == 'dai_min_kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="left-content content" v-if="leftPlayer">
@@ -273,6 +288,13 @@ onMounted(() => {
               </div>
             </div>
           </div>
+          <div class="kan" v-if="call.type == 'dai_min_kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="right-content content" v-if="rightPlayer">
@@ -284,6 +306,13 @@ onMounted(() => {
         </div>
         <div class="calls" v-for="call in rightPlayer.value.hand.calls">
           <div class="pon" v-if="call.type == 'pon'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'dai_min_kan'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -329,6 +358,13 @@ onMounted(() => {
                 <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
               <div v-else>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'dai_min_kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
             </div>
@@ -439,6 +475,8 @@ onMounted(() => {
           </button>
           <button @click="pon" v-if="action.pon">ポン</button>
           <button @click="skipPon" v-if="action.pon">スキップ</button>
+          <button @click="daiMinKan" v-if="action.kan">カン</button>
+          <button @click="skipDaiMinKan" v-if="action.kan">スキップ</button>
           <button @click="ron" v-if="action.ron">ロン</button>
           <button @click="skipRon" v-if="action.ron">スキップ</button>
           <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button>
@@ -473,11 +511,6 @@ onMounted(() => {
   background-color: #444444;
   margin: 0;
   font-family: "M PLUS Rounded 1c", sans-serif;
-}
-
-.pon {
-  display: flex;
-  flex-direction: row;
 }
 
 .container {
@@ -754,6 +787,11 @@ button:hover {
 }
 
 .pon {
+  display: flex;
+  flex-direction: row;
+}
+
+.kan {
   display: flex;
   flex-direction: row;
 }

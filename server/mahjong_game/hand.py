@@ -90,7 +90,7 @@ class Hand:
 
         if self.calls:
             for call in self.calls:
-                all_tiles.extend(call.tiles)
+                all_tiles.extend(call.tiles[:3])
 
         if self.tsumo:
             all_tiles.append(self.tsumo)

@@ -12,7 +12,9 @@ class Table:
         self.riichi_stick_count: int = 0
         self.point_stick_count: int = 0
         self.wall: Wall = Wall()
+        self.dora_num: int = 1
         self.dora: List[Tile] = []
+        self.back_dora: List[Tile] = []
         self.round: int = 0
         self.honba: int = 0
         self.seat_winds = {"east": 0, "south": 0, "west": 0, "north": 0}
@@ -24,10 +26,13 @@ class Table:
         self.point_stick_count = 0
         self.wall.initialize()
         self.wall.shuffle()
+        self.dora_num = 1
         self.dora = []
         for _ in range(5):
             self.dora.append(self.wall.draw_tile())
-        for _ in range(9):
+        for _ in range(5):
+            self.back_dora.append(self.wall.draw_tile())
+        for _ in range(4):
             self.wall.dead_tiles.append(self.wall.draw_tile())
         self.round = 1
         self.honba = 0
@@ -39,12 +44,17 @@ class Table:
         self.point_stick_count = 0
         self.wall.initialize()
         self.wall.shuffle()
+        self.dora_num = 1
         self.dora = []
         for _ in range(5):
             self.dora.append(self.wall.draw_tile())
 
     def to_dict(self):
-        dora = [t.__dict__ for t in self.dora]
+        dora = [t.__dict__.copy() for t in self.dora]
+        for i in range(self.dora_num, len(self.dora)):
+            dora[i]["suit"] = "-"
+            dora[i]["name"] = "-"
+
         return {
             "round_wind": self.round_wind,
             "dealer": self.dealer,

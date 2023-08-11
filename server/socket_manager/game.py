@@ -82,8 +82,7 @@ def on_game(socket_io, rooms, players):
                         socket_io.emit("update_game_info",
                                        room.to_dict(), room=room.room_id)
                         socket_io.emit("can_tsumo",
-                                       player.action.__dict__,
-                                       room=room.room_id)
+                                       player.action.__dict__, room=room.room_id)
                         # ツモアガリ or スキップ(discard_tile)
                         room.stop_tsumo.wait()
                         room.stop_tsumo = eventlet.event.Event()
@@ -126,8 +125,8 @@ def on_game(socket_io, rooms, players):
             return
 
         # waiter = 鳴きやロンをできる人
-        pon_waiter, ron_waiter, remove_tile = room.discard_tile(player,
-                                                                int(tile_id))
+        pon_waiter, kan_waiter, ron_waiter, remove_tile = room.discard_tile(player,
+                                                                            int(tile_id))
         socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
 
         if ron_waiter is not None:
@@ -139,14 +138,14 @@ def on_game(socket_io, rooms, players):
             ron_waiter.stop_ron = eventlet.event.Event()
 
         # 鳴きがない場合
-        if pon_waiter is None:
-            print("can_not_pon")
+        if pon_waiter is None and kan_waiter is None:
+            print("can_not_meld")
             socket_io.emit("update_game_info",
                            room.to_dict(), room=room.room_id)
             room.flag.tsumo = True
             room.stop_tsumo.send()
         else:
-            print("can_pon")
+            print("can_meld")
             socket_io.emit("update_action",
                            pon_waiter.action.__dict__,
                            room=pon_waiter.socket_id)
@@ -203,6 +202,69 @@ def on_game(socket_io, rooms, players):
 
         room.tmp_call_from = TileFromPlayer()
         player.action.pon = False
+        socket_io.emit("update_action",
+                       player.action.__dict__,
+                       room=player.socket_id)
+
+        room.flag.tsumo = True
+        room.stop_tsumo.send()
+
+    @socket_io.on("dai_min_kan")
+    def on_dai_min_kan(socket_id: str):
+        player = next(
+            (player for player in players
+             if player.socket_id == socket_id),
+            None)
+        if player is None:
+            return
+        room = next(
+            (room for room in rooms if room.room_id == player.room_id),
+            None)
+        if room is None:
+            return
+
+        from_player = next((p for p in players
+                           if p.id == room.tmp_call_from.player_id))
+        room.dai_min_kan(player)
+        # カンをfalseにしたことを通知
+        socket_io.emit("update_action",
+                       player.action.__dict__,
+                       room=player.socket_id)
+
+        from_player.discarded_tiles.pop(-1)
+        # 手番を鳴いた人に変更する
+        room.update_current_player(player.id)
+        socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
+        time.sleep(0.1)
+
+        room.dead_tsumo(player.id)
+        room.table.dora_num += 1
+        socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
+
+        # 打牌をさせる
+        socket_io.emit("draw_tile",
+                       player.action.__dict__,
+                       room=player.socket_id)
+
+    @socket_io.on("skip_dai_min_kan")
+    def on_skip_dai_min_kan(socket_id: str):
+        print("skip_dai_min_kan")
+        player = next(
+            (player for player in players
+             if player.socket_id == socket_id),
+            None)
+        if player is None:
+            return
+        room = next(
+            (room for room in rooms if room.room_id == player.room_id),
+            None)
+        if room is None:
+            return
+
+        socket_io.emit("update_game_info", room.to_dict(), room=room.room_id)
+
+        room.tmp_call_from = TileFromPlayer()
+        player.action.kan = False
         socket_io.emit("update_action",
                        player.action.__dict__,
                        room=player.socket_id)
