@@ -1,6 +1,6 @@
 import unittest
-from tile import Tile
-from wall import Wall
+from mahjong_game.tile import Tile
+from mahjong_game.wall import Wall
 
 
 class TestWall(unittest.TestCase):
