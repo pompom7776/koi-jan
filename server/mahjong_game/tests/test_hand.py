@@ -1,6 +1,6 @@
 import unittest
-from tile import Tile
-from hand import CallTiles, TileFromPlayer, Hand
+from mahjong_game.tile import Tile
+from mahjong_game.hand import CallTiles, TileFromPlayer, Hand
 
 
 class TestHand(unittest.TestCase):

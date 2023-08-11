@@ -1,7 +1,7 @@
 from typing import List
 
-from tile import Tile
-import utils
+from mahjong_game.tile import Tile
+from mahjong_game import utils
 
 
 class TileFromPlayer:

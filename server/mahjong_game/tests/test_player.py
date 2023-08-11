@@ -1,7 +1,7 @@
 import unittest
-from tile import Tile
-from player import Player
-from hand import Hand
+from mahjong_game.tile import Tile
+from mahjong_game.player import Player
+from mahjong_game.hand import Hand
 
 
 class TestPlayer(unittest.TestCase):

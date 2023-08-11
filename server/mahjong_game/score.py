@@ -8,9 +8,9 @@ from mahjong.meld import Meld
 from mahjong.constants import EAST, SOUTH, WEST, NORTH
 
 # from hand import CallTiles, TileFromPlayer
-from hand import Hand
-from tile import Tile
-import utils
+from mahjong_game.hand import Hand
+from mahjong_game.tile import Tile
+from mahjong_game import utils
 
 
 class Score:
