@@ -3,11 +3,11 @@ from typing import List
 
 import eventlet
 
-from player import Player, Action
-from table import Table
-from hand import CallTiles, TileFromPlayer
-from tile import Tile
-import score
+from mahjong_game.player import Player, Action
+from mahjong_game.table import Table
+from mahjong_game.hand import CallTiles, TileFromPlayer
+from mahjong_game.tile import Tile
+from mahjong_game import score
 
 
 class Flag:

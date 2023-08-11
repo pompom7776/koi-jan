@@ -2,9 +2,9 @@ from typing import List
 
 import eventlet
 
-from hand import Hand
-from tile import Tile
-from score import Score
+from mahjong_game.hand import Hand
+from mahjong_game.tile import Tile
+from mahjong_game.score import Score
 
 
 class Action:

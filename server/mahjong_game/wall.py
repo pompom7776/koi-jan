@@ -1,5 +1,5 @@
 import random
-from tile import Tile
+from mahjong_game.tile import Tile
 
 
 class Wall:
