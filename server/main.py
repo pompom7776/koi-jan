@@ -4,6 +4,7 @@ import socketio
 
 import controller.room
 import controller.waiting_room
+import controller.game
 
 
 if __name__ == "__main__":
@@ -20,5 +21,6 @@ if __name__ == "__main__":
 
     controller.room.set(socket_io, rooms, players)
     controller.waiting_room.set(socket_io, rooms, players)
+    controller.game.set(socket_io, rooms, players)
 
     eventlet.wsgi.server(eventlet.listen(("0.0.0.0", 8888)), app)
