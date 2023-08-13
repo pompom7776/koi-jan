@@ -10,7 +10,7 @@ from model.score import Score
 
 
 def setup(room: Room):
-    usecase.table.initialize(room.table)
+    usecase.table.initialize(room.table, room.players)
     room.votes = 0
     room.skip_players = []
     room.flag = Flag()
@@ -20,6 +20,24 @@ def setup(room: Room):
     for player in room.players:
         player.action = Action()
     set_players(room)
+    deal_tiles(room)
+
+
+def next_round(room: Room):
+    usecase.table.next_round(room.table, room.players)
+    room.votes = 0
+    room.skip_players = []
+    room.flag = Flag()
+    room.waiter = Waiter()
+    room.wait_event = RoomWaitEvent()
+    room.tmp_tiles = TileFromPlayer()
+    for player in room.players:
+        usecase.player.next_round(player)
+    usecase.table.update_seat_winds(room.table)
+    dealer = next((p for p in room.players
+                   if p.id == room.table.seat_winds.east))
+    room.table.dealer = dealer
+    room.current_player = dealer
     deal_tiles(room)
 
 

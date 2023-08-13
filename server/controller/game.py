@@ -22,6 +22,21 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
 
         while room.table.round < 5:
             while True:
+                if (len(room.table.wall.tiles) == 0
+                        or room.flag.agari_num >= 3):
+                    socket_io.emit("update_game_info",
+                                   presenter.room_to_dict(room),
+                                   room=room.room_id)
+                    socket_io.emit("end_round", room=room.room_id)
+
+                    room.wait_event.vote.wait()
+                    room.wait_event.vote = eventlet.event.Event()
+
+                    usecase.game.next_round(room)
+                    socket_io.emit("update_game_info",
+                                   room.to_dict(), room=room.room_id)
+                    break
+
                 if room.current_player in room.skip_players:
                     usecase.game.update_next_current_player(
                         room,
@@ -226,3 +241,53 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
 
         room.flag.tsumo = True
         room.wait_event.tsumo.send()
+
+    @socket_io.on("close_score_result")
+    def on_close_score_result(socket_id: str):
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        socket_io.emit("vote_start", room=player.room_id)
+
+    @socket_io.on("select_tile")
+    def on_select_tile(socket_id: str, tile_id_str: str):
+        tile_id = int(tile_id_str)
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        room = usecase.utils.find_room_by_id(rooms, player.room_id)
+
+        tiles = usecase.hand.get_all_tiles(player.hand)
+        tile = next((t for t in tiles if t.id == tile_id))
+        selected_tile = next((t for t in player.selected_tiles
+                              if t.id == tile_id), None)
+        if selected_tile is None:
+            player.selected_tiles.append(tile)
+            socket_io.emit("selected", room=socket_id)
+            socket_io.emit("update_game_info",
+                           presenter.room_to_dict(room),
+                           room=room.room_id)
+
+    @socket_io.on("cancel_tile")
+    def on_cancel_tile(socket_id: str, tile_id_str: str):
+        tile_id = int(tile_id_str)
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        room = usecase.utils.find_room_by_id(rooms, player.room_id)
+
+        player.selected_tiles = [t for t in player.selected_tiles
+                                 if t.id != tile_id]
+        socket_io.emit("update_game_info",
+                       presenter.room_to_dict(room),
+                       room=room.room_id)
+
+    @socket_io.on("vote")
+    def on_vote(socket_id: str, player_id_str: str):
+        player_id = int(player_id_str)
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        room = usecase.utils.find_room_by_id(rooms, player.room_id)
+
+        target_player = usecase.utils.find_player_by_id(players, player_id)
+        target_player.voted += 1
+        room.votes += 1
+
+        if room.votes == 4:
+            for p in room.players:
+                p.score = p.round_score * (p.voted + 1)
+            room.votes = 0
+            room.wait_event.vote.send()

@@ -19,6 +19,22 @@ def initialize(player: Player):
     player.wait_event = PlayerWaitEvent()
 
 
+def next_round(player: Player):
+    player.is_riichi = False
+    player.round_score = 1000
+    player.score_info = Score()
+    player.hand = Hand()
+    seat_order = ["east", "south", "west", "north"]
+    current_seat_index = seat_order.index(player.seat_wind)
+    next_seat_index = (current_seat_index + 1) % len(seat_order)
+    player.seat_wind = seat_order[next_seat_index]
+    player.discarded_tiles = []
+    player.selected_tiles = []
+    player.voted = 0
+    player.action = Action()
+    player.wait_event = PlayerWaitEvent()
+
+
 def can_pon(player: Player, tile: Tile) -> bool:
     suit_tiles = [t for t in player.hand.tiles
                   if t.suit == tile.suit and t.rank == tile.rank]

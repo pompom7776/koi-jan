@@ -16,6 +16,21 @@ def initialize(table: Table, players: List[Player]):
     table.seat_winds = SeatWindPlayers()
 
 
+def next_round(table: Table, players: List[Player]):
+    table.dealer = update_next_current_player(table, table.dealer)
+    usecase.wall.initialize(table.wall)
+    usecase.wall.shuffle(table.wall)
+    usecase.wall.set_dead_tiles(table.wall)
+    table.round += 1
+
+
+def update_seat_winds(table: Table):
+    table.seat_winds(table.seat_winds.north,
+                     table.seat_winds.east,
+                     table.seat_winds.south,
+                     table.seat_winds.west)
+
+
 def update_next_current_player(table: Table, current_player_id: int):
     current_seat = None
     for seat, p_id in table.seat_winds.__dict__.items():
