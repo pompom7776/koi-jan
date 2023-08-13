@@ -32,7 +32,6 @@ class Room:
         self.players = []
         self.skip_players: List[Player] = []
         self.table: Table = Table()
-        self.turn: id = 0
         self.current_player: id = 0
         self.votes: int = 0
         self.flag: Flag = Flag()

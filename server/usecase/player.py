@@ -53,3 +53,14 @@ def can_ron(player: Player, tile: Tile, round_wind: str):
         return True
 
     return False
+
+
+def can_riichi(player: Player):
+    all_tiles = usecase.hand.get_all_tiles(player.hand)
+    for tile in all_tiles:
+        tmp_tiles = list(filter(lambda t: t.id != tile.id, all_tiles))
+        shanten = usecase.score.shanten(tmp_tiles)
+        if shanten <= 0:
+            tile.can_riichi = True
+        else:
+            tile.can_riichi = False

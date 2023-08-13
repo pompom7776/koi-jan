@@ -10,14 +10,14 @@ def sort_tiles_by_id(tiles: List[Tile]):
 
 
 def find_room_by_id(rooms: List[Room], room_id: int):
-    return next((room for room in rooms if room.room_id == room_id), None)
+    return next((room for room in rooms if room.room_id == room_id))
 
 
 def find_player_by_id(players: List[Player], player_id: int):
     return next((player for player in players
-                 if player.id == player_id), None)
+                 if player.id == player_id))
 
 
 def find_player_by_socket_id(players: List[Player], socket_id: str):
     return next((player for player in players
-                 if player.socket_id == socket_id), None)
+                 if player.socket_id == socket_id))
