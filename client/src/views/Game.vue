@@ -17,7 +17,6 @@ const players = ref({});
 const table = ref({});
 const currentPlayerId = ref(0);
 const currentPlayerName = ref(0);
-const turn = ref(0);
 const dealer = ref("");
 const doraTiles = ref([]);
 
@@ -172,7 +171,7 @@ onMounted(() => {
   roomId.value = route.params.roomId;
 
   if (host.value == "true") {
-    socket.emit("setting_game", roomId.value);
+    socket.emit("run_game", roomId.value);
   }
   socket.on("update_game_info", async (gameInfo) => {
     console.log(gameInfo);
@@ -183,7 +182,6 @@ onMounted(() => {
     currentPlayerName.value = players.value.find(
       (player) => player.id == currentPlayerId.value
     ).name;
-    turn.value = gameInfo["turn"];
 
     dealer.value = players.value.find(
       (player) => player.id == table.value.dealer
@@ -410,8 +408,6 @@ onMounted(() => {
             <div>現在の番 : {{ currentPlayerName }}</div>
             <div>親 : {{ dealer }}</div>
             <div>局 : {{ table.round }}</div>
-            <div>本場 : {{ table.honba }}</div>
-            <div>巡目 : {{ turn }}</div>
           </div>
         </div>
         <div class="top-discarded discarded" v-if="topPlayer">

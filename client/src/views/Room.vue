@@ -37,8 +37,8 @@ onMounted(() => {
     console.log(player);
   });
 
-  socket.on("update_room", (room) => {
-    roomId.value = room.room_id;
+  socket.on("update_room", (room_id) => {
+    roomId.value = room_id;
     sessionStorage.setItem("socketId", socketId.value);
     message.value = "";
 
@@ -55,7 +55,7 @@ onMounted(() => {
     rel="stylesheet"
   />
   <div id="app">
-    <img src="@/assets/koi-jan.png" alt="logo">
+    <img src="@/assets/koi-jan.png" alt="logo" />
     <div class="center">
       <div class="input-group">
         <input
@@ -152,7 +152,7 @@ input::placeholder {
   color: rgb(107, 76, 83, 0.5);
 }
 
-img{
+img {
   width: 30vw;
   margin-bottom: 2vw;
 }

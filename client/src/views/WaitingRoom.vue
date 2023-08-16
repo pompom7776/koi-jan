@@ -22,7 +22,7 @@ socket.on("players_info", (members) => {
 });
 
 const startGame = () => {
-  socket.emit("startGame", roomId.value);
+  socket.emit("start_game", roomId.value);
   message.value = "";
 };
 
@@ -30,19 +30,19 @@ const startGame = () => {
 const readyGame = () => {
   sessionStorage.setItem("ready", true);
   ready.value = true;
-  socket.emit("readyGame");
+  socket.emit("ready_game");
   message.value = "";
 };
 
 const cancelGame = () => {
   sessionStorage.setItem("ready", false);
   ready.value = false;
-  socket.emit("cancelGame");
+  socket.emit("cancel_game");
   message.value = "";
 };
 
-const getoutGame = () => {
-  socket.emit("getoutGame");
+const leaveGame = () => {
+  socket.emit("leave_game");
   sessionStorage.removeItem("socketId");
   router.push(`/`);
   message.value = "";
@@ -93,7 +93,7 @@ onMounted(() => {
     router.push(`/room/${roomId.value}/game`);
   });
 
-  socket.on("getout", (player) => {
+  socket.on("left", (player) => {
     const index = players.value.indexOf(player);
     players.value.splice(index, 1);
     delete readyPlayers.value[player];
@@ -140,7 +140,7 @@ onMounted(() => {
         <div v-if="ready">
           <button @click="cancelGame">一旦離席</button>
         </div>
-        <button @click="getoutGame">退出</button>
+        <button @click="leaveGame">退出</button>
       </div>
       <div v-if="host == 'true'">
         <button @click="startGame" :disabled="!isButtonEnabled">

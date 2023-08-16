@@ -2,9 +2,9 @@ import eventlet
 import eventlet.wsgi
 import socketio
 
-from socket_manager.room import on_room
-from socket_manager.waiting_room import on_waiting_room
-from socket_manager.game import on_game
+import controller.room
+import controller.waiting_room
+import controller.game
 
 
 if __name__ == "__main__":
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     rooms = []
     players = []
 
-    on_room(socket_io, rooms, players)
-    on_waiting_room(socket_io, rooms, players)
-    on_game(socket_io, rooms, players)
+    controller.room.set(socket_io, rooms, players)
+    controller.waiting_room.set(socket_io, rooms, players)
+    controller.game.set(socket_io, rooms, players)
 
     eventlet.wsgi.server(eventlet.listen(("0.0.0.0", 8888)), app)
