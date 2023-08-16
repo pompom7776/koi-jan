@@ -8,5 +8,5 @@ class Score:
         else:
             self.han = result.han
             self.fu = result.fu
-            self.cost = result.cost['main'] + result.cost['addtional'] * 2
+            self.cost = result.cost['main'] + result.cost['additional'] * 2
             self.yaku = [yaku.name for yaku in result.yaku]

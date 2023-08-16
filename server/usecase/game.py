@@ -36,20 +36,21 @@ def next_round(room: Room):
     usecase.table.update_seat_winds(room.table)
     dealer = next((p for p in room.players
                    if p.id == room.table.seat_winds.east))
-    room.table.dealer = dealer
-    room.current_player = dealer
+    room.table.dealer = dealer.id
+    room.current_player = dealer.id
     deal_tiles(room)
 
 
 def set_players(room: Room):
     shuffle_players = random.sample(room.players, len(room.players))
-    winds = list(room.table.seat_winds.keys())
+    winds = list(room.table.seat_winds.__dict__.keys())
+    print(shuffle_players, winds)
     for i, player in enumerate(shuffle_players):
         usecase.player.initialize(player)
         if i == 0:
             room.table.dealer = player.id
             room.current_player = player.id
-        player.seat_winds = winds[i]
+        player.seat_wind = winds[i]
         room.table.seat_winds.__dict__[winds[i]] = player.id
 
 
@@ -125,10 +126,10 @@ def discard_tile(room: Room, player: Player, tile_id: int):
         if p.id != player.id:
             if usecase.player.can_pon(p, remove_tile):
                 p.action.pon = True
-                room.waiter.pon.append(p)
+                room.waiter.pon = p
             if usecase.player.can_kan(p, remove_tile):
                 p.action.kan = True
-                room.waiter.kan.append(p)
+                room.waiter.kan = p
             if usecase.player.can_ron(p, remove_tile, room.table.round_wind):
                 p.action.ron = True
                 room.waiter.ron.append(p)

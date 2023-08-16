@@ -27,6 +27,9 @@ def shuffle(wall: Wall):
 
 def set_dead_tiles(wall: Wall):
     wall.dora_num = 1
+    wall.dora = []
+    wall.ura_dora = []
+    wall.dead_tiles = []
     for _ in range(5):
         wall.dora.append(draw_tile(wall))
     for _ in range(5):

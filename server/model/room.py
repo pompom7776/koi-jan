@@ -15,8 +15,8 @@ class Flag:
 
 class Waiter:
     def __init__(self):
-        self.pon: List[Player] = []
-        self.kan: List[Player] = []
+        self.pon: Player = None
+        self.kan: Player = None
         self.ron: List[Player] = []
 
 

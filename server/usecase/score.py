@@ -37,12 +37,12 @@ def agari(hand: Hand,
         melds = []
         pons = [
             Meld(Meld.PON, convert_136_tiles(call.tiles))
-            for call in hand.calls if call.type == "pon"
+            for call in hand.calls if call.tile_type == "pon"
         ]
         melds.extend(pons)
         kans = [
             Meld(Meld.KAN, convert_136_tiles(call.tiles))
-            for call in hand.calls if call.type == "dai_min_kan"
+            for call in hand.calls if call.tile_type == "dai_min_kan"
         ]
         melds.extend(kans)
     else:

@@ -21,9 +21,11 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                        room=room.room_id)
 
         while room.table.round < 5:
+            print(f"log : start {room.table.round} round")
             while True:
-                if (len(room.table.wall.tiles) == 0
+                if (len(room.table.wall.tiles) == 68
                         or room.flag.agari_num >= 3):
+                    print(f"log : end {room.table.round} round")
                     socket_io.emit("update_game_info",
                                    presenter.room_to_dict(room),
                                    room=room.room_id)
@@ -34,15 +36,22 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
 
                     usecase.game.next_round(room)
                     socket_io.emit("update_game_info",
-                                   room.to_dict(), room=room.room_id)
+                                   presenter.room_to_dict(room),
+                                   room=room.room_id)
                     break
 
                 if room.current_player in room.skip_players:
+                    print("log : skip " +
+                          str({next((p.name for p in room.players
+                                     if p.id == room.current_player))}))
                     usecase.game.update_next_current_player(
                         room,
                         room.current_player
                     )
                 elif room.flag.tsumo:
+                    print("log : tsumo " +
+                          str({next((p.name for p in room.players
+                                     if p.id == room.current_player))}))
                     usecase.game.tsumo(room)
                     socket_io.emit("update_game_info",
                                    presenter.room_to_dict(room),
@@ -66,6 +75,11 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                             room.wait_event.tsumo.wait()
                             room.wait_event.tsumo = eventlet.event.Event()
                         else:
+                            print("log : discard(riichi) " +
+                                  str({
+                                      next((p.name for p in room.players
+                                            if p.id == room.current_player))
+                                  }))
                             usecase.game.discard_tile(room,
                                                       player,
                                                       player.hand.tsumo.id)
@@ -82,51 +96,62 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                         room.wait_event.tsumo.wait()
                         room.wait_event.tsumo = eventlet.event.Event()
 
+                    print("log : update before " +
+                          str({next((p.name for p in room.players
+                                     if p.id == room.current_player))}))
                     usecase.game.update_next_current_player(
                         room,
                         room.current_player
                     )
+                    print("log : update after " +
+                          str({next((p.name for p in room.players
+                                     if p.id == room.current_player))}))
 
-    @socket_io.on("discard_tile")
+    @ socket_io.on("discard_tile")
     def on_discard_tile(socket_id: str, tile_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = next(
             (room for room in rooms if room.room_id == player.room_id),
             None)
 
-        usecase.game.discard_tile(room, players, int(tile_id))
+        print(f"log : discard {player.name}, tile->{tile_id}")
+        usecase.game.discard_tile(room, player, int(tile_id))
         socket_io.emit("update_game_info",
                        presenter.room_to_dict(room),
                        room=room.room_id)
 
-        if room.waiter.ron is not []:
+        if room.waiter.ron != []:
             for p in room.waiter.ron:
+                print(f"log : can ron {p.name}")
                 socket_io.emit("update_action",
                                p.action.__dict__,
                                room=p.socket_id)
                 p.wait_event.ron.wait()
                 p.wait_event.ron = eventlet.event.Event()
 
-        if room.waiter.pon is [] and room.waiter.kan is []:
+        if room.waiter.pon is None and room.waiter.kan is None:
             room.flag.tsumo = True
             room.wait_event.tsumo.send()
         else:
-            for p in room.waiter.pon:
+            if room.waiter.pon and room.waiter.pon.id not in room.skip_players:
+                print(f"log : can pon {room.waiter.pon.name}")
                 socket_io.emit("update_action",
-                               p.action.__dict__,
-                               room=p.socket_id)
-            for p in room.waiter.kan:
+                               room.waiter.pon.action.__dict__,
+                               room=room.waiter.pon.socket_id)
+            if room.waiter.kan and room.waiter.kan.id not in room.skip_players:
+                print(f"log : can kan {room.waiter.kan.name}")
                 socket_io.emit("update_action",
-                               p.action.__dict__,
-                               room=p.socket_id)
+                               room.waiter.kan.action.__dict__,
+                               room=room.waiter.kan.socket_id)
 
-    @socket_io.on("pon")
+    @ socket_io.on("pon")
     def on_pon(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
         from_player = usecase.utils.find_player_by_id(room.players,
                                                       room.tmp_tiles.player_id)
 
+        print(f"log : pon {player.name}")
         usecase.game.pon(room, player)
         from_player.discarded_tiles.pop(-1)
         usecase.game.update_next_current_player(room, player.id)
@@ -141,7 +166,7 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                        player.action.__dict__,
                        room=player.socket_id)
 
-    @socket_io.on("skip_pon")
+    @ socket_io.on("skip_pon")
     def on_skip_pon(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
@@ -150,20 +175,23 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         socket_io.emit("update_action",
                        player.action.__dict__,
                        room=player.socket_id)
+        print(f"log : skip pon {player.name}")
         room.flag.tsumo = True
         room.wait_event.tsumo.send()
 
-    @socket_io.on("dai_min_kan")
+    @ socket_io.on("dai_min_kan")
     def on_dai_min_kan(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
         from_player = usecase.utils.find_player_by_id(room.players,
                                                       room.tmp_tiles.player_id)
 
+        print(f"log : kan {player.name}")
         usecase.game.dai_min_kan(room, player)
         from_player.discarded_tiles.pop(-1)
         usecase.game.update_next_current_player(room, player.id)
 
+        print(f"log : tsumo(dead) {player.name}")
         usecase.game.dead_tsumo(room)
         room.table.wall.dora_num += 1
 
@@ -177,7 +205,7 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                        player.action.__dict__,
                        room=player.socket_id)
 
-    @socket_io.on("skip_dai_min_kan")
+    @ socket_io.on("skip_dai_min_kan")
     def on_skip_dai_min_kan(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
@@ -186,14 +214,16 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         socket_io.emit("update_action",
                        player.action.__dict__,
                        room=player.socket_id)
+        print(f"log : skip kan {player.name}")
         room.flag.tsumo = True
         room.wait_event.tsumo.send()
 
-    @socket_io.on("ron")
+    @ socket_io.on("ron")
     def on_ron(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
 
+        print(f"log : ron {player.name}")
         player.score_info = usecase.game.ron_agari(room, player)
         socket_io.emit("update_action",
                        player.action.__dict__,
@@ -203,7 +233,7 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                        room=room.room_id)
         player.wait_event.ron.send()
 
-    @socket_io.on("skip_ron")
+    @ socket_io.on("skip_ron")
     def on_skip_ron(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
@@ -212,25 +242,28 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         socket_io.emit("update_action",
                        player.action.__dict__,
                        room=player.socket_id)
+        print(f"log : skip ron {player.name}")
         player.wait_event.ron.send()
 
-    @socket_io.on("riichi")
+    @ socket_io.on("riichi")
     def on_riichi(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
 
         player.is_riichi = not player.is_riichi
+        print(f"log : riichi {player.name}, {player.is_riichi}")
         usecase.player.can_riichi(player)
         socket_io.emit("riichi", player.is_riichi, room=socket_id)
         socket_io.emit("update_game_info",
                        presenter.room_to_dict(room),
                        room=socket_id)
 
-    @socket_io.on("tsumo_agari")
+    @ socket_io.on("tsumo_agari")
     def on_tsumo_agari(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         room = usecase.utils.find_room_by_id(rooms, player.room_id)
 
+        print(f"log : tsumo agari {player.name}")
         player.score_info = usecase.game.tsumo_agari(room, player)
         socket_io.emit("update_action",
                        player.action.__dict__,
@@ -242,12 +275,12 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         room.flag.tsumo = True
         room.wait_event.tsumo.send()
 
-    @socket_io.on("close_score_result")
+    @ socket_io.on("close_score_result")
     def on_close_score_result(socket_id: str):
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
         socket_io.emit("vote_start", room=player.room_id)
 
-    @socket_io.on("select_tile")
+    @ socket_io.on("select_tile")
     def on_select_tile(socket_id: str, tile_id_str: str):
         tile_id = int(tile_id_str)
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
@@ -264,7 +297,7 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                            presenter.room_to_dict(room),
                            room=room.room_id)
 
-    @socket_io.on("cancel_tile")
+    @ socket_io.on("cancel_tile")
     def on_cancel_tile(socket_id: str, tile_id_str: str):
         tile_id = int(tile_id_str)
         player = usecase.utils.find_player_by_socket_id(players, socket_id)
@@ -276,7 +309,7 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                        presenter.room_to_dict(room),
                        room=room.room_id)
 
-    @socket_io.on("vote")
+    @ socket_io.on("vote")
     def on_vote(socket_id: str, player_id_str: str):
         player_id = int(player_id_str)
         player = usecase.utils.find_player_by_socket_id(players, socket_id)

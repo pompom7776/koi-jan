@@ -25,10 +25,10 @@ def next_round(table: Table, players: List[Player]):
 
 
 def update_seat_winds(table: Table):
-    table.seat_winds(table.seat_winds.north,
-                     table.seat_winds.east,
-                     table.seat_winds.south,
-                     table.seat_winds.west)
+    table.seat_winds = SeatWindPlayers(table.seat_winds.north,
+                                       table.seat_winds.east,
+                                       table.seat_winds.south,
+                                       table.seat_winds.west)
 
 
 def update_next_current_player(table: Table, current_player_id: int):
@@ -42,4 +42,4 @@ def update_next_current_player(table: Table, current_player_id: int):
     next_seat_index = (current_seat_index + 1) % len(seat_order)
     next_seat = seat_order[next_seat_index]
 
-    return table.seat_winds[next_seat]
+    return table.seat_winds.__dict__[next_seat]

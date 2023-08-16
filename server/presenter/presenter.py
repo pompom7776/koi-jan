@@ -12,7 +12,6 @@ def room_to_dict(room: Room):
         "players": players,
         "table": table_to_dict(room.table),
         "current_player": room.current_player,
-        "turn": room.turn
     }
 
 
@@ -69,7 +68,7 @@ def hand_to_dict(hand: Hand):
 
 
 def call_to_dict(call: CallTiles):
-    call.tiles = usecase.utils.sort_tiles_by_id()
+    call.tiles = usecase.utils.sort_tiles_by_id(call.tiles)
     tiles = [t.__dict__ for t in call.tiles]
     from_tile = from_tile_to_dict(call.from_tile) if call.from_tile else None
 
