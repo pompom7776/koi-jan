@@ -11,8 +11,17 @@ services:
     stdin_open: true
     ports:
       - "8888:8888"
+    environment:
+      - PGHOST=db
+      - PGDATABASE=koijan
+      - PGUSER=root
+      - PGPASSWORD=p@ssword
+      - PGSSLMODE=disable
+      - PGTZ=Asia/Tokyo
     networks:
       - web
+    depends_on:
+      - db
 
   client:
     build:
@@ -28,5 +37,22 @@ services:
     networks:
       - web
 
+  db:
+    image: postgres:15.3
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=p@ssword
+      - POSTGRES_DB=koijan
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+      - data-volume:/var/log
+      - ./db/init:/docker-entrypoint-initdb.d
+
 networks:
   web:
+
+volumes:
+  data-volume:
