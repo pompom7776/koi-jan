@@ -1,4 +1,3 @@
-
 ```mermaid
 erDiagram
   create_room {
@@ -29,7 +28,7 @@ erDiagram
 
   leave_room {
     int id PK
-    int room_id FK  
+    int room_id FK
     int player_id FK
     timestamp leave_time
   }
@@ -65,9 +64,9 @@ erDiagram
     timestamp start_time
     timestamp end_time
   }
-  game ||--o{ table : ""
+  game ||--o{ round : ""
 
-  table {
+  round {
     int id PK
     int game_id FK
     int round_number
@@ -77,13 +76,13 @@ erDiagram
     timestamp start_time
     timestamp end_time
   }
-  table ||--|{ seat_wind : ""
-  table ||--|| player : ""
-  table ||--|| wall : ""
+  round ||--|{ seat_wind : ""
+  round ||--|| player : ""
+  round ||--|| wall : ""
 
   seat_wind {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     varchar(5) wind
   }
@@ -112,36 +111,36 @@ erDiagram
 
   draw {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     int tile_id FK
     timestamp draw_time
   }
-  draw ||--|| table: ""
+  draw ||--|| round: ""
   draw ||--|| player: ""
   draw ||--|| tile: ""
 
   discard {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     int tile_id FK
     timestamp discard_time
   }
-  discard ||--|| table: ""
+  discard ||--|| round: ""
   discard ||--|| player: ""
   discard ||--|| tile: ""
 
   call {
     int id PK
-    int table_id FK
+    int round_id FK
     varchar(9) type
     int call_player_id FK
     int target_player_id FK
     int targettile_id FK
     timestamp call_time
   }
-  call ||--|| table: ""
+  call ||--|| round: ""
   call ||--|| player: ""
   call ||--|| tile: ""
   call ||--o{ call_tile: ""
@@ -155,13 +154,13 @@ erDiagram
 
   agari {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     int target_player_id FK
     varchar(5) type
     timestamp agari_time
   }
-  agari ||--|| table: ""
+  agari ||--|| round: ""
   agari ||--|| player: ""
   agari ||--|| score: ""
 
@@ -189,31 +188,31 @@ erDiagram
 
   riichi {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     timestamp riichi_time
   }
-  draw ||--|| table: ""
+  draw ||--|| round: ""
   draw ||--|| player: ""
 
-  select {
+  select_tile {
     int id PK
-    int table_id FK
+    int round_id FK
     int player_id FK
     int tile_id FK
     timestamp select_time
   }
-  draw ||--|| table: ""
+  draw ||--|| round: ""
   draw ||--|| player: ""
   draw ||--|| tile: ""
 
   vote {
     int id PK
-    int table_id FK
+    int round_id FK
     int vote_player_id FK
     int target_player_id FK
     timestamp vote_time
   }
-  draw ||--|| table: ""
+  draw ||--|| round: ""
   draw ||--|| player: ""
 ```
