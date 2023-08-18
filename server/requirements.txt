@@ -2,3 +2,4 @@ eventlet
 cryptography
 python-socketio
 mahjong
+psycopg2
