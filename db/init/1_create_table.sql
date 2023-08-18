@@ -35,8 +35,6 @@ CREATE TABLE player (
     id SERIAL PRIMARY KEY,
     name VARCHAR(8),
     socket_id TEXT,
-    room_id INT,
-    FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
 -- テーブル: create_room
@@ -44,7 +42,7 @@ CREATE TABLE create_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     host_id INT,
-    create_time TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (host_id) REFERENCES player(id)
 );
@@ -53,7 +51,7 @@ CREATE TABLE create_room (
 CREATE TABLE close_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
-    close_time TIMESTAMP,
+    close_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
@@ -62,7 +60,7 @@ CREATE TABLE enter_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    enter_time TIMESTAMP,
+    enter_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -72,7 +70,7 @@ CREATE TABLE leave_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    leave_time TIMESTAMP,
+    leave_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -82,7 +80,7 @@ CREATE TABLE ready_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    ready_time TIMESTAMP,
+    ready_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -91,8 +89,8 @@ CREATE TABLE ready_room (
 CREATE TABLE game (
     id SERIAL PRIMARY KEY,
     room_id INT,
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
@@ -128,8 +126,8 @@ CREATE TABLE round (
     round_wind VARCHAR(5),
     dealer_id INT,
     wall_id INT,
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (game_id) REFERENCES game(id),
     FOREIGN KEY (dealer_id) REFERENCES player(id),
     FOREIGN KEY (wall_id) REFERENCES wall(id)
@@ -151,7 +149,7 @@ CREATE TABLE draw (
     round_id INT,
     player_id INT,
     tile_id INT,
-    draw_time TIMESTAMP,
+    draw_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -163,7 +161,7 @@ CREATE TABLE discard (
     round_id INT,
     player_id INT,
     tile_id INT,
-    discard_time TIMESTAMP,
+    discard_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -177,7 +175,7 @@ CREATE TABLE call (
     call_player_id INT,
     target_player_id INT,
     targettile_id INT,
-    call_time TIMESTAMP,
+    call_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (call_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id),
@@ -200,7 +198,7 @@ CREATE TABLE agari (
     player_id INT,
     target_player_id INT,
     type VARCHAR(5),
-    agari_time TIMESTAMP,
+    agari_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id)
@@ -237,7 +235,7 @@ CREATE TABLE riichi (
     id SERIAL PRIMARY KEY,
     round_id INT,
     player_id INT,
-    riichi_time TIMESTAMP,
+    riichi_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -248,7 +246,7 @@ CREATE TABLE select_tile (
     round_id INT,
     player_id INT,
     tile_id INT,
-    select_time TIMESTAMP,
+    select_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -260,7 +258,7 @@ CREATE TABLE vote (
     round_id INT,
     vote_player_id INT,
     target_player_id INT,
-    vote_time TIMESTAMP,
+    vote_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (vote_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id)
