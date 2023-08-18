@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS leave_room;
 DROP TABLE IF EXISTS enter_room;
 DROP TABLE IF EXISTS close_room;
 DROP TABLE IF EXISTS create_room;
+DROP TABLE IF EXISTS player_detail;
 DROP TABLE IF EXISTS player;
 DROP TABLE IF EXISTS room;
 
@@ -33,9 +34,17 @@ CREATE TABLE room (
 -- テーブル: player
 CREATE TABLE player (
     id SERIAL PRIMARY KEY,
+);
+
+-- テーブル: player_detail
+CREATE TABLE player_detail (
+    id SERIAL PRIMARY KEY,
+    player_id INT,
     name VARCHAR(8),
     socket_id TEXT,
+    FOREIGN KEY (player_id) REFERENCES player(id)
 );
+
 
 -- テーブル: create_room
 CREATE TABLE create_room (
