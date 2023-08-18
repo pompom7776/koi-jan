@@ -53,6 +53,12 @@ erDiagram
 
   player {
     int id PK
+  }
+  player ||--|| player_detail : ""
+
+  player_detail {
+    int id PK
+    int player_id FK
     varchar(8) name
     text socket_id
     int room_id FK
