@@ -18,7 +18,7 @@ def get_connection():
     return connection
 
 
-def execute_query(query, params=None):
+def execute_query(query, params=None, returning_columns=None):
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -27,8 +27,19 @@ def execute_query(query, params=None):
     else:
         cursor.execute(query)
 
+    if returning_columns:
+        result = cursor.fetchone() if cursor.rowcount > 0 else None
+        if result:
+            data = [result[column] for column in returning_columns]
+        else:
+            data = None
+    else:
+        data = None
+
     connection.commit()
     connection.close()
+
+    return data
 
 
 def fetch_data(query, params=None):
