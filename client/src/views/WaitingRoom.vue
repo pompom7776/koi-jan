@@ -22,7 +22,7 @@ socket.on("players_info", (player_names) => {
 });
 
 const startGame = () => {
-  socket.emit("start_game", roomId.value);
+  socket.emit("start_game");
   message.value = "";
 };
 
@@ -41,8 +41,8 @@ const cancelGame = () => {
   message.value = "";
 };
 
-const leaveGame = () => {
-  socket.emit("leave_game");
+const leaveRoom = () => {
+  socket.emit("leave_room");
   sessionStorage.removeItem("socketId");
   router.push(`/`);
   message.value = "";
@@ -77,25 +77,25 @@ onMounted(() => {
   });
 
   // serverからreadiedを受け取ってreadyPlayers[p_name]をtrueにする
-  socket.on("readied_room", (player_name) => {
+  socket.on("readied_game", (player_name) => {
     console.log("a", player_name);
     readyPlayers.value[player_name] = true;
   });
 
-  socket.on("unreadied_room", (player_name) => {
+  socket.on("unreadied_game", (player_name) => {
     console.log("a", player_name);
     readyPlayers.value[player_name] = false;
   });
 
   // hostがゲーム開始ボタンを押したら、roomIDの人全員がそのリンクに飛ぶ
-  socket.on("started", () => {
+  socket.on("started_game", () => {
     router.push(`/room/${roomId.value}/game`);
   });
 
-  socket.on("left", (player) => {
-    const index = players.value.indexOf(player);
+  socket.on("left_room", (player_name) => {
+    const index = players.value.indexOf(player_name);
     players.value.splice(index, 1);
-    delete readyPlayers.value[player];
+    delete readyPlayers.value[player_name];
   });
 });
 </script>
@@ -139,7 +139,7 @@ onMounted(() => {
         <div v-if="ready">
           <button @click="cancelGame">一旦離席</button>
         </div>
-        <button @click="leaveGame">退出</button>
+        <button @click="leaveRoom">退出</button>
       </div>
       <div v-if="host == 'true'">
         <button @click="startGame" :disabled="!isButtonEnabled">

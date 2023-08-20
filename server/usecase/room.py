@@ -28,6 +28,10 @@ def enter_room(room_number: int, player_id: int):
     repository.room.enter_room(room.id, player_id)
 
 
+def leave_room(room_id: int, player_id: int):
+    repository.room.leave_room(room_id, player_id)
+
+
 def get_players_in_room(room_number: int) -> List[Player]:
     rooms = repository.room.fetch_open_rooms()
     room = next((room for room in rooms if room.number == room_number))

@@ -30,6 +30,17 @@ def set(socket_io: Server):
                          [p.socket_id for p in players],
                          player_name)
 
+    @socket_io.on("leave_room")
+    def on_leave_room(socket_id: str):
+        player = usecase.room.unready(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        usecase.room.leave_room(room.id, player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        emit.left_room(socket_io,
+                       [p.socket_id for p in players],
+                       player.name)
+
     @socket_io.on("connect_waiting_room")
     def on_connect_waiting_room(new_socket_id: str, old_socket_id: str):
         usecase.room.reconnect(new_socket_id, old_socket_id)
@@ -44,7 +55,7 @@ def set(socket_io: Server):
         room = usecase.room.get_room_by_player_id(player.id)
         players = usecase.room.get_players_in_room(room.number)
 
-        emit.readied_room(socket_io,
+        emit.readied_game(socket_io,
                           [p.socket_id for p in players],
                           player.name)
 
@@ -54,6 +65,14 @@ def set(socket_io: Server):
         room = usecase.room.get_room_by_player_id(player.id)
         players = usecase.room.get_players_in_room(room.number)
 
-        emit.unreadied_room(socket_io,
+        emit.unreadied_game(socket_io,
                             [p.socket_id for p in players],
                             player.name)
+
+    @socket_io.on("start_game")
+    def on_start_game(socket_id: str):
+        player = usecase.room.unready(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        emit.started_game(socket_io, [p.socket_id for p in players])
