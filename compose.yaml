@@ -18,6 +18,7 @@ services:
       - PGPASSWORD=p@ssword
       - PGSSLMODE=disable
       - PGTZ=Asia/Tokyo
+      - PYTHONDONTWRITEBYTECODE=1
     networks:
       - web
     depends_on:
