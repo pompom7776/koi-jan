@@ -11,10 +11,7 @@ def create_room(room_number: int, player_id: int) -> Room:
         "VALUES (%s) RETURNING id"
     )
     result = execute_query(query, (room_number, ), ("id", ))
-    if result:
-        room_id = result[0]
-    else:
-        room_id = None
+    room_id = result["id"]
 
     query = (
         "INSERT INTO create_room (room_id, host_id) "
