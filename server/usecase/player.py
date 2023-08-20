@@ -12,6 +12,13 @@ def register_player(player_name: str, socket_id: str) -> Player:
     player = repository.player.fetch_player(player_id)
 
     return player
+
+
+def get_player_by_socket_id(socket_id: str) -> Player:
+    player = repository.player.fetch_player_by_socket_id(socket_id)
+
+    return player
+
 #
 #
 # def initialize(player: Player):

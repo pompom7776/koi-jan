@@ -65,8 +65,8 @@ onMounted(() => {
   host.value = sessionStorage.getItem("host");
   socketId.value = sessionStorage.getItem("socketId");
   socket.emit("connect_waiting_room", socketId.value);
-  socket.on("reconnected", () => {
-    sessionStorage.setItem("socketId", socketId.value);
+  socket.on("reconnected", (socket_id) => {
+    sessionStorage.setItem("socketId", socket_id);
   });
 
   roomId.value = route.params.roomId;
@@ -102,10 +102,7 @@ onMounted(() => {
 <template>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div id="app">
     <div class="center">
       <div class="alert-message">
@@ -118,18 +115,8 @@ onMounted(() => {
       <ul>
         <p v-for="(player, index) in players" :key="index">
           Player{{ index + 1 }} : {{ player }}
-          <img
-            v-if="!readyPlayers[player]"
-            src="@/assets/pose_ng_woman.png"
-            alt="Pose NG Woman"
-            class="np_woman"
-          />
-          <img
-            v-if="readyPlayers[player]"
-            src="@/assets/pose_heart_man.png"
-            alt="Pose heart Man"
-            class="heart_man"
-          />
+          <img v-if="!readyPlayers[player]" src="@/assets/pose_ng_woman.png" alt="Pose NG Woman" class="np_woman" />
+          <img v-if="readyPlayers[player]" src="@/assets/pose_heart_man.png" alt="Pose heart Man" class="heart_man" />
         </p>
       </ul>
       <div class="button-group">
@@ -228,7 +215,7 @@ button:hover {
   border: 3px solid rgb(107, 76, 83, 0.8);
 }
 
-button:checked + label {
+button:checked+label {
   background-color: red;
 }
 

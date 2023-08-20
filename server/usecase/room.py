@@ -41,8 +41,8 @@ def get_players_in_room(room_number: int) -> List[Player]:
 
 
 def reconnect(new_socket_id: str,
-              old_socket_id: str) -> Player:
-    repository.player.update_player_socket_id(old_socket_id, new_socket_id)
+              old_socket_id: str):
+    repository.player.update_player_socket_id(new_socket_id, old_socket_id)
 
 
 def get_room_by_player_id(player_id: int) -> Room:

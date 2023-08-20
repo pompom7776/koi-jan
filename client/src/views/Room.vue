@@ -25,8 +25,9 @@ const enterRoom = () => {
 onMounted(() => {
   sessionStorage.setItem("host", false);
 
-  socket.on("connect", () => {
+  socket.on("connected", () => {
     socketId.value = socket.id;
+    sessionStorage.setItem("socketId", socketId.value);
   });
 
   socket.on("notify_error", (error) => {
@@ -46,22 +47,12 @@ onMounted(() => {
 <template>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div id="app">
     <img src="@/assets/koi-jan.png" alt="logo" />
     <div class="center">
       <div class="input-group">
-        <input
-          required
-          placeholder="プレイヤー名"
-          v-model="playerName"
-          type="text"
-          maxlength="8"
-          id="playerName"
-        />
+        <input required placeholder="プレイヤー名" v-model="playerName" type="text" maxlength="8" id="playerName" />
       </div>
       <div class="radio-d">
         <label class="radio-button">
@@ -80,14 +71,7 @@ onMounted(() => {
         </label>
       </div>
       <div v-if="joinType == 2" class="join2">
-        <input
-          class="join2-input"
-          required
-          placeholder="ルーム番号"
-          v-model="roomId"
-          maxlength="4"
-          type="text"
-        />
+        <input class="join2-input" required placeholder="ルーム番号" v-model="roomId" maxlength="4" type="text" />
         <label class="radio-button">
           <input @click="enterRoom" type="radio" />
           参加
@@ -208,7 +192,7 @@ img {
 }
 
 /* To show the selected state */
-.radio-button input[type="radio"]:checked + span {
+.radio-button input[type="radio"]:checked+span {
   background-color: #2196f3;
   color: #fff;
 }

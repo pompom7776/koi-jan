@@ -161,82 +161,18 @@ onMounted(() => {
   playerId.value = sessionStorage.getItem("playerId");
   socketId.value = sessionStorage.getItem("socketId");
   host.value = sessionStorage.getItem("host");
-  socket.emit("reconnect", socketId.value);
-  socket.on("reconnected", (idInfo) => {
-    sessionStorage.setItem("socketId", idInfo["sid"]);
-    sessionStorage.setItem("playerId", idInfo["pid"]);
-    socketId.value = sessionStorage.getItem("socketId");
+  socket.emit("connect_game", socketId.value);
+  socket.on("reconnected", (socket_id) => {
+    sessionStorage.setItem("socketId", socket_id);
   });
 
   roomId.value = route.params.roomId;
 
   if (host.value == "true") {
-    socket.emit("run_game", roomId.value);
+    socket.emit("run_game");
   }
-  socket.on("update_game_info", async (gameInfo) => {
-    console.log(gameInfo);
-    roomId.value = gameInfo["room_id"];
-    players.value = gameInfo["players"];
-    table.value = gameInfo["table"];
-    currentPlayerId.value = gameInfo["current_player"];
-    currentPlayerName.value = players.value.find(
-      (player) => player.id == currentPlayerId.value
-    ).name;
-
-    dealer.value = players.value.find(
-      (player) => player.id == table.value.dealer
-    ).name;
-    doraTiles.value = table.value.dora;
-
-    const mySeat = getSeatByPlayerId(playerId.value);
-    const relativeSeats = assignRelativeSeats(mySeat);
-    topPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["top"])
-    );
-    leftPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["left"])
-    );
-    rightPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["right"])
-    );
-    bottomPlayer.value = computed(() =>
-      players.value.find((player) => player.id == playerId.value)
-    );
-
-    displayFlag.value = false;
-    await nextTick(() => {
-      displayFlag.value = true;
-    });
-  });
-
-  socket.on("draw_tile", (playerAction) => {
-    action.value = playerAction;
-    discardFlag.value = true;
-  });
-
-  socket.on("update_action", (playerAction) => {
-    action.value = playerAction;
-  });
-
-  socket.on("riichi", (isRiichi) => {
-    console.log(isRiichi);
-    riichiFlag.value = isRiichi;
-  });
-
-  socket.on("end_round", () => {
-    showModal.value = true;
-    endFlag.value = true;
-  });
-
-  socket.on("vote_start", () => {
-    riichiFlag.value = false;
-    discardFlag.value = false;
-    voteFlag.value = true;
-    selectFlag.value = 0;
-  });
-
-  socket.on("selected", () => {
-    selectFlag.value += 1;
+  socket.on("update_game", (game_info) => {
+    console.log(game_info);
   });
 });
 </script>

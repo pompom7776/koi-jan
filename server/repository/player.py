@@ -51,7 +51,7 @@ def fetch_player_by_socket_id(socket_id: str) -> Player:
         return None
 
 
-def update_player_socket_id(old_socket_id: str, new_socket_id: str):
+def update_player_socket_id(new_socket_id: str, old_socket_id: str):
     query = (
         "UPDATE player_detail "
         "SET socket_id = %s "

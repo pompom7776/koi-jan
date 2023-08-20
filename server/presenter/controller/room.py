@@ -6,6 +6,10 @@ import presenter.response.room as emit
 
 
 def set(socket_io: Server):
+    @socket_io.on("connect")
+    def on_connect(socket_id, environ):
+        emit.connected(socket_io, [socket_id])
+
     @socket_io.on("create_room")
     def on_create_room(socket_id: str, player_name: str):
         # if player_name == "":
@@ -46,7 +50,7 @@ def set(socket_io: Server):
         usecase.room.reconnect(new_socket_id, old_socket_id)
         player_names = usecase.room.get_players(new_socket_id)
 
-        emit.reconnected(socket_io, [new_socket_id])
+        emit.reconnected(socket_io, [new_socket_id], new_socket_id)
         emit.players_info(socket_io, [new_socket_id], player_names)
 
     @socket_io.on("ready_game")
