@@ -14,8 +14,8 @@ const ready = ref(false);
 
 const socket = io("http://localhost:8888");
 
-socket.on("players_info", (members) => {
-  players.value = members;
+socket.on("players_info", (player_names) => {
+  players.value = player_names;
   players.value.forEach((playerName) => {
     addKeyIfNotExists(readyPlayers.value, playerName, false);
   });
@@ -64,15 +64,12 @@ onMounted(() => {
   sessionStorage.setItem("ready", false);
   host.value = sessionStorage.getItem("host");
   socketId.value = sessionStorage.getItem("socketId");
-  socket.emit("reconnect", socketId.value);
-  socket.on("reconnected", (idInfo) => {
-    console.log(idInfo);
-    sessionStorage.setItem("socketId", idInfo["sid"]);
-    sessionStorage.setItem("playerId", idInfo["pid"]);
+  socket.emit("connect_waiting_room", socketId.value);
+  socket.on("reconnected", () => {
+    sessionStorage.setItem("socketId", socketId.value);
   });
 
   roomId.value = route.params.roomId;
-  socket.emit("get_players", roomId.value);
 
   socket.on("player_joined", (player) => {
     players.value.push(player);

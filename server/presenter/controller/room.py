@@ -23,5 +23,17 @@ def set(socket_io: Server):
         room_number = int(room_number_str)
         player = usecase.player.register_player(player_name, socket_id)
         usecase.room.enter_room(room_number, player.id)
+        players = usecase.room.get_players_in_room(room_number_str)
 
         emit.entered_room(socket_io, [socket_id], room_number)
+        emit.joined_room(socket_io,
+                         [p.socket_id for p in players],
+                         player_name)
+
+    @socket_io.on("connect_waiting_room")
+    def on_connect_waiting_room(new_socket_id: str, old_socket_id: str):
+        usecase.room.reconnect(new_socket_id, old_socket_id)
+        player_names = usecase.room.get_players(new_socket_id)
+
+        emit.reconnected(socket_io, [new_socket_id])
+        emit.players_info(socket_io, [new_socket_id], player_names)

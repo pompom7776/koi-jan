@@ -34,3 +34,17 @@ def get_players_in_room(room_number: int) -> List[Player]:
     players = repository.room.fetch_players_in_room(room.id)
 
     return players
+
+
+def reconnect(new_socket_id: str,
+              old_socket_id: str) -> Player:
+    repository.player.update_player_socket_id(old_socket_id, new_socket_id)
+
+
+def get_players(socket_id: str):
+    player = repository.player.fetch_player_by_socket_id(socket_id)
+    room = repository.room.fetch_open_room_by_player_id(player.id)
+    players = repository.room.fetch_players_in_room(room.id)
+    player_names = [p.name for p in players]
+
+    return player_names
