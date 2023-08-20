@@ -144,7 +144,10 @@ onMounted(() => {
   align-items: center;
   min-height: 100vh;
   /* background-image: url("@/assets/rose_wallpaper.jpg"); */
-  background: linear-gradient(45deg, rgba(250, 208, 196, 0.5), rgba(255, 209, 255, 0.5), rgba(168, 237, 234, 0.5));
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -153,13 +156,15 @@ onMounted(() => {
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
 
-@keyframes bggradient{
+@keyframes bggradient {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -204,6 +209,7 @@ p {
 button:disabled {
   background-color: rgb(245, 235, 240);
 }
+
 button input[type="radio"] {
   display: none;
 }
