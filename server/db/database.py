@@ -30,7 +30,8 @@ def execute_query(query, params=None, returning_columns=None):
     if returning_columns:
         result = cursor.fetchone() if cursor.rowcount > 0 else None
         if result:
-            data = [result[column] for column in returning_columns]
+            data = {column: result[i]
+                    for i, column in enumerate(returning_columns)}
         else:
             data = None
     else:
