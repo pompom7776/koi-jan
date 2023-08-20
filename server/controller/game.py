@@ -324,3 +324,12 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
                 p.score = p.round_score * (p.voted + 1)
             room.votes = 0
             room.wait_event.vote.send()
+
+    @ socket_io.on("reaction")
+    def on_reaction(socket_id: str, room_id_str: str, reaction_number_str: str):
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        reaction_number: int = int(reaction_number_str)
+        room_id: int = int(room_id_str)
+        socket_io.emit("reacted", 
+                       {"reaction_number": reaction_number, "player_id": player.id}, 
+                       room=room_id)
