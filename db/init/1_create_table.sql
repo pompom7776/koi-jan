@@ -1,30 +1,30 @@
-DROP TABLE IF EXISTS vote;
-DROP TABLE IF EXISTS select_tile;
-DROP TABLE IF EXISTS riichi;
-DROP TABLE IF EXISTS score_yaku;
-DROP TABLE IF EXISTS yaku;
-DROP TABLE IF EXISTS score;
-DROP TABLE IF EXISTS agari;
-DROP TABLE IF EXISTS call_tile;
-DROP TABLE IF EXISTS call;
-DROP TABLE IF EXISTS discard;
-DROP TABLE IF EXISTS draw;
-DROP TABLE IF EXISTS seat_wind;
-DROP TABLE IF EXISTS round;
-DROP TABLE IF EXISTS wall_tile;
-DROP TABLE IF EXISTS tile;
-DROP TABLE IF EXISTS wall;
-DROP TABLE IF EXISTS game;
-DROP TABLE IF EXISTS ready_room;
-DROP TABLE IF EXISTS leave_room;
-DROP TABLE IF EXISTS enter_room;
-DROP TABLE IF EXISTS close_room;
-DROP TABLE IF EXISTS create_room;
-DROP TABLE IF EXISTS player_detail;
-DROP TABLE IF EXISTS player;
-DROP TABLE IF EXISTS room;
-
-
+-- DROP TABLE IF EXISTS vote;
+-- DROP TABLE IF EXISTS select_tile;
+-- DROP TABLE IF EXISTS riichi;
+-- DROP TABLE IF EXISTS score_yaku;
+-- DROP TABLE IF EXISTS yaku;
+-- DROP TABLE IF EXISTS score;
+-- DROP TABLE IF EXISTS agari;
+-- DROP TABLE IF EXISTS call_tile;
+-- DROP TABLE IF EXISTS call;
+-- DROP TABLE IF EXISTS discard;
+-- DROP TABLE IF EXISTS draw;
+-- DROP TABLE IF EXISTS seat_wind;
+-- DROP TABLE IF EXISTS round;
+-- DROP TABLE IF EXISTS wall_tile;
+-- DROP TABLE IF EXISTS tile;
+-- DROP TABLE IF EXISTS wall;
+-- DROP TABLE IF EXISTS game;
+-- DROP TABLE IF EXISTS ready_room;
+-- DROP TABLE IF EXISTS leave_room;
+-- DROP TABLE IF EXISTS enter_room;
+-- DROP TABLE IF EXISTS close_room;
+-- DROP TABLE IF EXISTS create_room;
+-- DROP TABLE IF EXISTS player_detail;
+-- DROP TABLE IF EXISTS player;
+-- DROP TABLE IF EXISTS room;
+--
+--
 -- テーブル: room
 CREATE TABLE room (
     id SERIAL PRIMARY KEY,
@@ -33,7 +33,7 @@ CREATE TABLE room (
 
 -- テーブル: player
 CREATE TABLE player (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY
 );
 
 -- テーブル: player_detail
