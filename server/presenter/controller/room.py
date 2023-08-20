@@ -1,6 +1,7 @@
 from socketio import Server
 
 import usecase.room
+import usecase.player
 import presenter.response.room as emit
 
 
@@ -15,7 +16,7 @@ def set(socket_io: Server):
         room = usecase.room.create_room(player.id)
         usecase.room.enter_room(room.number, player.id)
 
-        emit.enterd_room(socket_io, [socket_id], room.number)
+        emit.entered_room(socket_io, [socket_id], room.number)
 
     @socket_io.on("enter_room")
     def on_enter_room(socket_id: str, player_name: str, room_number_str: str):

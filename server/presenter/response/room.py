@@ -10,4 +10,4 @@ def notify_error(socket_io: Server, to: List[str], message: str):
 
 def entered_room(socket_io: Server, to: List[str], room_number: int):
     for socket_id in to:
-        socket_io.emit("enterded_room", room_number, room=socket_id)
+        socket_io.emit("entered_room", room_number, room=socket_id)
