@@ -1,6 +1,7 @@
 from typing import List
 
 import usecase.waiting_room
+import usecase.utils
 from model.room import Room
 from model.player import Player
 
@@ -20,6 +21,10 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         socket_io.emit("reconnected",
                        {"sid": socket_id, "pid": player.id},
                        room=socket_id)
+        room = usecase.utils.find_room_by_id(rooms, player.room_id)
+        socket_io.emit("receiveMessage", 
+                       [chat.__dict__ for chat in room.chats], 
+                       room=player.room_id)
 
     @socket_io.on("get_players")
     def on_get_players(socket_id: str, room_id_str: str):

@@ -5,6 +5,7 @@ import eventlet
 from model.table import Table
 from model.player import Player
 from model.hand import TileFromPlayer
+from model.chat import Chat
 
 
 class Flag:
@@ -30,9 +31,10 @@ class Room:
     def __init__(self, room_id: int):
         self.room_id = room_id
         self.players = []
+        self.chats: List[Chat] = []
         self.skip_players: List[Player] = []
         self.table: Table = Table()
-        self.current_player: id = 0
+        self.current_player: int = 0
         self.votes: int = 0
         self.flag: Flag = Flag()
         self.waiter: Waiter = Waiter()

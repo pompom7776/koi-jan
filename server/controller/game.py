@@ -8,6 +8,7 @@ import presenter.presenter as presenter
 from model.room import Room
 from model.player import Player, Action
 from model.hand import TileFromPlayer
+from model.chat import Chat
 
 
 def set(socket_io, rooms: List[Room], players: List[Player]):
@@ -333,3 +334,12 @@ def set(socket_io, rooms: List[Room], players: List[Player]):
         socket_io.emit("reacted", 
                        {"reaction_number": reaction_number, "player_id": player.id}, 
                        room=room_id)
+        
+    @ socket_io.on("sendMessage")
+    def on_chat(socket_id: str, message: str):
+        player = usecase.utils.find_player_by_socket_id(players, socket_id)
+        room = usecase.utils.find_room_by_id(rooms, player.room_id)
+        room.chats.append(Chat(player.id, message))
+        socket_io.emit("receiveMessage", 
+                       [chat.__dict__ for chat in room.chats], 
+                       room=player.room_id)
