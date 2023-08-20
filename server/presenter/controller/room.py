@@ -23,7 +23,7 @@ def set(socket_io: Server):
         room_number = int(room_number_str)
         player = usecase.player.register_player(player_name, socket_id)
         usecase.room.enter_room(room_number, player.id)
-        players = usecase.room.get_players_in_room(room_number_str)
+        players = usecase.room.get_players_in_room(room_number)
 
         emit.entered_room(socket_io, [socket_id], room_number)
         emit.joined_room(socket_io,
@@ -37,3 +37,23 @@ def set(socket_io: Server):
 
         emit.reconnected(socket_io, [new_socket_id])
         emit.players_info(socket_io, [new_socket_id], player_names)
+
+    @socket_io.on("ready_game")
+    def on_ready_game(socket_id: str):
+        player = usecase.room.ready(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        emit.readied_room(socket_io,
+                          [p.socket_id for p in players],
+                          player.name)
+
+    @socket_io.on("unready_game")
+    def on_unready_game(socket_id: str):
+        player = usecase.room.unready(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        emit.unreadied_room(socket_io,
+                            [p.socket_id for p in players],
+                            player.name)

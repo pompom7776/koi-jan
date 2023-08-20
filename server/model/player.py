@@ -4,5 +4,5 @@ from dataclasses import dataclass
 @dataclass
 class Player:
     id: int
-    socket_id: str
     name: str
+    socket_id: str

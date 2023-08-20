@@ -26,3 +26,13 @@ def reconnected(socket_io: Server, to: List[str]):
 def players_info(socket_io: Server, to: List[str], player_names: List[str]):
     for socket_id in to:
         socket_io.emit("players_info", player_names, room=socket_id)
+
+
+def readied_room(socket_io: Server, to: List[str], player_name: str):
+    for socket_id in to:
+        socket_io.emit("readied_room", player_name, room=socket_id)
+
+
+def unreadied_room(socket_io: Server, to: List[str], player_name: str):
+    for socket_id in to:
+        socket_io.emit("unreadied_room", player_name, room=socket_id)

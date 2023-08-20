@@ -5,9 +5,10 @@ from model.player import Player
 def create_player(name: str, socket_id: str) -> int:
     query = (
         "INSERT INTO player "
-        "VALUES () RETURNING id"
+        "DEFAULT VALUES RETURNING id"
     )
-    player_id = execute_query(query, (), ("id", ))
+    result = execute_query(query, None, ("id", ))
+    player_id = result["id"]
 
     query = (
         "INSERT INTO player_detail (player_id, name, socket_id) "
@@ -50,7 +51,7 @@ def fetch_player_by_socket_id(socket_id: str) -> Player:
         return None
 
 
-def update_player_socket_id(old_socket_id: str, new_socket_id: str) -> Player:
+def update_player_socket_id(old_socket_id: str, new_socket_id: str):
     query = (
         "UPDATE player_detail "
         "SET socket_id = %s "

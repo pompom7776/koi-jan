@@ -138,7 +138,7 @@ def fetch_players_in_room(room_id: int) -> List[Player]:
     players = []
     for row in result:
         player_id, name, socket_id = row
-        player = Player(player_id, socket_id, name)
+        player = Player(player_id, name, socket_id)
         players.append(player)
 
     return players

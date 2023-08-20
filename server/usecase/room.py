@@ -41,6 +41,12 @@ def reconnect(new_socket_id: str,
     repository.player.update_player_socket_id(old_socket_id, new_socket_id)
 
 
+def get_room_by_player_id(player_id: int) -> Room:
+    room = repository.room.fetch_open_room_by_player_id(player_id)
+
+    return room
+
+
 def get_players(socket_id: str):
     player = repository.player.fetch_player_by_socket_id(socket_id)
     room = repository.room.fetch_open_room_by_player_id(player.id)
@@ -48,3 +54,19 @@ def get_players(socket_id: str):
     player_names = [p.name for p in players]
 
     return player_names
+
+
+def ready(socket_id: str) -> Player:
+    player = repository.player.fetch_player_by_socket_id(socket_id)
+    room = repository.room.fetch_open_room_by_player_id(player.id)
+    repository.room.ready_room(room.id, player.id)
+
+    return player
+
+
+def unready(socket_id: str) -> Player:
+    player = repository.player.fetch_player_by_socket_id(socket_id)
+    room = repository.room.fetch_open_room_by_player_id(player.id)
+    repository.room.unready_room(room.id, player.id)
+
+    return player

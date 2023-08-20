@@ -37,7 +37,7 @@ const readyGame = () => {
 const cancelGame = () => {
   sessionStorage.setItem("ready", false);
   ready.value = false;
-  socket.emit("cancel_game");
+  socket.emit("unready_game");
   message.value = "";
 };
 
@@ -71,18 +71,20 @@ onMounted(() => {
 
   roomId.value = route.params.roomId;
 
-  socket.on("player_joined", (player) => {
+  socket.on("joined_room", (player) => {
     players.value.push(player);
     readyPlayers.value[player] = false;
   });
 
   // serverからreadiedを受け取ってreadyPlayers[p_name]をtrueにする
-  socket.on("readied", (player) => {
-    readyPlayers.value[player] = true;
+  socket.on("readied_room", (player_name) => {
+    console.log("a", player_name);
+    readyPlayers.value[player_name] = true;
   });
 
-  socket.on("canceled", (player) => {
-    readyPlayers.value[player] = false;
+  socket.on("unreadied_room", (player_name) => {
+    console.log("a", player_name);
+    readyPlayers.value[player_name] = false;
   });
 
   // hostがゲーム開始ボタンを押したら、roomIDの人全員がそのリンクに飛ぶ
