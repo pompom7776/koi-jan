@@ -1,8 +1,16 @@
+import repository.player
 import usecase.score
 from model.tile import Tile
 from model.hand import Hand
 from model.player import Player, Action, PlayerWaitEvent
 from model.score import Score
+
+
+def register_player(player_name: str, socket_id: str) -> Player:
+    player_id = repository.player.create_player(player_name, socket_id)
+    player = repository.player.fetch_player(player_id)
+
+    return player
 
 
 def initialize(player: Player):

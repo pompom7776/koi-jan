@@ -1,43 +1,36 @@
-from typing import List, Tuple
+from typing import List
 import random
 
-from model.room import Room
 from model.player import Player
+from model.room import Room
+import repository.room
 
 
-def create_room(rooms: List[Room]) -> int:
-    def generate_room_id() -> int:
+def create_room(player_id: int) -> Room:
+    def generate_room_number() -> int:
         while True:
-            room_id: int = random.randint(1000, 9999)
-            if not any(room.room_id == room_id for room in rooms):
-                return room_id
+            room_number: int = random.randint(1000, 9999)
+            # TODO: room_numberを重複しないようにする
+            return room_number
 
-    room_id: int = generate_room_id()
-    room: Room = Room(room_id=room_id)
-    rooms.append(room)
+    room_number: int = generate_room_number()
+    room = repository.room.create_room(room_number, player_id)
 
-    return room_id
-
-
-def register_player(players: List[Player],
-                    socket_id: str,
-                    player_name: str,
-                    room_id: int) -> Player:
-    player = Player(socket_id, player_name, room_id)
-    players.append(player)
-    return player
+    return room
 
 
-def enter_room(rooms: List[Room], room_id: int, player: Player) -> str:
-    room = next((room for room in rooms if room.room_id == room_id),
-                None)
-    if room is None:
-        return "部屋が見つかりません"
-    if len(room.players) > 3:
-        return "部屋は満席です"
-    if player.name in [p.name for p in room.players]:
-        return "同じ名前のプレイヤーが既に入室しています"
+def enter_room(room_number: int, player_id: int):
+    # TODO: 部屋がない場合に対応
+    # TODO: 満席の場合に対応
+    # TODO: 既に同じ名前のプレイヤーが入室している場合に対応
+    rooms = repository.room.fetch_open_rooms()
+    room = next((room for room in rooms if room.number == room_number))
+    repository.room.enter_room(room.id, player_id)
 
-    room.players.append(player)
 
-    return None
+def get_players_in_room(room_number: int) -> List[Player]:
+    rooms = repository.room.fetch_open_rooms()
+    room = next((room for room in rooms if room.number == room_number))
+    players = repository.room.fetch_players_in_room(room.id)
+
+    return players

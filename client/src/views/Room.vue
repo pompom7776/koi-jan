@@ -17,8 +17,8 @@ const createRoom = () => {
   message.value = "";
 };
 
-const joinRoom = () => {
-  socket.emit("join_room", playerName.value, roomId.value);
+const enterRoom = () => {
+  socket.emit("enter_room", playerName.value, roomId.value);
   message.value = "";
 };
 
@@ -33,11 +33,7 @@ onMounted(() => {
     message.value = error;
   });
 
-  socket.on("player_joined", (player) => {
-    console.log(player);
-  });
-
-  socket.on("update_room", (room_id) => {
+  socket.on("entered_room", (room_id) => {
     roomId.value = room_id;
     sessionStorage.setItem("socketId", socketId.value);
     message.value = "";
@@ -93,7 +89,7 @@ onMounted(() => {
           type="text"
         />
         <label class="radio-button">
-          <input @click="joinRoom" type="radio" />
+          <input @click="enterRoom" type="radio" />
           参加
         </label>
       </div>
