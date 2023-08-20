@@ -2,7 +2,7 @@ import eventlet
 import eventlet.wsgi
 import socketio
 
-from presenter import controller
+import presenter.controller.room as room
 
 
 if __name__ == "__main__":
@@ -14,6 +14,6 @@ if __name__ == "__main__":
     def on_connect(socket_id, environ):
         print(f"connected : {socket_id}")
 
-    controller.room.set(socket_io)
+    room.set(socket_io)
 
     eventlet.wsgi.server(eventlet.listen(("0.0.0.0", 8888)), app)
