@@ -17,7 +17,7 @@ const createRoom = () => {
   message.value = "";
 };
 
-const enterRoom = () => {
+const joinRoom = () => {
   socket.emit("enter_room", playerName.value, roomId.value);
   message.value = "";
 };
@@ -57,12 +57,22 @@ onMounted(() => {
 <template>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
+    rel="stylesheet"
+  />
   <div id="app">
     <img class="logo-img" src="@/assets/koijan_1.png" alt="logo" />
     <div class="center">
       <div class="input-group">
-        <input required placeholder="プレイヤー名" v-model="playerName" type="text" maxlength="8" id="playerName" />
+        <input
+          required
+          placeholder="プレイヤー名"
+          v-model="playerName"
+          type="text"
+          maxlength="8"
+          id="playerName"
+        />
       </div>
       <div class="radio-d">
         <label class="radio-button">
@@ -89,7 +99,14 @@ onMounted(() => {
         </div>
       </div>
       <div v-if="joinType == 2" class="join2">
-        <input class="join2-input" required placeholder="ルーム番号" v-model="roomId" maxlength="4" type="text" />
+        <input
+          class="join2-input"
+          required
+          placeholder="ルーム番号"
+          v-model="roomId"
+          maxlength="4"
+          type="text"
+        />
         <label class="radio-button">
           <input @click="enterRoom" type="radio" />
           参加
@@ -113,7 +130,12 @@ onMounted(() => {
   min-height: 100vh;
   /* background-image: url("@/assets/heartsimple59.png"); */
 
-  background: linear-gradient(45deg, rgba(221, 214, 243, 0.5), rgba(250, 172, 168, 0.5), rgba(255, 252, 220, 0.5));
+  background: linear-gradient(
+    45deg,
+    rgba(221, 214, 243, 0.5),
+    rgba(250, 172, 168, 0.5),
+    rgba(255, 252, 220, 0.5)
+  );
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -122,13 +144,15 @@ onMounted(() => {
   flex-direction: column;
 }
 
-@keyframes bggradient{
+@keyframes bggradient {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -147,6 +171,7 @@ onMounted(() => {
   /* background-color: #fff; */
   margin-top: 30px;
 }
+
 .input-group {
   display: flex;
   flex-direction: column;
@@ -175,7 +200,8 @@ input {
 .input-group::after {
   content: "";
   position: absolute;
-  bottom: -5px; /* 線を下にオフセットして要素内に配置 */
+  bottom: -5px;
+  /* 線を下にオフセットして要素内に配置 */
   left: 0;
   width: 100%;
   height: 5px;
@@ -212,18 +238,22 @@ input::placeholder {
 
 .join2-input {
   margin-bottom: 16px;
-  position: relative; /* 要素の位置を相対的に設定 */
+  position: relative;
+  /* 要素の位置を相対的に設定 */
 }
 
 .join2-input::before {
   content: "";
   position: absolute;
-  top: -5px; /* 要素内の上部に線を配置 */
+  top: -5px;
+  /* 要素内の上部に線を配置 */
   left: 0;
   width: 100%;
   height: 5px;
-  background-color: rgb(234, 56, 73, 0.8); /* 線色 */
-  border-radius: 5px; /* 線幅の半分 */
+  background-color: rgb(234, 56, 73, 0.8);
+  /* 線色 */
+  border-radius: 5px;
+  /* 線幅の半分 */
 }
 
 .join2-input input {
@@ -234,13 +264,13 @@ input::placeholder {
   font-family: "M PLUS Rounded 1c", sans-serif;
   color: rgb(234, 56, 73, 0.8);
   width: 320px;
-  padding-bottom: 10px; /* 下部の余白を追加 */
+  padding-bottom: 10px;
+  /* 下部の余白を追加 */
 }
 
 .join2-input input::placeholder {
   color: rgb(234, 56, 73, 0.8);
 }
-
 
 .radio-d {
   display: flex;
@@ -277,7 +307,7 @@ input::placeholder {
 }
 
 /* To show the selected state */
-.radio-button input[type="radio"]:checked+span {
+.radio-button input[type="radio"]:checked + span {
   background-color: #2196f3;
   color: #fff;
 }
@@ -288,20 +318,24 @@ input::placeholder {
   right: -2vw;
   /* margin: 0px; */
 }
+
 .date-image img {
   width: 35vw;
   /* opacity: 0.8; */
 }
+
 .date2-image {
   position: absolute;
   bottom: -5vh;
   left: -1vw;
   /* margin: 0px; */
 }
+
 .date2-image img {
   width: 35vw;
   /* opacity: 0.8; */
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -325,7 +359,8 @@ input::placeholder {
   flex-direction: column;
   align-items: stretch;
 }
-.popup-content h2{
+
+.popup-content h2 {
   color: rgb(234, 56, 73, 0.8);
   font-size: 30px;
   margin-bottom: 20px;
@@ -351,13 +386,15 @@ input::placeholder {
   border: 3px solid transparent;
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
+
 .popup-content button:hover {
   background-color: #fff;
   color: rgb(234, 56, 73, 0.8);
   transition: 0.5s;
   border: 3px solid rgb(234, 56, 73, 0.8);
 }
-  .close-button {
+
+.close-button {
   position: absolute;
   top: 10px;
   right: 10px;
