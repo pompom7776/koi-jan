@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from model.tile import Tile
+
 
 WINDS = ("east", "south", "west", "north")
 
@@ -22,3 +24,4 @@ class Round:
     dealer_id: int
     wall_id: int
     seat_winds: List[SeatWind] = field(default_factory=list)
+    dora: List[Tile] = field(default_factory=list)

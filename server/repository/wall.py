@@ -69,3 +69,30 @@ def draw_tile(round_id: int, player_id: int) -> Tile:
     execute_query(query, (remaining_number, wall_id))
 
     return tile
+
+
+def fetch_dora(wall_id: int) -> List[Tile]:
+    query = (
+        "SELECT dora_number "
+        "FROM wall "
+        "WHERE id = %s"
+    )
+    dora_number = fetch_data(query, (wall_id, ))[0][0]
+
+    query = (
+        "SELECT t.id, t.suit, t.rank, t.name "
+        "FROM tile t "
+        "JOIN wall_tile wt ON t.id = wt.tile_id "
+        "WHERE wt.wall_id = %s "
+        "ORDER BY wt.id DESC "
+        "LIMIT %s"
+    )
+    result = fetch_data(query, (wall_id, dora_number))[0]
+
+    dora_tiles = []
+    dora_tiles.append(Tile(id=result[0],
+                           suit=result[1],
+                           rank=result[2],
+                           name=result[3]))
+
+    return dora_tiles

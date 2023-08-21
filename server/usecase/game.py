@@ -22,10 +22,11 @@ def setup_game(room_id: int) -> Game:
     dealer = players[0]
     round = repository.round.create_round(game.id, 1, "east",
                                           dealer.id, wall_id)
+    round.dora = dora
     for wind, player in zip(WINDS, players):
         seat_wind = repository.round.set_seat_wind(round.id, player.id, wind)
         round.seat_winds.append(seat_wind)
 
-    game.rounds.append(round)
+    game.round = round
 
     return game
