@@ -23,6 +23,8 @@ def set(socket_io: Server):
         room.players = players
         room.game = game
 
+        usecase.round.deal_tiles(players, game.rounds[0].id)
+
         emit.update_game(socket_io, [p.socket_id for p in players], room)
 
         usecase.round.deal_tiles(players, game.rounds[0].id)
