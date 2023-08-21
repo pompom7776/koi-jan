@@ -143,9 +143,26 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-image: url("@/assets/heartsimple59.png");
-  color: rgba(107, 76, 83, 0.9);
+  /* background-image: url("@/assets/rose_wallpaper.jpg"); */
+  background: linear-gradient(45deg, rgba(250, 208, 196, 0.5), rgba(255, 209, 255, 0.5), rgba(168, 237, 234, 0.5));
+  background-size: 200% 200%;
+  animation: bggradient 5s ease infinite;
+
+  /* background-size: cover; */
+  color: rgb(234, 56, 73, 0.8);
   font-family: "M PLUS Rounded 1c", sans-serif;
+}
+
+@keyframes bggradient{
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .center {
@@ -164,8 +181,8 @@ ul {
   text-align: center;
   font-size: 30px;
   width: 90%;
-  color: rgba(107, 76, 83, 0.8);
-  border-bottom: 5px solid rgba(107, 76, 83, 0.8);
+  color: rgb(234, 56, 73, 0.8);
+  border-bottom: 5px solid rgb(234, 56, 73, 0.8);
 }
 
 p {
@@ -177,16 +194,23 @@ p {
   text-align: center;
   line-height: 100px;
   font-size: 20px;
-  border: 5px solid rgba(107, 76, 83, 0.8);
+  border: 5px solid rgb(234, 56, 73, 0.8);
 }
 
 .button-group div {
   display: inline-block;
 }
 
+button:disabled {
+  background-color: rgb(245, 235, 240);
+}
+button input[type="radio"] {
+  display: none;
+}
+
 button {
   display: inline-block;
-  background-color: rgb(245, 196, 204);
+  background-color: rgb(234, 56, 73, 0.8);
   color: #fff;
   width: 140px;
   border: 3px solid transparent;
@@ -200,19 +224,11 @@ button {
   font-size: 20px;
 }
 
-button:disabled {
-  background-color: rgb(245, 235, 240);
-}
-
-button input[type="radio"] {
-  display: none;
-}
-
-button:hover {
+button:enabled:hover {
   background-color: #fff;
-  color: rgb(107, 76, 83, 0.8);
+  color: rgb(234, 56, 73, 0.8);
   transition: 0.5s;
-  border: 3px solid rgb(107, 76, 83, 0.8);
+  border: 3px solid rgb(234, 56, 73, 0.8);
 }
 
 button:checked+label {

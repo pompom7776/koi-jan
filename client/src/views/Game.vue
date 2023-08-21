@@ -440,7 +440,6 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #444444;
   margin: 0;
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
@@ -449,9 +448,25 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   height: 56.25vw;
-  background-image: url("@/assets/rose_wallpaper.jpg");
   background-size: cover;
+  background: linear-gradient(45deg, rgba(250, 208, 196, 0.5), rgba(255, 209, 255, 0.5), rgba(168, 237, 234, 0.5));
+  background-size: 200% 200%;
+  animation: bggradient 5s ease infinite;
 }
+
+@keyframes bggradient { 
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
 
 .top-content {
   top: 10%;
@@ -542,7 +557,7 @@ img {
   flex-direction: column;
   justify-content: center;
   align-items: left;
-  background-color: #ffc3cd;
+  background-color: #fff;
   border-radius: 20px;
 }
 
@@ -578,8 +593,8 @@ img {
   /* flex-direction: column; */
   justify-content: center;
   align-items: center;
-  border: 7px solid #ffc3cd;
-  background-color: #fff;
+  /* border: 7px solid #ffc3cd; */
+  /* background-color: #fff; */
   border-radius: 20px;
   font-size: 1.1vw;
 }
@@ -657,7 +672,7 @@ button:hover {
   top: 3.5vw;
   left: 15.8vw;
   font-size: 10vw;
-  color: #fff;
+  color: #ffc3cd;
 }
 
 .center-all {
@@ -665,7 +680,7 @@ button:hover {
   top: 2vw;
   left: 2vw;
   font-size: 1.3vw;
-  color: #fff;
+  color: #ffc3cd;
 }
 
 .modal {
@@ -689,7 +704,6 @@ button:hover {
   pointer-events: auto;
 }
 
-/* Style for the modal content */
 .modal-content {
   background-color: #fff;
   padding: 20px;
@@ -699,7 +713,6 @@ button:hover {
   width: 80%;
 }
 
-/* Style for the modal close button */
 .close-button {
   position: absolute;
   top: 10px;
