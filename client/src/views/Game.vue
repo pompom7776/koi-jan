@@ -169,7 +169,7 @@ onMounted(() => {
   roomId.value = route.params.roomId;
 
   if (host.value == "true") {
-    socket.emit("run_game");
+    socket.emit("setup_game");
   }
   socket.on("update_game", (game_info) => {
     console.log(game_info);

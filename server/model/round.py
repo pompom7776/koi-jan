@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from model.wall import Wall
-
 
 WINDS = ("east", "south", "west", "north")
 
@@ -22,5 +20,5 @@ class Round:
     round_number: int
     round_wind: str
     dealer_id: int
-    wall: Wall
+    wall_id: int
     seat_winds: List[SeatWind] = field(default_factory=list)

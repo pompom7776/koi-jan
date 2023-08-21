@@ -1,13 +1,12 @@
 from db.database import execute_query
 from model.round import Round, SeatWind
-from model.wall import Wall
 
 
 def create_round(game_id: int,
                  round_number: int,
                  round_wind: str,
                  dealer_id: int,
-                 wall: Wall) -> Round:
+                 wall_id: int) -> Round:
     query = (
         "INSERT INTO round (game_id, round_number, round_wind, dealer_id, "
         "wall_id, end_time) "
@@ -16,7 +15,7 @@ def create_round(game_id: int,
     )
     result = execute_query(query,
                            (game_id, round_number, round_wind, dealer_id,
-                            wall.id, None),
+                            wall_id, None),
                            ("id", "game_id", "round_number", "round_wind",
                             "dealer_id"))
 
@@ -27,7 +26,8 @@ def create_round(game_id: int,
         round_wind = result["round_wind"]
         dealer_id = result["dealer_id"]
 
-        round = Round(id, game_id, round_number, round_wind, dealer_id, wall)
+        round = Round(id, game_id, round_number,
+                      round_wind, dealer_id, wall_id)
         return round
     else:
         return None
