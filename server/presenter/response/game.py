@@ -19,6 +19,6 @@ def update_game(socket_io: Server, to: List[str], room: Room):
 
 def update_players(socket_io: Server, to: List[str], players: List[Player]):
     for socket_id in to:
-        socket_io.emit("update_game",
+        socket_io.emit("update_players",
                        [asdict(p) for p in players],
                        room=socket_id)
