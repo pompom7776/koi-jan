@@ -30,3 +30,9 @@ def set(socket_io: Server):
         usecase.round.deal_tiles(players, game.round.id)
 
         emit.update_players(socket_io, [p.socket_id for p in players], players)
+
+        dealer = next((p for p in players
+                       if p.id == room.game.round.dealer_id))
+        usecase.round.tsumo_tile(room.game.round.id,
+                                 dealer)
+        emit.update_players(socket_io, [p.socket_id for p in players], players)

@@ -87,6 +87,12 @@ def draw_tile(round_id: int, player_id: int) -> Tile:
     )
     execute_query(query, (remaining_number, wall_id))
 
+    query = (
+        "INSERT INTO draw (round_id, player_id, tile_id) "
+        "VALUES (%s, %s, %s)"
+    )
+    execute_query(query, (round_id, player_id, tile.id))
+
     return tile
 
 

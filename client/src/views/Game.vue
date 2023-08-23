@@ -21,6 +21,8 @@ const seatWinds = ref({});
 const dora = ref([]);
 const currentPlayerId = ref(0);
 
+const riichiFlag = ref(false);
+
 const windDirections = {
   east: "東",
   south: "南",
@@ -145,19 +147,16 @@ socket.on("update_players", (received_players) => {
 <template>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div class="body">
     <div class="container" v-if="displayFlag">
       <div class="top-content content" v-if="topPlayer">
         <div class="tiles" v-for="_ in topPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="tsumo" v-if="topPlayer.value.hand.tsumo"> -->
-        <!--   <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" /> -->
-        <!-- </div> -->
+        <div class="tsumo" v-if="topPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+        </div>
         <!-- <div class="calls" v-for="call in topPlayer.value.hand.calls"> -->
         <!--   <div class="pon" v-if="call.type == 'pon'"> -->
         <!--     <div class="tiles" v-for="tile in call.tiles"> -->
@@ -177,11 +176,11 @@ socket.on("update_players", (received_players) => {
       </div>
       <div class="left-content content" v-if="leftPlayer">
         <div class="tiles" v-for="_ in leftPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="tsumo" v-if="leftPlayer.value.hand.tsumo"> -->
-        <!--   <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" /> -->
-        <!-- </div> -->
+        <div class="tsumo" v-if="leftPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+        </div>
         <!-- <div class="calls" v-for="call in leftPlayer.value.hand.calls"> -->
         <!--   <div class="pon" v-if="call.type == 'pon'"> -->
         <!--     <div class="tiles" v-for="tile in call.tiles"> -->
@@ -201,11 +200,11 @@ socket.on("update_players", (received_players) => {
       </div>
       <div class="right-content content" v-if="rightPlayer">
         <div class="tiles" v-for="_ in rightPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="tsumo" v-if="rightPlayer.value.hand.tsumo"> -->
-        <!--   <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" /> -->
-        <!-- </div> -->
+        <div class="tsumo" v-if="rightPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+        </div>
         <!-- <div class="calls" v-for="call in rightPlayer.value.hand.calls"> -->
         <!--   <div class="pon" v-if="call.type == 'pon'"> -->
         <!--     <div class="tiles" v-for="tile in call.tiles"> -->
@@ -224,75 +223,32 @@ socket.on("update_players", (received_players) => {
         <!-- </div> -->
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div
-          v-if="!riichiFlag"
-          class="tiles"
-          v-for="tile in bottomPlayer.value.hand"
-        >
-          <MahjongTile
-            @click="discardTile(tile)"
-            :tile="tile.name"
-            :scale="0.5"
-            :rotate="0"
-            :limit="false"
-          />
+        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+          <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
         </div>
-        <div
-          v-if="riichiFlag"
-          class="tiles"
-          v-for="tile in bottomPlayer.value.hand"
-        >
+        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
           <div v-if="tile.can_riichi">
-            <MahjongTile
-              @click="discardTile(tile)"
-              :tile="tile.name"
-              :scale="0.5"
-              :rotate="0"
-              :limit="false"
-            />
+            <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
           </div>
           <div v-if="!tile.can_riichi">
-            <MahjongTile
-              :tile="tile.name"
-              :scale="0.5"
-              :rotate="0"
-              :limit="true"
-            />
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
           </div>
         </div>
-        <!-- <div v-if="bottomPlayer.value.hand.tsumo" class="tsumo"> -->
-        <!--   <div v-if="riichiFlag"> -->
-        <!--     <div v-if="!bottomPlayer.value.hand.tsumo.can_riichi"> -->
-        <!--       <MahjongTile -->
-        <!--         :tile="bottomPlayer.value.hand.tsumo.name" -->
-        <!--         :scale="0.5" -->
-        <!--         :rotate="0" -->
-        <!--         :isRedDora="bottomPlayer.value.hand.tsumo.bonus" -->
-        <!--         :limit="true" -->
-        <!--       /> -->
-        <!--     </div> -->
-        <!--     <div v-if="bottomPlayer.value.hand.tsumo.can_riichi"> -->
-        <!--       <MahjongTile -->
-        <!--         @click="discardTile(bottomPlayer.value.hand.tsumo)" -->
-        <!--         :tile="bottomPlayer.value.hand.tsumo.name" -->
-        <!--         :scale="0.5" -->
-        <!--         :rotate="0" -->
-        <!--         :isRedDora="bottomPlayer.value.hand.tsumo.bonus" -->
-        <!--         :limit="false" -->
-        <!--       /> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!--   <div v-if="!riichiFlag"> -->
-        <!--     <MahjongTile -->
-        <!--       @click="discardTile(bottomPlayer.value.hand.tsumo)" -->
-        <!--       :tile="bottomPlayer.value.hand.tsumo.name" -->
-        <!--       :scale="0.5" -->
-        <!--       :rotate="0" -->
-        <!--       :isRedDora="bottomPlayer.value.hand.tsumo.bonus" -->
-        <!--       :limit="false" -->
-        <!--     /> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div v-if="bottomPlayer.value.tsumo" class="tsumo">
+          <div v-if="riichiFlag">
+            <div v-if="!bottomPlayer.value.tsumo.can_riichi">
+              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
+            </div>
+            <div v-if="bottomPlayer.value.tsumo.can_riichi">
+              <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name"
+                :scale="0.5" :rotate="0" :limit="false" />
+            </div>
+          </div>
+          <div v-if="!riichiFlag">
+            <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+              :rotate="0" :limit="false" />
+          </div>
+        </div>
         <!-- <div class="calls" v-for="call in bottomPlayer.value.hand.calls"> -->
         <!--   <div class="pon" v-if="call.type == 'pon'"> -->
         <!--     <div class="tiles" v-for="tile in call.tiles"> -->
@@ -324,12 +280,7 @@ socket.on("update_players", (received_players) => {
             <div v-if="player.id == myId">
               <div class="three-tiles-vote">
                 <div class="tiles" v-for="tile in player.selected_tiles">
-                  <MahjongTile
-                    @click="cancelTile(tile)"
-                    :tile="tile.name"
-                    :scale="0.5"
-                    :rotate="0"
-                  />
+                  <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
                 </div>
               </div>
               <button class="disable-vote" disabled>
@@ -497,12 +448,10 @@ socket.on("update_players", (received_players) => {
   width: 100vw;
   height: 56.25vw;
   background-size: cover;
-  background: linear-gradient(
-    45deg,
-    rgba(250, 208, 196, 0.5),
-    rgba(255, 209, 255, 0.5),
-    rgba(168, 237, 234, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 }

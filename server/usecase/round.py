@@ -22,3 +22,8 @@ def get_round(round_id: int) -> Round:
     round.current_player_id = None
 
     return round
+
+
+def tsumo_tile(round_id: int, player: Player):
+    tile = repository.wall.draw_tile(round_id, player.id)
+    player.tsumo = tile
