@@ -2,20 +2,22 @@ from typing import List
 
 from db.database import execute_query, fetch_data
 from model.tile import Tile
-from model.wall import MAX_TILE_NUMBER
+from model.wall import Wall, MAX_TILE_NUMBER
 
 
-def create_wall(tiles: List[Tile]) -> int:
+def create_wall(tiles: List[Tile]) -> Wall:
     query = (
         "INSERT INTO wall (remaining_number, dora_number) "
-        "VALUES (%s, %s) RETURNING id"
+        "VALUES (%s, %s) RETURNING id, remaining_number, dora_number"
     )
     result = execute_query(query,
                            (MAX_TILE_NUMBER, 1),
-                           ("id", ))
+                           ("id", "remaining_number", "dora_number"))
 
     if result:
         wall_id = result["id"]
+        remaining_number = result["remaining_number"]
+        dora_number = result["dora_number"]
 
         for tile in tiles:
             query = (
@@ -24,7 +26,24 @@ def create_wall(tiles: List[Tile]) -> int:
             )
             execute_query(query, (wall_id, tile.id))
 
-        return wall_id
+        wall = Wall(wall_id, remaining_number, dora_number, tiles)
+        return wall
+    else:
+        return None
+
+
+def fetch_wall(wall_id: int) -> Wall:
+    query = (
+        "SELECT * "
+        "FROM wall "
+        "WHERE id = %s "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (wall_id,))
+
+    if result:
+        id, remaining_number, dora_number = result[0]
+        return Wall(id, remaining_number, dora_number, [])
     else:
         return None
 

@@ -1,4 +1,4 @@
-from db.database import execute_query
+from db.database import execute_query, fetch_data
 from model.round import Round, SeatWind
 
 
@@ -53,5 +53,23 @@ def set_seat_wind(round_id: int,
 
         seat_wind = SeatWind(id, round_id, player_id, wind)
         return seat_wind
+    else:
+        return None
+
+
+def fetch_round(round_id: int) -> Round:
+    query = (
+        "SELECT id, game_id, round_number, round_wind, dealer_id, wall_id "
+        "FROM round "
+        "WHERE id = %s "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (round_id,))
+
+    if result:
+        id, game_id, round_number, round_wind, dealer_id, wall_id = result[0]
+        round = Round(id, game_id, round_number,
+                      round_wind, dealer_id, wall_id)
+        return round
     else:
         return None

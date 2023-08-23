@@ -18,8 +18,10 @@ def set(socket_io: Server):
     def on_setup_game(socket_id: str):
         player = usecase.player.get_player_by_socket_id(socket_id)
         room = usecase.room.get_room_by_player_id(player.id)
-        players = usecase.room.get_players_in_room(room.number)
+
         game = usecase.game.setup_game(room.id)
+
+        players = usecase.room.get_players_in_room(room.number)
         room.players = players
         room.game = game
 

@@ -23,5 +23,7 @@ class Round:
     round_wind: str
     dealer_id: int
     wall_id: int
+    wall_remaining_number: int = None
     seat_winds: List[SeatWind] = field(default_factory=list)
     dora: List[Tile] = field(default_factory=list)
+    current_player_id: int = None
