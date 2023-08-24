@@ -5,6 +5,7 @@ from socketio import Server
 
 from model.room import Room
 from model.player import Player
+from model.tiles import Tiles
 
 
 def reconnected(socket_io: Server, to: List[str], new_socket_id: str):
@@ -22,3 +23,17 @@ def update_players(socket_io: Server, to: List[str], players: List[Player]):
         socket_io.emit("update_players",
                        [asdict(p) for p in players],
                        room=socket_id)
+
+
+def update_discarded(socket_io: Server,
+                     to: List[str],
+                     discardeds: List[Tiles]):
+    for socket_id in to:
+        socket_io.emit("update_discardeds",
+                       [asdict(d) for d in discardeds],
+                       room=socket_id)
+
+
+def notice_draw(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_draw", room=socket_id)

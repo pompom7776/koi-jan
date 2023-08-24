@@ -1,7 +1,6 @@
 <script setup>
 import io from "socket.io-client";
 import { computed, nextTick, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
 import MahjongTile from "@/components/parts/MahjongTile.vue";
 
 const socket = io("http://localhost:8888");
@@ -21,6 +20,7 @@ const seatWinds = ref({});
 const dora = ref([]);
 const currentPlayerId = ref(0);
 
+const drawFlag = ref(false);
 const riichiFlag = ref(false);
 
 const windDirections = {
@@ -30,10 +30,17 @@ const windDirections = {
   north: "北",
 };
 
+const relativeSeats = ref({});
+
 const bottomPlayer = ref(null);
 const rightPlayer = ref(null);
 const topPlayer = ref(null);
 const leftPlayer = ref(null);
+
+const bottomDiscarded = ref([]);
+const rightDiscarded = ref([]);
+const topDiscarded = ref([]);
+const leftDiscarded = ref([]);
 
 onMounted(() => {
   socketId.value = sessionStorage.getItem("socketId");
@@ -65,19 +72,18 @@ const getPlayerNameById = (playerId) => {
 
 const setSeatPlayers = (myId) => {
   const myWind = getWindByPlayerId(myId);
-  const relativeSeats = assignRelativeSeats(myWind);
-  console.log(myId, myWind, relativeSeats);
+  assignRelativeSeats(myWind);
   bottomPlayer.value = computed(() =>
-    players.value.find((player) => player.id == relativeSeats["bottom"])
+    players.value.find((player) => player.id == relativeSeats.value["bottom"])
   );
   rightPlayer.value = computed(() =>
-    players.value.find((player) => player.id == relativeSeats["right"])
+    players.value.find((player) => player.id == relativeSeats.value["right"])
   );
   topPlayer.value = computed(() =>
-    players.value.find((player) => player.id == relativeSeats["top"])
+    players.value.find((player) => player.id == relativeSeats.value["top"])
   );
   leftPlayer.value = computed(() =>
-    players.value.find((player) => player.id == relativeSeats["left"])
+    players.value.find((player) => player.id == relativeSeats.value["left"])
   );
 };
 const getWindByPlayerId = (playerId) => {
@@ -90,23 +96,38 @@ const assignRelativeSeats = (myWind) => {
   const winds = ["east", "south", "west", "north"];
   const myIndex = winds.indexOf(myWind);
 
-  const relativeSeats = {};
-  relativeSeats.bottom = myId.value;
+  const assignedRelativeSeats = {};
+  assignedRelativeSeats.bottom = myId.value;
   for (var i = 0; i < seatWinds.value.length; i++) {
     if (seatWinds.value[i]["wind"] == winds[(myIndex + 1) % winds.length]) {
-      relativeSeats.right = seatWinds.value[i]["player_id"];
+      assignedRelativeSeats.right = seatWinds.value[i]["player_id"];
     } else if (
       seatWinds.value[i]["wind"] == winds[(myIndex + 2) % winds.length]
     ) {
-      relativeSeats.top = seatWinds.value[i]["player_id"];
+      assignedRelativeSeats.top = seatWinds.value[i]["player_id"];
     } else if (
       seatWinds.value[i]["wind"] == winds[(myIndex + 3) % winds.length]
     ) {
-      relativeSeats.left = seatWinds.value[i]["player_id"];
+      assignedRelativeSeats.left = seatWinds.value[i]["player_id"];
     }
   }
 
-  return relativeSeats;
+  relativeSeats.value = assignedRelativeSeats;
+};
+
+const getSeatByPlayerId = (playerId) => {
+  for (const seat in relativeSeats.value) {
+    if (relativeSeats.value[seat] == playerId) {
+      return seat;
+    }
+  }
+};
+
+const discardTile = (tile) => {
+  if (drawFlag.value) {
+    socket.emit("discard_tile", tile.id);
+    drawFlag.value = false;
+  }
 };
 
 socket.on("reconnected", (socket_id) => {
@@ -133,7 +154,6 @@ socket.on("update_game", (received_game) => {
   myId.value = getMyIdBySocketId(players.value, socketId.value);
   setSeatPlayers(myId.value);
 
-  console.log("player", topPlayer.value);
   reloadDisplay();
 });
 
@@ -142,12 +162,28 @@ socket.on("update_players", (received_players) => {
 
   reloadDisplay();
 });
+
+socket.on("update_discardeds", (received_discardeds) => {
+  for (var i = 0; i < received_discardeds.length; i++) {
+    const seat = getSeatByPlayerId(received_discardeds[i]["player_id"]);
+    if (seat == "bottom") {
+      bottomDiscarded.value = received_discardeds[i]["tiles"];
+    } else if (seat == "right") {
+      rightDiscarded.value = received_discardeds[i]["tiles"];
+    } else if (seat == "top") {
+      topDiscarded.value = received_discardeds[i]["tiles"];
+    } else if (seat == "left") {
+      leftDiscarded.value = received_discardeds[i]["tiles"];
+    }
+  }
+});
+
+socket.on("notice_draw", () => {
+  drawFlag.value = true;
+});
 </script>
 
 <template>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div class="body">
     <div class="container" v-if="displayFlag">
       <div class="top-content content" v-if="topPlayer">
@@ -315,40 +351,34 @@ socket.on("update_players", (received_players) => {
             <div>局 : {{ roundNumber }}</div>
           </div>
         </div>
-        <!-- <div class="top-discarded discarded" v-if="topPlayer"> -->
-        <!--   <div class="discarded"> -->
-        <!--     <div class="tiles" v-for="tile in topPlayer.discarded_tiles"> -->
-        <!--       <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
-        <!-- <div class="left-discarded discarded" v-if="leftPlayer"> -->
-        <!--   <div class="discarded"> -->
-        <!--     <div class="tiles" v-for="tile in leftPlayer.value.discarded_tiles"> -->
-        <!--       <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
-        <!-- <div class="right-discarded discarded" v-if="rightPlayer"> -->
-        <!--   <div class="discarded"> -->
-        <!--     <div -->
-        <!--       class="tiles" -->
-        <!--       v-for="tile in rightPlayer.value.discarded_tiles" -->
-        <!--     > -->
-        <!--       <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
-        <!-- <div class="bottom-discarded discarded" v-if="bottomPlayer"> -->
-        <!--   <div class="discarded"> -->
-        <!--     <div -->
-        <!--       class="tiles" -->
-        <!--       v-for="tile in bottomPlayer.value.discarded_tiles" -->
-        <!--     > -->
-        <!--       <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div class="top-discarded discarded" v-if="topDiscarded">
+          <div class="discarded">
+            <div class="tiles" v-for="tile in topDiscarded">
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+          </div>
+        </div>
+        <div class="left-discarded discarded" v-if="leftDiscarded">
+          <div class="discarded">
+            <div class="tiles" v-for="tile in leftDiscarded">
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+          </div>
+        </div>
+        <div class="right-discarded discarded" v-if="rightDiscarded">
+          <div class="discarded">
+            <div class="tiles" v-for="tile in rightDiscarded">
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+          </div>
+        </div>
+        <div class="bottom-discarded discarded" v-if="bottomDiscarded">
+          <div class="discarded">
+            <div class="tiles" v-for="tile in bottomDiscarded">
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+          </div>
+        </div>
       </div>
       <div class="all_direction">
         <div class="top-direction direction" v-if="topPlayer">

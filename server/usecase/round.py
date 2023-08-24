@@ -27,3 +27,8 @@ def get_round(round_id: int) -> Round:
 def tsumo_tile(round_id: int, player: Player):
     tile = repository.wall.draw_tile(round_id, player.id)
     player.tsumo = tile
+
+
+def get_round_id_by_room_id(room_id: int) -> int:
+    round_id = repository.round.fetch_round_id_by_room_id(room_id)
+    return round_id

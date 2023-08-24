@@ -36,3 +36,21 @@ def set(socket_io: Server):
         usecase.round.tsumo_tile(room.game.round.id,
                                  dealer)
         emit.update_players(socket_io, [p.socket_id for p in players], players)
+        emit.notice_draw(socket_io, [dealer.socket_id])
+
+    @socket_io.on("discard_tile")
+    def on_discard_tile(socket_id: str, tile_id: id):
+        player = usecase.player.get_player_by_socket_id(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        round_id = usecase.round.get_round_id_by_room_id(room.id)
+        usecase.player.discard_tile(round_id, player.id, tile_id)
+        players = usecase.room.get_players_in_room(room.number)
+        discardeds = []
+        for player in players:
+            discarded = usecase.player.get_discarded_tiles(round_id, player.id)
+            discardeds.append(discarded)
+
+        print(discardeds)
+        emit.update_discarded(socket_io,
+                              [p.socket_id for p in players],
+                              discardeds)

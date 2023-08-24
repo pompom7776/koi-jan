@@ -55,24 +55,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap"
-    rel="stylesheet"
-  />
   <div id="app">
     <img class="logo-img" src="@/assets/koijan_1.png" alt="logo" />
     <div class="center">
       <div class="input-group">
-        <input
-          required
-          placeholder="プレイヤー名"
-          v-model="playerName"
-          type="text"
-          maxlength="8"
-          id="playerName"
-        />
+        <input required placeholder="プレイヤー名" v-model="playerName" type="text" maxlength="8" id="playerName" />
       </div>
       <div class="radio-d">
         <label class="radio-button">
@@ -87,26 +74,13 @@ onMounted(() => {
       <div v-if="showPopup" class="popup-overlay" @click="closePopup">
         <div class="popup-content" @click.stop>
           <div class="input-group">
-            <input
-              required
-              placeholder="ルーム番号"
-              v-model="roomId"
-              maxlength="4"
-              type="text"
-            />
+            <input required placeholder="ルーム番号" v-model="roomId" maxlength="4" type="text" />
           </div>
           <button @click="joinRoom">参加する</button>
         </div>
       </div>
       <div v-if="joinType == 2" class="join2">
-        <input
-          class="join2-input"
-          required
-          placeholder="ルーム番号"
-          v-model="roomId"
-          maxlength="4"
-          type="text"
-        />
+        <input class="join2-input" required placeholder="ルーム番号" v-model="roomId" maxlength="4" type="text" />
         <label class="radio-button">
           <input @click="enterRoom" type="radio" />
           参加
@@ -130,12 +104,10 @@ onMounted(() => {
   min-height: 100vh;
   /* background-image: url("@/assets/heartsimple59.png"); */
 
-  background: linear-gradient(
-    45deg,
-    rgba(221, 214, 243, 0.5),
-    rgba(250, 172, 168, 0.5),
-    rgba(255, 252, 220, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(221, 214, 243, 0.5),
+      rgba(250, 172, 168, 0.5),
+      rgba(255, 252, 220, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -307,7 +279,7 @@ input::placeholder {
 }
 
 /* To show the selected state */
-.radio-button input[type="radio"]:checked + span {
+.radio-button input[type="radio"]:checked+span {
   background-color: #2196f3;
   color: #fff;
 }

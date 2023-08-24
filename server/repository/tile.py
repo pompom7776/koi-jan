@@ -18,3 +18,19 @@ def fetch_all_tiles() -> List[Tile]:
         tiles.append(tile)
 
     return tiles
+
+
+def fetch_tile(tile_id: int) -> Tile:
+    query = (
+        "SELECT * FROM tile "
+        "WHERE id = %s "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (tile_id,))
+
+    if result:
+        id, suit, rank, name = result[0]
+        tile = Tile(id, suit, rank, name)
+        return tile
+    else:
+        return None

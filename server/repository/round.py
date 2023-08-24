@@ -73,3 +73,20 @@ def fetch_round(round_id: int) -> Round:
         return round
     else:
         return None
+
+
+def fetch_round_id_by_room_id(room_id: int) -> int:
+    query = (
+        "SELECT id "
+        "FROM round "
+        "WHERE game_id = (SELECT id FROM game WHERE room_id = %s) "
+        "ORDER BY id DESC "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (room_id, ))
+
+    if result:
+        round_id = result[0][0]
+        return round_id
+    else:
+        return None

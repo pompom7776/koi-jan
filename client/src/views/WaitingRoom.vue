@@ -100,9 +100,6 @@ onMounted(() => {
 });
 </script>
 <template>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div id="app">
     <div class="center">
       <div class="alert-message">
