@@ -142,7 +142,7 @@ erDiagram
     varchar(9) type
     int call_player_id FK
     int target_player_id FK
-    int targettile_id FK
+    int target_tile_id FK
     timestamp call_time
   }
   call ||--|| round: ""
@@ -162,11 +162,13 @@ erDiagram
     int round_id FK
     int player_id FK
     int target_player_id FK
+    int target_tile_id FK
     varchar(5) type
     timestamp agari_time
   }
   agari ||--|| round: ""
   agari ||--|| player: ""
+  agari ||--|| tile: ""
   agari ||--|| score: ""
 
   score {
