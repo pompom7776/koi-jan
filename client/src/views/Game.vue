@@ -178,6 +178,10 @@ socket.on("update_discardeds", (received_discardeds) => {
   }
 });
 
+socket.on("update_current_player", (received_player_id) => {
+  currentPlayerId.value = received_player_id;
+});
+
 socket.on("notice_draw", () => {
   drawFlag.value = true;
 });
@@ -259,30 +263,70 @@ socket.on("notice_draw", () => {
         <!-- </div> -->
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
-          <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
+        <div
+          v-if="!riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand"
+        >
+          <MahjongTile
+            @click="discardTile(tile)"
+            :tile="tile.name"
+            :scale="0.5"
+            :rotate="0"
+            :limit="false"
+          />
         </div>
-        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+        <div
+          v-if="riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand"
+        >
           <div v-if="tile.can_riichi">
-            <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
+            <MahjongTile
+              @click="discardTile(tile)"
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="false"
+            />
           </div>
           <div v-if="!tile.can_riichi">
-            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
+            <MahjongTile
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="true"
+            />
           </div>
         </div>
         <div v-if="bottomPlayer.value.tsumo" class="tsumo">
           <div v-if="riichiFlag">
             <div v-if="!bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
+              <MahjongTile
+                :tile="bottomPlayer.value.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :limit="true"
+              />
             </div>
             <div v-if="bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name"
-                :scale="0.5" :rotate="0" :limit="false" />
+              <MahjongTile
+                @click="discardTile(bottomPlayer.value.tsumo)"
+                :tile="bottomPlayer.value.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :limit="false"
+              />
             </div>
           </div>
           <div v-if="!riichiFlag">
-            <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
-              :rotate="0" :limit="false" />
+            <MahjongTile
+              @click="discardTile(bottomPlayer.value.tsumo)"
+              :tile="bottomPlayer.value.tsumo.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="false"
+            />
           </div>
         </div>
         <!-- <div class="calls" v-for="call in bottomPlayer.value.hand.calls"> -->
@@ -316,7 +360,12 @@ socket.on("notice_draw", () => {
             <div v-if="player.id == myId">
               <div class="three-tiles-vote">
                 <div class="tiles" v-for="tile in player.selected_tiles">
-                  <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+                  <MahjongTile
+                    @click="cancelTile(tile)"
+                    :tile="tile.name"
+                    :scale="0.5"
+                    :rotate="0"
+                  />
                 </div>
               </div>
               <button class="disable-vote" disabled>
@@ -478,10 +527,12 @@ socket.on("notice_draw", () => {
   width: 100vw;
   height: 56.25vw;
   background-size: cover;
-  background: linear-gradient(45deg,
-      rgba(250, 208, 196, 0.5),
-      rgba(255, 209, 255, 0.5),
-      rgba(168, 237, 234, 0.5));
+  background: linear-gradient(
+    45deg,
+    rgba(250, 208, 196, 0.5),
+    rgba(255, 209, 255, 0.5),
+    rgba(168, 237, 234, 0.5)
+  );
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 }

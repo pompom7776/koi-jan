@@ -50,7 +50,11 @@ def set(socket_io: Server):
             discarded = usecase.player.get_discarded_tiles(round_id, player.id)
             discardeds.append(discarded)
 
-        print(discardeds)
         emit.update_discarded(socket_io,
                               [p.socket_id for p in players],
                               discardeds)
+
+        next_player_id = usecase.round.get_next_player_id(round_id, player.id)
+        emit.update_current_player(socket_io,
+                                   [p.socket_id for p in players],
+                                   next_player_id)

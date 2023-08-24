@@ -57,6 +57,36 @@ def set_seat_wind(round_id: int,
         return None
 
 
+def fetch_wind_by_player_id(round_id: int, player_id: int) -> str:
+    query = (
+        "SELECT sw.wind "
+        "FROM seat_wind sw "
+        "WHERE sw.round_id = %s AND sw.player_id = %s"
+    )
+    result = fetch_data(query, (round_id, player_id))
+
+    if result:
+        wind = result[0][0]
+        return wind
+    else:
+        return None
+
+
+def fetch_player_id_by_wind(round_id: int, wind: str) -> int:
+    query = (
+        "SELECT sw.player_id "
+        "FROM seat_wind sw "
+        "WHERE sw.round_id = %s AND sw.wind = %s"
+    )
+    result = fetch_data(query, (round_id, wind))
+
+    if result:
+        player_id = result[0][0]
+        return player_id
+    else:
+        return None
+
+
 def fetch_round(round_id: int) -> Round:
     query = (
         "SELECT id, game_id, round_number, round_wind, dealer_id, wall_id "

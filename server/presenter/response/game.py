@@ -34,6 +34,15 @@ def update_discarded(socket_io: Server,
                        room=socket_id)
 
 
+def update_current_player(socket_io: Server,
+                          to: List[str],
+                          current_player_id: int):
+    for socket_id in to:
+        socket_io.emit("update_current_player",
+                       current_player_id,
+                       room=socket_id)
+
+
 def notice_draw(socket_io: Server, to: List[str]):
     for socket_id in to:
         socket_io.emit("notice_draw", room=socket_id)

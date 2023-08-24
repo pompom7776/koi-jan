@@ -85,5 +85,4 @@ def fetch_discarded_tiles(round_id: int, player_id: int) -> Tiles:
         tile = Tile(id=row[0], suit=row[1], rank=row[2], name=row[3])
         discarded.tiles.append(tile)
 
-    print(discarded)
     return discarded
