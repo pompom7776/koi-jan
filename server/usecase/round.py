@@ -1,3 +1,4 @@
+from model.player import Player
 from model.round import Round, WINDS
 import repository.wall
 import repository.round
@@ -31,3 +32,17 @@ def get_next_player_id(round_id: int, player_id: int) -> int:
                                                               next_wind)
 
     return next_player_id
+
+
+def get_hand(round_id: int, player: Player):
+    player.hand = repository.player.fetch_hand(round_id, player.id)
+
+
+def get_discarded(round_id: int, player: Player):
+    player.discarded = repository.player.fetch_discarded_tiles(round_id,
+                                                               player.id)
+
+
+def get_call(round_id: int, player: Player):
+    player.call = repository.player.fetch_call(round_id,
+                                               player.id)

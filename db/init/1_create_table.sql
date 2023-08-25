@@ -211,7 +211,7 @@ CREATE TABLE agari (
     agari_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
-    FOREIGN KEY (target_player_id) REFERENCES player(id)
+    FOREIGN KEY (target_player_id) REFERENCES player(id),
     FOREIGN KEY (target_tile_id) REFERENCES tile(id)
 );
 

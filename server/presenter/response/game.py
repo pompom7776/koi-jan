@@ -48,3 +48,13 @@ def notice_drew(socket_io: Server, to: List[str]):
 def notice_next_draw(socket_io: Server, to: List[str]):
     for socket_id in to:
         socket_io.emit("notice_next_draw", room=socket_id)
+
+
+def notice_can_pon(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_can_pon", room=socket_id)
+
+
+def notice_can_kan(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_can_kan", room=socket_id)

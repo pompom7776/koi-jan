@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from db.database import execute_query, fetch_data
 from model.round import Round, SeatWind
 
@@ -118,5 +120,22 @@ def fetch_round_id_by_room_id(room_id: int) -> int:
     if result:
         round_id = result[0][0]
         return round_id
+    else:
+        return None
+
+
+def fetch_latest_discarded_tile(round_id: str) -> Tuple[int, int]:
+    query = (
+        "SELECT tile_id, player_id "
+        "FROM discard "
+        "WHERE round_id = %s "
+        "ORDER BY discard_time DESC "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (round_id,))
+
+    if result:
+        tile_id, player_id = result[0]
+        return tile_id, player_id
     else:
         return None

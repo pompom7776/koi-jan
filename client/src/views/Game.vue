@@ -23,6 +23,9 @@ const currentPlayerId = ref(0);
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
 
+const canPon = ref(false);
+const canKan = ref(false);
+
 const windDirections = {
   east: "東",
   south: "南",
@@ -117,6 +120,22 @@ const discardTile = (tile) => {
   }
 };
 
+const pon = () => {
+  socket.emit("pon");
+  canPon.value = false;
+};
+const skipPon = () => {
+  canPon.value = false;
+};
+
+const kan = () => {
+  socket.emit("kan");
+  canKan.value = false;
+};
+const skipKan = () => {
+  canKan.value = false;
+};
+
 socket.on("reconnected", (socket_id) => {
   socketId.value = socket_id;
   sessionStorage.setItem("socketId", socket_id);
@@ -151,6 +170,7 @@ socket.on("update_players", (received_players) => {
 });
 
 socket.on("update_player", (received_player) => {
+  console.log(received_player);
   for (var i = 0; i < players.value.length; i++) {
     if (players.value[i]["id"] == received_player["id"]) {
       players.value[i] = received_player;
@@ -172,6 +192,14 @@ socket.on("notice_drew", () => {
 socket.on("notice_next_draw", () => {
   socket.emit("draw_tile");
 });
+
+socket.on("notice_can_pon", () => {
+  canPon.value = true;
+});
+
+socket.on("notice_can_kan", () => {
+  canKan.value = true;
+});
 </script>
 
 <template>
@@ -184,22 +212,22 @@ socket.on("notice_next_draw", () => {
         <div class="tsumo" v-if="topPlayer.value.tsumo">
           <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="calls" v-for="call in topPlayer.value.hand.calls"> -->
-        <!--   <div class="pon" v-if="call.type == 'pon'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!--   <div class="kan" v-if="call.type == 'dai_min_kan'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div class="calls" v-for="call in topPlayer.value.call">
+          <div class="pon" v-if="call.type == 'pon'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="left-content content" v-if="leftPlayer">
         <div class="tiles" v-for="_ in leftPlayer.value.hand">
@@ -208,22 +236,22 @@ socket.on("notice_next_draw", () => {
         <div class="tsumo" v-if="leftPlayer.value.tsumo">
           <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="calls" v-for="call in leftPlayer.value.hand.calls"> -->
-        <!--   <div class="pon" v-if="call.type == 'pon'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!--   <div class="kan" v-if="call.type == 'dai_min_kan'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div class="calls" v-for="call in leftPlayer.value.call">
+          <div class="pon" v-if="call.type == 'pon'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="right-content content" v-if="rightPlayer">
         <div class="tiles" v-for="_ in rightPlayer.value.hand">
@@ -232,22 +260,22 @@ socket.on("notice_next_draw", () => {
         <div class="tsumo" v-if="rightPlayer.value.tsumo">
           <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <!-- <div class="calls" v-for="call in rightPlayer.value.hand.calls"> -->
-        <!--   <div class="pon" v-if="call.type == 'pon'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!--   <div class="kan" v-if="call.type == 'dai_min_kan'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div class="calls" v-for="call in rightPlayer.value.call">
+          <div class="pon" v-if="call.type == 'pon'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
         <div
@@ -316,30 +344,30 @@ socket.on("notice_next_draw", () => {
             />
           </div>
         </div>
-        <!-- <div class="calls" v-for="call in bottomPlayer.value.hand.calls"> -->
-        <!--   <div class="pon" v-if="call.type == 'pon'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div v-if="voteFlag"> -->
-        <!--         <MahjongTile -->
-        <!--           @click="discardTile(tile)" -->
-        <!--           :tile="tile.name" -->
-        <!--           :scale="0.5" -->
-        <!--           :rotate="0" -->
-        <!--         /> -->
-        <!--       </div> -->
-        <!--       <div v-else> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!--   <div class="kan" v-if="call.type == 'dai_min_kan'"> -->
-        <!--     <div class="tiles" v-for="tile in call.tiles"> -->
-        <!--       <div> -->
-        <!--         <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" /> -->
-        <!--       </div> -->
-        <!--     </div> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <div class="calls" v-for="call in bottomPlayer.value.call">
+          <div class="pon" v-if="call.type == 'pon'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div v-if="voteFlag">
+                <MahjongTile
+                  @click="discardTile(tile)"
+                  :tile="tile.name"
+                  :scale="0.5"
+                  :rotate="0"
+                />
+              </div>
+              <div v-else>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+          <div class="kan" v-if="call.type == 'kan'">
+            <div class="tiles" v-for="tile in call.tiles">
+              <div>
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div v-if="voteFlag">
         <div class="center-content-vote">
@@ -450,38 +478,38 @@ socket.on("notice_next_draw", () => {
           <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
         </div>
       </div>
-      <!-- <div class="all_button"> -->
-      <!--   <div class="button-container"> -->
-      <!--     <button -->
-      <!--       @click="riichi" -->
-      <!--       v-if="action.riichi && riichiFlag" -->
-      <!--       class="riichi" -->
-      <!--     > -->
-      <!--       リーチ: ON -->
-      <!--     </button> -->
-      <!--     <button -->
-      <!--       @click="riichi" -->
-      <!--       v-if="action.riichi && !riichiFlag" -->
-      <!--       class="riichi" -->
-      <!--     > -->
-      <!--       リーチ: OFF -->
-      <!--     </button> -->
-      <!--     <button @click="pon" v-if="action.pon">ポン</button> -->
-      <!--     <button @click="skipPon" v-if="action.pon">スキップ</button> -->
-      <!--     <button @click="daiMinKan" v-if="action.kan">カン</button> -->
-      <!--     <button @click="skipDaiMinKan" v-if="action.kan">スキップ</button> -->
-      <!--     <button @click="ron" v-if="action.ron">ロン</button> -->
-      <!--     <button @click="skipRon" v-if="action.ron">スキップ</button> -->
-      <!--     <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button> -->
-      <!--     <button -->
-      <!--       @click="discardTile(bottomPlayer.value.hand.tsumo)" -->
-      <!--       v-if="action.tsumo" -->
-      <!--       class="tsumo" -->
-      <!--     > -->
-      <!--       スキップ -->
-      <!--     </button> -->
-      <!--   </div> -->
-      <!-- </div> -->
+      <div class="all_button">
+        <div class="button-container">
+          <!-- <button -->
+          <!--   @click="riichi" -->
+          <!--   v-if="action.riichi && riichiFlag" -->
+          <!--   class="riichi" -->
+          <!-- > -->
+          <!--   リーチ: ON -->
+          <!-- </button> -->
+          <!-- <button -->
+          <!--   @click="riichi" -->
+          <!--   v-if="action.riichi && !riichiFlag" -->
+          <!--   class="riichi" -->
+          <!-- > -->
+          <!--   リーチ: OFF -->
+          <!-- </button> -->
+          <button @click="pon" v-if="canPon">ポン</button>
+          <button @click="skipPon" v-if="canPon">スキップ</button>
+          <button @click="kan" v-if="canKan">カン</button>
+          <button @click="skipKan" v-if="canKan">スキップ</button>
+          <!-- <button @click="ron" v-if="action.ron">ロン</button> -->
+          <!-- <button @click="skipRon" v-if="action.ron">スキップ</button> -->
+          <!-- <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button> -->
+          <!-- <button -->
+          <!--   @click="discardTile(bottomPlayer.value.hand.tsumo)" -->
+          <!--   v-if="action.tsumo" -->
+          <!--   class="tsumo" -->
+          <!-- > -->
+          <!--   スキップ -->
+          <!-- </button> -->
+        </div>
+      </div>
       <!-- モーダルウィンドウ-->
       <!-- <div class="modal" :class="{ 'show-modal': showModal }"> -->
       <!--   <div class="modal-content"> -->

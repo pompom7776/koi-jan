@@ -39,17 +39,33 @@ def set(socket_io: Server):
         players = usecase.room.get_players_in_room(room.number)
 
         round_id = usecase.round.get_round_id_by_room_id(room.id)
-        usecase.game.discard_tile(round_id, player, tile_id)
+        tile = usecase.game.discard_tile(round_id, player, tile_id)
+        usecase.round.get_hand(round_id, player)
+        usecase.round.get_discarded(round_id, player)
+        usecase.round.get_call(round_id, player)
         emit.update_player(socket_io, [p.socket_id for p in players], player)
 
-        next_player_id = usecase.round.get_next_player_id(round_id, player.id)
-        emit.update_current_player(socket_io,
-                                   [p.socket_id for p in players],
-                                   next_player_id)
+        none_call_flags = []
+        for p in players:
+            usecase.round.get_hand(round_id, p)
+            usecase.round.get_discarded(round_id, p)
+            can_pon = usecase.game.check_pon(p, tile)
+            can_kan = usecase.game.check_kan(p, tile)
+            if can_pon:
+                emit.notice_can_pon(socket_io, [p.socket_id])
+            if can_kan:
+                emit.notice_can_kan(socket_io, [p.socket_id])
+            none_call_flags.append(not any([can_pon, can_kan]))
+        if all(none_call_flags):
+            next_player_id = usecase.round.get_next_player_id(
+                round_id, player.id)
+            emit.update_current_player(socket_io,
+                                       [p.socket_id for p in players],
+                                       next_player_id)
 
-        emit.notice_next_draw(socket_io,
-                              [p.socket_id for p in players
-                               if p.id == next_player_id])
+            emit.notice_next_draw(socket_io,
+                                  [p.socket_id for p in players
+                                   if p.id == next_player_id])
 
     @socket_io.on("draw_tile")
     def on_draw_tile(socket_id: str):
@@ -58,6 +74,37 @@ def set(socket_io: Server):
         players = usecase.room.get_players_in_room(room.number)
 
         round_id = usecase.round.get_round_id_by_room_id(room.id)
+        usecase.round.get_hand(round_id, player)
+        usecase.round.get_discarded(round_id, player)
+        usecase.round.get_call(round_id, player)
         usecase.game.tsumo_tile(round_id, player)
+        emit.update_player(socket_io, [p.socket_id for p in players], player)
+        emit.notice_drew(socket_io, [player.socket_id])
+
+    @socket_io.on("pon")
+    def on_pon(socket_id: str):
+        player = usecase.player.get_player_by_socket_id(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        round_id = usecase.round.get_round_id_by_room_id(room.id)
+        usecase.round.get_hand(round_id, player)
+        usecase.round.get_discarded(round_id, player)
+        usecase.game.pon(round_id, player)
+        usecase.round.get_call(round_id, player)
+        emit.update_player(socket_io, [p.socket_id for p in players], player)
+        emit.notice_drew(socket_io, [player.socket_id])
+
+    @socket_io.on("kan")
+    def on_kan(socket_id: str):
+        player = usecase.player.get_player_by_socket_id(socket_id)
+        room = usecase.room.get_room_by_player_id(player.id)
+        players = usecase.room.get_players_in_room(room.number)
+
+        round_id = usecase.round.get_round_id_by_room_id(room.id)
+        usecase.round.get_hand(round_id, player)
+        usecase.round.get_discarded(round_id, player)
+        usecase.game.kan(round_id, player)
+        usecase.round.get_call(round_id, player)
         emit.update_player(socket_io, [p.socket_id for p in players], player)
         emit.notice_drew(socket_io, [player.socket_id])
