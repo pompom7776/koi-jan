@@ -37,11 +37,6 @@ const rightPlayer = ref(null);
 const topPlayer = ref(null);
 const leftPlayer = ref(null);
 
-const bottomDiscarded = ref([]);
-const rightDiscarded = ref([]);
-const topDiscarded = ref([]);
-const leftDiscarded = ref([]);
-
 onMounted(() => {
   socketId.value = sessionStorage.getItem("socketId");
   socket.emit("connect_game", socketId.value);
@@ -115,14 +110,6 @@ const assignRelativeSeats = (myWind) => {
   relativeSeats.value = assignedRelativeSeats;
 };
 
-const getSeatByPlayerId = (playerId) => {
-  for (const seat in relativeSeats.value) {
-    if (relativeSeats.value[seat] == playerId) {
-      return seat;
-    }
-  }
-};
-
 const discardTile = (tile) => {
   if (drawFlag.value) {
     socket.emit("discard_tile", tile.id);
@@ -163,27 +150,27 @@ socket.on("update_players", (received_players) => {
   reloadDisplay();
 });
 
-socket.on("update_discardeds", (received_discardeds) => {
-  for (var i = 0; i < received_discardeds.length; i++) {
-    const seat = getSeatByPlayerId(received_discardeds[i]["player_id"]);
-    if (seat == "bottom") {
-      bottomDiscarded.value = received_discardeds[i]["tiles"];
-    } else if (seat == "right") {
-      rightDiscarded.value = received_discardeds[i]["tiles"];
-    } else if (seat == "top") {
-      topDiscarded.value = received_discardeds[i]["tiles"];
-    } else if (seat == "left") {
-      leftDiscarded.value = received_discardeds[i]["tiles"];
+socket.on("update_player", (received_player) => {
+  for (var i = 0; i < players.value.length; i++) {
+    if (players.value[i]["id"] == received_player["id"]) {
+      players.value[i] = received_player;
     }
   }
+  setSeatPlayers(myId.value);
+
+  reloadDisplay();
 });
 
 socket.on("update_current_player", (received_player_id) => {
   currentPlayerId.value = received_player_id;
 });
 
-socket.on("notice_draw", () => {
+socket.on("notice_drew", () => {
   drawFlag.value = true;
+});
+
+socket.on("notice_next_draw", () => {
+  socket.emit("draw_tile");
 });
 </script>
 
@@ -400,30 +387,30 @@ socket.on("notice_draw", () => {
             <div>局 : {{ roundNumber }}</div>
           </div>
         </div>
-        <div class="top-discarded discarded" v-if="topDiscarded">
+        <div class="top-discarded discarded" v-if="topPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in topDiscarded">
+            <div class="tiles" v-for="tile in topPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
-        <div class="left-discarded discarded" v-if="leftDiscarded">
+        <div class="left-discarded discarded" v-if="leftPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in leftDiscarded">
+            <div class="tiles" v-for="tile in leftPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
-        <div class="right-discarded discarded" v-if="rightDiscarded">
+        <div class="right-discarded discarded" v-if="rightPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in rightDiscarded">
+            <div class="tiles" v-for="tile in rightPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
-        <div class="bottom-discarded discarded" v-if="bottomDiscarded">
+        <div class="bottom-discarded discarded" v-if="bottomPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in bottomDiscarded">
+            <div class="tiles" v-for="tile in bottomPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
@@ -435,7 +422,7 @@ socket.on("notice_draw", () => {
           <!--   :style="getImgDirection(topPlayer.id)" -->
           <!--   :src="`/${topPlayer.seat_wind}.png`" -->
           <!-- /> -->
-          <p class="name-direction">{{ topPlayer.name }}</p>
+          <p class="name-direction">{{ topPlayer.value.name }}</p>
           <!-- <p class="score-direction">{{ topPlayer.score }}点</p> -->
         </div>
         <div class="left-direction direction" v-if="leftPlayer">
@@ -443,7 +430,7 @@ socket.on("notice_draw", () => {
           <!--   :style="getImgDirection(leftPlayer.value.id)" -->
           <!--   :src="`/${leftPlayer.seat_wind}.png`" -->
           <!-- /> -->
-          <p class="name-direction">{{ leftPlayer.name }}</p>
+          <p class="name-direction">{{ leftPlayer.value.name }}</p>
           <!-- <p class="score-direction">{{ leftPlayer.score }}点</p> -->
         </div>
         <div class="right-direction direction" v-if="rightPlayer">
@@ -451,7 +438,7 @@ socket.on("notice_draw", () => {
           <!--   :style="getImgDirection(rightPlayer.id)" -->
           <!--   :src="`/${rightPlayer.seat_wind}.png`" -->
           <!-- /> -->
-          <p class="name-direction">{{ rightPlayer.name }}</p>
+          <p class="name-direction">{{ rightPlayer.value.name }}</p>
           <!-- <p class="score-direction">{{ rightPlayer.score }}点</p> -->
         </div>
         <div class="bottom-direction direction" v-if="bottomPlayer">
@@ -459,7 +446,7 @@ socket.on("notice_draw", () => {
           <!--   :style="getImgDirection(bottomPlayer.id)" -->
           <!--   :src="`/${bottomPlayer.seat_wind}.png`" -->
           <!-- /> -->
-          <p class="name-direction">{{ bottomPlayer.name }}</p>
+          <p class="name-direction">{{ bottomPlayer.value.name }}</p>
           <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
         </div>
       </div>

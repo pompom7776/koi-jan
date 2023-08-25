@@ -183,12 +183,12 @@ CREATE TABLE call (
     type VARCHAR(9),
     call_player_id INT,
     target_player_id INT,
-    targettile_id INT,
+    target_tile_id INT,
     call_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (call_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id),
-    FOREIGN KEY (targettile_id) REFERENCES tile(id)
+    FOREIGN KEY (target_tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: call_tile
@@ -206,11 +206,13 @@ CREATE TABLE agari (
     round_id INT,
     player_id INT,
     target_player_id INT,
+    target_tile_id INT,
     type VARCHAR(5),
     agari_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id)
+    FOREIGN KEY (target_tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: score

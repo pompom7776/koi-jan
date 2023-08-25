@@ -1,6 +1,8 @@
 import random
+from typing import List
 
 from model.room import Game
+from model.player import Player
 from model.round import WINDS
 from model.tile import Tile
 import repository.game
@@ -33,3 +35,24 @@ def setup_game(room_id: int) -> Game:
     game.round = round
 
     return game
+
+
+def deal_tiles(players: List[Player], round_id: int):
+    for player in players:
+        tiles = repository.wall.draw_tile(round_id, player.id, 13)
+        player.hand = tiles
+
+
+def discard_tile(round_id: int, player: Player, tile_id: int):
+    repository.player.discard_tile(round_id, player.id, tile_id)
+    player.hand = repository.player.fetch_hand(round_id, player.id)
+    player.discarded = repository.player.fetch_discarded_tiles(round_id,
+                                                               player.id)
+
+
+def tsumo_tile(round_id: int, player: Player):
+    player.hand = repository.player.fetch_hand(round_id, player.id)
+    player.discarded = repository.player.fetch_discarded_tiles(round_id,
+                                                               player.id)
+    tile = repository.wall.draw_tile(round_id, player.id)[0]
+    player.tsumo = tile

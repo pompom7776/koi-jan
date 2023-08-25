@@ -1,7 +1,8 @@
+from typing import List
+
 from db.database import execute_query, fetch_data
 from model.player import Player
 from model.tile import Tile
-from model.tiles import Tiles
 
 
 def create_player(name: str, socket_id: str) -> int:
@@ -70,7 +71,7 @@ def discard_tile(round_id: int, player_id: int, tile_id: int):
     execute_query(query, (round_id, player_id, tile_id))
 
 
-def fetch_discarded_tiles(round_id: int, player_id: int) -> Tiles:
+def fetch_discarded_tiles(round_id: int, player_id: int) -> List[Tile]:
     query = (
         "SELECT t.id, t.suit, t.rank, t.name "
         "FROM discard d "
@@ -80,9 +81,53 @@ def fetch_discarded_tiles(round_id: int, player_id: int) -> Tiles:
     )
     result = fetch_data(query, (round_id, player_id))
 
-    discarded = Tiles(player_id)
+    discarded: List[Tile] = []
     for row in result:
         tile = Tile(id=row[0], suit=row[1], rank=row[2], name=row[3])
-        discarded.tiles.append(tile)
+        discarded.append(tile)
 
     return discarded
+
+
+def fetch_hand(round_id: int, player_id: int) -> List[Tile]:
+    query = (
+        "SELECT d.tile_id "
+        "FROM draw d "
+        "WHERE d.round_id = %s AND d.player_id = %s "
+        "AND NOT EXISTS ("
+        "    SELECT 1 "
+        "    FROM discard dc "
+        "    WHERE dc.round_id = d.round_id "
+        "    AND dc.player_id = d.player_id "
+        "    AND dc.tile_id = d.tile_id"
+        ") "
+        "AND NOT EXISTS ("
+        "    SELECT 1 "
+        "    FROM call c "
+        "    WHERE c.round_id = d.round_id "
+        "    AND c.call_player_id = d.player_id "
+        "    AND c.targettile_id = d.tile_id"
+        ") "
+        "AND NOT EXISTS ("
+        "    SELECT 1 "
+        "    FROM agari a "
+        "    WHERE a.round_id = d.round_id "
+        "    AND a.player_id = d.player_id "
+        "    AND a.type = 'ron'"
+        ")"
+    )
+    tile_ids = fetch_data(query, (round_id, player_id))
+
+    if tile_ids:
+        query = (
+            "SELECT t.id, t.suit, t.rank, t.name "
+            "FROM tile t "
+            "WHERE t.id IN %s"
+        )
+        tiles_data = fetch_data(query, (tuple(tile[0] for tile in tile_ids),))
+
+        hand_tiles = [Tile(id=row[0], suit=row[1], rank=row[2], name=row[3])
+                      for row in tiles_data]
+        return hand_tiles
+    else:
+        return []

@@ -48,7 +48,9 @@ def fetch_wall(wall_id: int) -> Wall:
         return None
 
 
-def draw_tile(round_id: int, player_id: int) -> Tile:
+def draw_tile(round_id: int,
+              player_id: int,
+              draw_number: int = 1) -> List[Tile]:
     query = (
         "SELECT wall_id "
         "FROM round "
@@ -72,14 +74,17 @@ def draw_tile(round_id: int, player_id: int) -> Tile:
         "JOIN wall_tile wt ON t.id = wt.tile_id "
         "WHERE wt.wall_id = %s "
         "ORDER BY wt.id "
-        "LIMIT 1 OFFSET %s"
+        "LIMIT %s OFFSET %s"
     )
     drawn_tile_count = MAX_TILE_NUMBER - remaining_number
-    result = fetch_data(query, (wall_id, drawn_tile_count))[0]
+    result = fetch_data(query, (wall_id, draw_number, drawn_tile_count))
 
-    tile = Tile(id=result[0], suit=result[1], rank=result[2], name=result[3])
+    tiles = []
+    for row in result:
+        tile = Tile(id=row[0], suit=row[1], rank=row[2], name=row[3])
+        tiles.append(tile)
 
-    remaining_number -= 1
+    remaining_number -= draw_number
     query = (
         "UPDATE wall "
         "SET remaining_number = %s "
@@ -87,13 +92,14 @@ def draw_tile(round_id: int, player_id: int) -> Tile:
     )
     execute_query(query, (remaining_number, wall_id))
 
-    query = (
-        "INSERT INTO draw (round_id, player_id, tile_id) "
-        "VALUES (%s, %s, %s)"
-    )
-    execute_query(query, (round_id, player_id, tile.id))
+    for tile in tiles:
+        query = (
+            "INSERT INTO draw (round_id, player_id, tile_id) "
+            "VALUES (%s, %s, %s)"
+        )
+        execute_query(query, (round_id, player_id, tile.id))
 
-    return tile
+    return tiles
 
 
 def fetch_dora(wall_id: int) -> List[Tile]:

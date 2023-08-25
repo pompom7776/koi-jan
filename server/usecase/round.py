@@ -1,16 +1,6 @@
-from typing import List
-
-from model.player import Player
 from model.round import Round, WINDS
 import repository.wall
 import repository.round
-
-
-def deal_tiles(players: List[Player], round_id: int):
-    for player in players:
-        for _ in range(13):
-            tile = repository.wall.draw_tile(round_id, player.id)
-            player.hand.append(tile)
 
 
 def get_round(round_id: int) -> Round:
@@ -24,19 +14,14 @@ def get_round(round_id: int) -> Round:
     return round
 
 
-def tsumo_tile(round_id: int, player: Player):
-    tile = repository.wall.draw_tile(round_id, player.id)
-    player.tsumo = tile
-
-
 def get_round_id_by_room_id(room_id: int) -> int:
     round_id = repository.round.fetch_round_id_by_room_id(room_id)
     return round_id
 
 
 def get_next_player_id(round_id: int, player_id: int) -> int:
-    current_wind = repository.round.fetch_wind_by_player_id(
-        round_id, player_id)
+    current_wind = repository.round.fetch_wind_by_player_id(round_id,
+                                                            player_id)
     wind_index = WINDS.index(current_wind)
     if wind_index == len(WINDS) - 1:
         next_wind = WINDS[0]

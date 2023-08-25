@@ -11,3 +11,4 @@ class Player:
     socket_id: str
     hand: List[Tile] = field(default_factory=list)
     tsumo: Tile = None
+    discarded: List[Tile] = field(default_factory=list)
