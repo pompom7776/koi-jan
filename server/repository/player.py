@@ -174,7 +174,6 @@ def fetch_call(round_id: int, player_id: int) -> List[Call]:
             "WHERE call_id = %s"
         )
         tile_ids = [record[0] for record in fetch_data(query, (call_id,))]
-        print(tile_ids)
 
         tiles = []
         for tile_id in tile_ids:
@@ -184,19 +183,16 @@ def fetch_call(round_id: int, player_id: int) -> List[Call]:
                 "LIMIT 1"
             )
             tile_result = fetch_data(query, (tile_id,))
-            print(tile_result)
 
             if tile_result:
                 id, suit, rank, name = tile_result[0]
                 tile = Tile(id, suit, rank, name)
-                print(tile)
                 tiles.append(tile)
 
         call = Call(type=call_type,
                     tiles=tiles,
                     target_player_id=target_player_id,
                     target_tile_id=target_tile_id)
-        print(call)
         calls.append(call)
 
     return calls

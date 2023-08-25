@@ -120,19 +120,17 @@ const discardTile = (tile) => {
   }
 };
 
+const skipCall = () => {
+  socket.emit("skipCall");
+  canPon.value = false;
+  canKan.value = false;
+};
 const pon = () => {
   socket.emit("pon");
   canPon.value = false;
 };
-const skipPon = () => {
-  canPon.value = false;
-};
-
 const kan = () => {
   socket.emit("kan");
-  canKan.value = false;
-};
-const skipKan = () => {
   canKan.value = false;
 };
 
@@ -495,9 +493,8 @@ socket.on("notice_can_kan", () => {
           <!--   リーチ: OFF -->
           <!-- </button> -->
           <button @click="pon" v-if="canPon">ポン</button>
-          <button @click="skipPon" v-if="canPon">スキップ</button>
           <button @click="kan" v-if="canKan">カン</button>
-          <button @click="skipKan" v-if="canKan">スキップ</button>
+          <button @click="skipCall" v-if="canPon || canKan">スキップ</button>
           <!-- <button @click="ron" v-if="action.ron">ロン</button> -->
           <!-- <button @click="skipRon" v-if="action.ron">スキップ</button> -->
           <!-- <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button> -->
