@@ -200,9 +200,9 @@ erDiagram
     int tile_id FK
     timestamp riichi_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
-  draw ||--|| tile: ""
+  riichi ||--|| round: ""
+  riichi ||--|| player: ""
+  riichi ||--|| tile: ""
 
   select_tile {
     int id PK
@@ -211,9 +211,9 @@ erDiagram
     int tile_id FK
     timestamp select_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
-  draw ||--|| tile: ""
+  select_tile ||--|| round: ""
+  select_tile ||--|| player: ""
+  select_tile ||--|| tile: ""
 
   vote {
     int id PK
@@ -222,6 +222,6 @@ erDiagram
     int target_player_id FK
     timestamp vote_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
+  vote ||--|| round: ""
+  vote ||--|| player: ""
 ```
