@@ -197,10 +197,12 @@ erDiagram
     int id PK
     int round_id FK
     int player_id FK
+    int tile_id FK
     timestamp riichi_time
   }
   draw ||--|| round: ""
   draw ||--|| player: ""
+  draw ||--|| tile: ""
 
   select_tile {
     int id PK
