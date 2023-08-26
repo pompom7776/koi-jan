@@ -246,9 +246,11 @@ CREATE TABLE riichi (
     id SERIAL PRIMARY KEY,
     round_id INT,
     player_id INT,
+    tile_id INT,
     riichi_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
-    FOREIGN KEY (player_id) REFERENCES player(id)
+    FOREIGN KEY (player_id) REFERENCES player(id),
+    FOREIGN KEY (tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: select
