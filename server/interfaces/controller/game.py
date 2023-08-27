@@ -45,8 +45,8 @@ def set(socket_io: Server):
 
         round_usecase.tsumo_tile(socket_io, round_id, players, player)
 
-    @socket_io.on("skipCall")
-    def on_skipCall(socket_id: str):
+    @socket_io.on("skip")
+    def on_skip(socket_id: str):
         player = player_util.get_player_by_socket_id(socket_id)
         room = room_util.get_room_by_player_id(player.id)
         players = player_util.get_players_in_room(room.number)
@@ -63,3 +63,13 @@ def set(socket_io: Server):
         round_id = round_util.get_round_id_by_room_id(room.id)
 
         round_usecase.call(socket_io, round_id, players, player, call_type)
+
+    @socket_io.on("ron")
+    def on_ron(socket_id: str):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+        round = round_util.get_round(round_id)
+
+        round_usecase.ron(socket_io, round, players, player)

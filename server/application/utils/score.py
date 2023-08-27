@@ -5,13 +5,13 @@ from mahjong.shanten import Shanten
 from mahjong.tile import TilesConverter
 from mahjong.hand_calculating.hand import HandCalculator
 from mahjong.hand_calculating.hand_config import HandConfig, OptionalRules
+from mahjong.hand_calculating.hand_response import HandResponse
 from mahjong.meld import Meld
 from mahjong.constants import EAST, SOUTH, WEST, NORTH
 
 from model.player import Player
 from model.tile import Tile
 from application.utils.tile import sort_tiles_by_id
-import repository.db.round as round_repo
 
 
 def shanten(tiles: List[Tile]):
@@ -23,11 +23,16 @@ def shanten(tiles: List[Tile]):
 def agari(player: Player,
           win_tile: Tile,
           dora: List[Tile],
-          round_wind: str):
+          seat_wind: str,
+          round_wind: str) -> HandResponse:
     tiles = copy.deepcopy(player.hand)
+    is_tsumo = False
     if player.tsumo:
         is_tsumo = True
         tiles.append(player.tsumo)
+    for call in player.call:
+        for tile in call.tiles:
+            tiles.append(tile)
     char_tiles = convert_136_tiles(tiles)
     char_win_tile = convert_136_tile(win_tile)
 
@@ -50,7 +55,6 @@ def agari(player: Player,
 
     dora_indicators = [convert_136_tile(t) for t in dora]
 
-    seat_wind = round_repo.fetch_wind_by_player_id(player.id)
     winds = {
         "east": EAST,
         "south": SOUTH,

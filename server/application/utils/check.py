@@ -4,7 +4,7 @@ from application.utils.score import agari
 
 
 def pon(player: Player, tile: Tile) -> bool:
-    suit_tiles = [t for t in player.hand.tiles
+    suit_tiles = [t for t in player.hand
                   if t.suit == tile.suit and t.rank == tile.rank]
     count = len(suit_tiles)
     if count >= 2 and not player.is_riichi:
@@ -14,7 +14,7 @@ def pon(player: Player, tile: Tile) -> bool:
 
 
 def kan(player: Player, tile: Tile) -> bool:
-    suit_tiles = [t for t in player.hand.tiles
+    suit_tiles = [t for t in player.hand
                   if t.suit == tile.suit and t.rank == tile.rank]
     count = len(suit_tiles)
     if count >= 3 and not player.is_riichi:
@@ -23,10 +23,10 @@ def kan(player: Player, tile: Tile) -> bool:
     return False
 
 
-def ron(player: Player, tile: Tile, round_wind: str):
+def ron(player: Player, tile: Tile, seat_wind: str, round_wind: str):
     player.hand.append(tile)
-    result = agari(player, tile, [], round_wind)
+    result = agari(player, tile, [], seat_wind, round_wind)
     player.hand.pop(-1)
-    if result.__dict__["yaku"] != []:
+    if result.yaku is not None:
         return True
     return False

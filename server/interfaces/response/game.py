@@ -5,6 +5,7 @@ from socketio import Server
 
 from model.room import Room
 from model.player import Player
+from model.score import Score
 
 
 def reconnected(socket_io: Server, to: List[str], new_socket_id: str):
@@ -63,3 +64,8 @@ def notice_can_kan(socket_io: Server, to: List[str]):
 def notice_can_ron(socket_io: Server, to: List[str]):
     for socket_id in to:
         socket_io.emit("notice_can_ron", room=socket_id)
+
+
+def notice_ron(socket_io: Server, to: List[str], score: Score):
+    for socket_id in to:
+        socket_io.emit("notice_ron", asdict(score), room=socket_id)

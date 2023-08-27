@@ -4,17 +4,20 @@ import random
 from socketio import Server
 
 from model.room import Room
+from model.round import Round
 from model.player import Player
 from model.tile import Tile
 from model.round import WINDS
 import application.utils.round as round_util
 import application.utils.check as check_util
+import application.utils.score as score_util
 import repository.db.tile as tile_repo
 import repository.db.wall as wall_repo
 import repository.db.round as round_repo
 import repository.db.draw as draw_repo
 import repository.db.discard as discard_repo
 import repository.db.call as call_repo
+import repository.db.agari as agari_repo
 import interfaces.response.game as emit
 
 
@@ -88,10 +91,12 @@ def discard_tile(socket_io: Server,
     for p in players:
         p.hand = draw_repo.fetch_hand(round_id, p.id)
         p.discarded = discard_repo.fetch_discarded_tiles(round_id, p.id)
+        p.call = call_repo.fetch_call(round_id, p.id)
+        seat_wind = round_repo.fetch_wind_by_player_id(round.id, player.id)
         # p.riichi =
         can_pon = check_util.pon(p, tile)
         can_kan = check_util.kan(p, tile)
-        can_ron = check_util.ron(p, tile, round.round_wind)
+        can_ron = check_util.ron(p, tile, seat_wind, round.round_wind)
         if can_pon:
             emit.notice_can_pon(socket_io, [p.socket_id])
         if can_kan:
@@ -146,3 +151,26 @@ def call(socket_io: Server,
                                [p.socket_id for p in players],
                                caller.id)
     emit.notice_drew(socket_io, [caller.socket_id])
+
+
+def ron(socket_io: Server,
+        round: Round,
+        players: List[Player],
+        player: Player):
+    player.hand = draw_repo.fetch_hand(round.id, player.id)
+    player.discarded = discard_repo.fetch_discarded_tiles(round.id, player.id)
+    player.call = call_repo.fetch_call(round.id, player.id)
+
+    tile_id, player_id = discard_repo.fetch_latest_discarded_tile(round.id)
+    tile = tile_repo.fetch_tile(tile_id)
+    player.hand.append(tile)
+
+    seat_wind = round_repo.fetch_wind_by_player_id(round.id, player.id)
+    result = score_util.agari(player, tile, round.dora,
+                              seat_wind, round.round_wind)
+    agari_id = agari_repo.agari(round.id, player.id, player_id, tile_id, "ron")
+    cost = result.cost["main"] + result.cost["additional"]*2
+    yaku = [yaku.name for yaku in result.yaku]
+    score = agari_repo.set_score(agari_id, cost, result.han, result.fu, yaku)
+
+    emit.notice_ron(socket_io, [p.socket_id for p in players], score)
