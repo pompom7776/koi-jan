@@ -42,7 +42,6 @@ def fetch_call(round_id: int, player_id: int) -> List[Call]:
         "WHERE round_id = %s AND call_player_id = %s"
     )
     result = fetch_data(query, (round_id, player_id))
-    print(result)
     calls = []
     for call_id, call_type, target_player_id, target_tile_id in result:
         query = (

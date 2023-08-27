@@ -42,9 +42,8 @@ const leftPlayer = ref(null);
 
 onMounted(() => {
   socketId.value = sessionStorage.getItem("socketId");
-  socket.emit("connect_game", socketId.value);
   host.value = sessionStorage.getItem("host");
-  if (host.value == "true") socket.emit("setup_game");
+  socket.emit("connect_game", socketId.value);
 });
 
 const reloadDisplay = async () => {
@@ -125,18 +124,17 @@ const skipCall = () => {
   canPon.value = false;
   canKan.value = false;
 };
-const pon = () => {
-  socket.emit("pon");
+const call = (callType) => {
+  console.log(callType);
+  socket.emit("call", callType);
   canPon.value = false;
-};
-const kan = () => {
-  socket.emit("kan");
   canKan.value = false;
 };
 
 socket.on("reconnected", (socket_id) => {
   socketId.value = socket_id;
   sessionStorage.setItem("socketId", socket_id);
+  if (host.value == "true") socket.emit("setup_round");
 });
 
 socket.on("update_game", (received_game) => {
@@ -492,8 +490,8 @@ socket.on("notice_can_kan", () => {
           <!-- > -->
           <!--   リーチ: OFF -->
           <!-- </button> -->
-          <button @click="pon" v-if="canPon">ポン</button>
-          <button @click="kan" v-if="canKan">カン</button>
+          <button @click="call('pon')" v-if="canPon">ポン</button>
+          <button @click="call('kan')" v-if="canKan">カン</button>
           <button @click="skipCall" v-if="canPon || canKan">スキップ</button>
           <!-- <button @click="ron" v-if="action.ron">ロン</button> -->
           <!-- <button @click="skipRon" v-if="action.ron">スキップ</button> -->

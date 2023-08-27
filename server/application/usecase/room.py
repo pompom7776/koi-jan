@@ -1,10 +1,17 @@
-from typing import List
 import random
+from typing import List
+
+from socketio import Server
 
 from model.player import Player
 from model.room import Room
 import repository.db.room as room_repo
 import repository.db.player as player_repo
+import interfaces.response.room as emit
+
+
+def connect(socket_io: Server, socket_id: str):
+    emit.connected(socket_io, [socket_id])
 
 
 def create_room(player_id: int) -> Room:
@@ -20,58 +27,59 @@ def create_room(player_id: int) -> Room:
     return room
 
 
-def enter_room(room_number: int, player_id: int):
+def enter_room(socket_io: Server,
+               room_number: int,
+               players: List[Player],
+               player: Player):
     # TODO: 部屋がない場合に対応
     # TODO: 満席の場合に対応
     # TODO: 既に同じ名前のプレイヤーが入室している場合に対応
     rooms = room_repo.fetch_open_rooms()
     room = next((room for room in rooms if room.number == room_number))
-    room_repo.enter_room(room.id, player_id)
+    room_repo.enter_room(room.id, player.id)
+
+    emit.entered_room(socket_io, [player.socket_id], room.number)
+    emit.joined_room(socket_io,
+                     [p.socket_id for p in players],
+                     player.name)
 
 
-def leave_room(room_id: int, player_id: int):
-    room_repo.leave_room(room_id, player_id)
+def leave_room(socket_io: Server,
+               room_id: int,
+               players: List[Player],
+               player: Player):
+    room_repo.leave_room(room_id, player.id)
+    emit.left_room(socket_io,
+                   [p.socket_id for p in players],
+                   player.name)
 
 
-def get_players_in_room(room_number: int) -> List[Player]:
-    rooms = room_repo.fetch_open_rooms()
-    room = next((room for room in rooms if room.number == room_number))
-    players = room_repo.fetch_players_in_room(room.id)
-
-    return players
-
-
-def reconnect(new_socket_id: str,
-              old_socket_id: str):
+def reconnect(socket_io: Server,
+              new_socket_id: str,
+              old_socket_id: str,
+              players: List[Player]):
     player_repo.update_player_socket_id(new_socket_id, old_socket_id)
+    emit.reconnected(socket_io, [new_socket_id], new_socket_id)
+    emit.players_info(socket_io,
+                      [new_socket_id],
+                      [p.name for p in players])
 
 
-def get_room_by_player_id(player_id: int) -> Room:
-    room = room_repo.fetch_open_room_by_player_id(player_id)
-
-    return room
-
-
-def get_players(socket_id: str):
-    player = player_repo.fetch_player_by_socket_id(socket_id)
-    room = room_repo.fetch_open_room_by_player_id(player.id)
-    players = room_repo.fetch_players_in_room(room.id)
-    player_names = [p.name for p in players]
-
-    return player_names
+def ready(socket_io: Server,
+          players: List[Player],
+          room_id: int,
+          player: Player):
+    room_repo.ready_room(room_id, player.id)
+    emit.readied_game(socket_io,
+                      [p.socket_id for p in players],
+                      player.name)
 
 
-def ready(socket_id: str) -> Player:
-    player = player_repo.fetch_player_by_socket_id(socket_id)
-    room = room_repo.fetch_open_room_by_player_id(player.id)
-    room_repo.ready_room(room.id, player.id)
-
-    return player
-
-
-def unready(socket_id: str) -> Player:
-    player = player_repo.fetch_player_by_socket_id(socket_id)
-    room = room_repo.fetch_open_room_by_player_id(player.id)
-    room_repo.unready_room(room.id, player.id)
-
-    return player
+def unready(socket_io: Server,
+            players: List[Player],
+            room_id: int,
+            player: Player):
+    room_repo.unready_room(room_id, player.id)
+    emit.unreadied_game(socket_io,
+                        [p.socket_id for p in players],
+                        player.name)
