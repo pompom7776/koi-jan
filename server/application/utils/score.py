@@ -1,3 +1,4 @@
+import copy
 from typing import List
 
 from mahjong.shanten import Shanten
@@ -7,36 +8,41 @@ from mahjong.hand_calculating.hand_config import HandConfig, OptionalRules
 from mahjong.meld import Meld
 from mahjong.constants import EAST, SOUTH, WEST, NORTH
 
+from model.player import Player
 from model.tile import Tile
+from application.utils.tile import sort_tiles_by_id
+import repository.db.round as round_repo
 
 
-def shanten(tiles: List[Tile]) -> int:
+def shanten(tiles: List[Tile]):
     char_tiles = convert_34_tiles(tiles)
-    return Shanten().calculate_shanten(char_tiles)
+    shanten = Shanten()
+    return shanten.calculate_shanten(char_tiles)
 
 
-def agari(hand: List[Tile],
+def agari(player: Player,
           win_tile: Tile,
           dora: List[Tile],
-          round_wind: str,
-          seat_wind: str,
-          is_tsumo: bool,
-          is_riichi: bool):
-    char_tiles = convert_136_tiles(hand)
+          round_wind: str):
+    tiles = copy.deepcopy(player.hand)
+    if player.tsumo:
+        is_tsumo = True
+        tiles.append(player.tsumo)
+    char_tiles = convert_136_tiles(tiles)
     char_win_tile = convert_136_tile(win_tile)
 
     calculator = HandCalculator()
 
-    if hand.calls != []:
+    if player.call != []:
         melds = []
         pons = [
             Meld(Meld.PON, convert_136_tiles(call.tiles))
-            for call in hand.calls if call.tile_type == "pon"
+            for call in player.call if call.type == "pon"
         ]
         melds.extend(pons)
         kans = [
             Meld(Meld.KAN, convert_136_tiles(call.tiles))
-            for call in hand.calls if call.tile_type == "dai_min_kan"
+            for call in player.call if call.type == "kan"
         ]
         melds.extend(kans)
     else:
@@ -44,6 +50,7 @@ def agari(hand: List[Tile],
 
     dora_indicators = [convert_136_tile(t) for t in dora]
 
+    seat_wind = round_repo.fetch_wind_by_player_id(player.id)
     winds = {
         "east": EAST,
         "south": SOUTH,
@@ -52,7 +59,7 @@ def agari(hand: List[Tile],
     }
 
     config = HandConfig(is_tsumo=is_tsumo,
-                        is_riichi=is_riichi,
+                        is_riichi=player.is_riichi,
                         player_wind=winds[seat_wind],
                         round_wind=winds[round_wind],
                         options=OptionalRules(has_open_tanyao=True))
@@ -63,7 +70,7 @@ def agari(hand: List[Tile],
                                             dora_indicators,
                                             config)
 
-    return (result)
+    return result
 
 
 def convert_34_tiles(tiles: List[Tile]):
@@ -74,7 +81,7 @@ def convert_34_tiles(tiles: List[Tile]):
     #          5-7: white, green, red
     honors = ''
 
-    sorted_tiles = sorted(tiles, key=lambda tile: tile.id)
+    sorted_tiles = sort_tiles_by_id(tiles)
     for tile in sorted_tiles:
         if tile.suit == "manzu":
             man += str(tile.rank)
@@ -126,7 +133,7 @@ def convert_136_tiles(tiles: List[Tile]):
     #          5-7: white, green, red
     honors = ''
 
-    sorted_tiles = sorted(tiles, key=lambda tile: tile.id)
+    sorted_tiles = sort_tiles_by_id(tiles)
     for tile in sorted_tiles:
         if tile.suit == "manzu":
             man += str(tile.rank)

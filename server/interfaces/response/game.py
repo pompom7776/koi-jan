@@ -58,3 +58,8 @@ def notice_can_pon(socket_io: Server, to: List[str]):
 def notice_can_kan(socket_io: Server, to: List[str]):
     for socket_id in to:
         socket_io.emit("notice_can_kan", room=socket_id)
+
+
+def notice_can_ron(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_can_ron", room=socket_id)

@@ -7,7 +7,8 @@ from model.room import Room
 from model.player import Player
 from model.tile import Tile
 from model.round import WINDS
-import application.utils as utils
+import application.utils.round as round_util
+import application.utils.check as check_util
 import repository.db.tile as tile_repo
 import repository.db.wall as wall_repo
 import repository.db.round as round_repo
@@ -57,7 +58,7 @@ def update_current_player(socket_io: Server,
                           players: List[Player],
                           player_id: int):
     current_wind = round_repo.fetch_wind_by_player_id(round_id, player_id)
-    next_wind = utils.get_next_wind(current_wind)
+    next_wind = round_util.get_next_wind(current_wind)
     next_player_id = round_repo.fetch_player_id_by_wind(round_id,
                                                         next_wind)
     emit.update_current_player(socket_io,
@@ -74,6 +75,7 @@ def discard_tile(socket_io: Server,
                  players: List[Player],
                  player: Player,
                  tile_id: int) -> Tile:
+    round = round_util.get_round(round_id)
     discard_repo.discard_tile(round_id, player.id, tile_id)
     tile = tile_repo.fetch_tile(tile_id)
 
@@ -86,12 +88,16 @@ def discard_tile(socket_io: Server,
     for p in players:
         p.hand = draw_repo.fetch_hand(round_id, p.id)
         p.discarded = discard_repo.fetch_discarded_tiles(round_id, p.id)
-        can_pon = utils.check_pon(p, tile)
-        can_kan = utils.check_kan(p, tile)
+        # p.riichi =
+        can_pon = check_util.pon(p, tile)
+        can_kan = check_util.kan(p, tile)
+        can_ron = check_util.ron(p, tile, round.round_wind)
         if can_pon:
             emit.notice_can_pon(socket_io, [p.socket_id])
         if can_kan:
             emit.notice_can_kan(socket_io, [p.socket_id])
+        if can_ron:
+            emit.notice_can_ron(socket_io, [p.socket_id])
         none_call_flags.append(not any([can_pon, can_kan]))
     if all(none_call_flags):
         update_current_player(socket_io, round_id, players, player.id)
