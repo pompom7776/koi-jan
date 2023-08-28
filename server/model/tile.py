@@ -7,3 +7,5 @@ class Tile:
     suit: str
     rank: int
     name: str
+    riichi: bool = False
+    can_riichi: bool = False

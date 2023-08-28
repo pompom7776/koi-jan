@@ -32,6 +32,15 @@ def update_player(socket_io: Server, to: List[str], player: Player):
                        room=socket_id)
 
 
+def update_remaining_number(socket_io: Server,
+                            to: List[str],
+                            remaining_number: int):
+    for socket_id in to:
+        socket_io.emit("update_remaining_number",
+                       remaining_number,
+                       room=socket_id)
+
+
 def update_current_player(socket_io: Server,
                           to: List[str],
                           current_player_id: int):
@@ -66,6 +75,16 @@ def notice_can_ron(socket_io: Server, to: List[str]):
         socket_io.emit("notice_can_ron", room=socket_id)
 
 
-def notice_ron(socket_io: Server, to: List[str], score: Score):
+def notice_can_riichi(socket_io: Server, to: List[str]):
     for socket_id in to:
-        socket_io.emit("notice_ron", asdict(score), room=socket_id)
+        socket_io.emit("notice_can_riichi", room=socket_id)
+
+
+def notice_can_tsumo(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_can_tsumo", room=socket_id)
+
+
+def notice_agari(socket_io: Server, to: List[str], score: Score):
+    for socket_id in to:
+        socket_io.emit("notice_agari", asdict(score), room=socket_id)

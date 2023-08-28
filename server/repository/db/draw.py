@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from db.database import execute_query, fetch_data
 from model.tile import Tile
@@ -96,3 +96,20 @@ def fetch_hand(round_id: int, player_id: int) -> List[Tile]:
         return hand_tiles
     else:
         return []
+
+
+def fetch_latest_draw_tile(round_id: str) -> Tuple[int, int]:
+    query = (
+        "SELECT tile_id, player_id "
+        "FROM draw "
+        "WHERE round_id = %s "
+        "ORDER BY draw_time DESC "
+        "LIMIT 1"
+    )
+    result = fetch_data(query, (round_id,))
+
+    if result:
+        tile_id, player_id = result[0]
+        return tile_id, player_id
+    else:
+        return None, None
