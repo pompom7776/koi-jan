@@ -3,6 +3,7 @@ from typing import List
 
 from model.call import Call
 from model.tile import Tile
+from model.score import Score
 
 
 @dataclass
@@ -15,3 +16,4 @@ class Player:
     discarded: List[Tile] = field(default_factory=list)
     call: List[Call] = field(default_factory=list)
     is_riichi: bool = False
+    score: Score = None

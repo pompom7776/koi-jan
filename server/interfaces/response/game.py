@@ -88,3 +88,8 @@ def notice_can_tsumo(socket_io: Server, to: List[str]):
 def notice_agari(socket_io: Server, to: List[str], score: Score):
     for socket_id in to:
         socket_io.emit("notice_agari", asdict(score), room=socket_id)
+
+
+def notice_end(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_end", room=socket_id)

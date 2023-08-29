@@ -63,3 +63,63 @@ def set_score(agari_id: int,
     score.yaku = [row[0] for row in result]
 
     return score
+
+
+def fetch_score(round_id: int, player_id: int) -> Score:
+    query = (
+        "SELECT s.id, s.score, s.han, s.fu "
+        "FROM score s "
+        "JOIN agari a ON s.agari_id = a.id "
+        "WHERE a.round_id = %s AND a.player_id = %s "
+    )
+    result = fetch_data(query, (round_id, player_id))
+
+    if result:
+        score_id = result[0][0]
+        score_value = result[0][1]
+        han = result[0][2]
+        fu = result[0][3]
+        score = Score(score_id, score_value, han, fu)
+    else:
+        return None
+
+    query = (
+        "SELECT y.ja_name "
+        "FROM yaku y "
+        "JOIN score_yaku sy ON y.id = sy.yaku_id "
+        "WHERE sy.score_id = %s"
+    )
+    result = fetch_data(query, (score_id,))
+
+    if result:
+        for row in result:
+            score.yaku.append(row[0])
+    return score
+
+
+def fetch_agari(round_id: int, player_id: int) -> bool:
+    query = (
+        "SELECT 1 "
+        "FROM agari "
+        "WHERE round_id = %s AND player_id = %s"
+    )
+    result = fetch_data(query, (round_id, player_id))
+
+    if result:
+        return True
+    else:
+        return False
+
+
+def fetch_agari_count(round_id: int) -> int:
+    query = (
+        "SELECT COUNT(*) "
+        "FROM agari "
+        "WHERE round_id = %s"
+    )
+    result = fetch_data(query, (round_id,))
+
+    if result:
+        return result[0][0]
+    else:
+        return None

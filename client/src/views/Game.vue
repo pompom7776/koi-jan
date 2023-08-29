@@ -22,6 +22,10 @@ const currentPlayerId = ref(0);
 
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
+const endFlag = ref(false);
+const voteFlag = ref(false);
+
+const showModal = ref(false);
 
 const canPon = ref(false);
 const canKan = ref(false);
@@ -150,18 +154,28 @@ const riichi = () => {
   }
 };
 const ron = () => {
-  socket.emit("ron");
+  socket.emit("agari", "ron");
   canPon.value = false;
   canKan.value = false;
   canRon.value = false;
+  canRiichi.value = false;
   canTsumo.value = false;
 };
 const tsumo = () => {
-  socket.emit("tsumo");
+  socket.emit("agari", "tsumo");
   canPon.value = false;
   canKan.value = false;
   canRon.value = false;
+  canRiichi.value = false;
   canTsumo.value = false;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  endFlag.value = false;
+  if (host.value == "true") {
+    socket.emit("close_score_result");
+  }
 };
 
 socket.on("reconnected", (socket_id) => {
@@ -254,6 +268,12 @@ socket.on("notice_can_tsumo", () => {
 socket.on("notice_agari", (score) => {
   console.log(score);
 });
+
+socket.on("notice_end", () => {
+  console.log("end");
+  showModal.value = true;
+  endFlag.value = true;
+});
 </script>
 
 <template>
@@ -332,37 +352,82 @@ socket.on("notice_agari", (score) => {
         </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
-          <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
+        <div
+          v-if="!riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand"
+        >
+          <MahjongTile
+            @click="discardTile(tile)"
+            :tile="tile.name"
+            :scale="0.5"
+            :rotate="0"
+            :limit="false"
+          />
         </div>
-        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+        <div
+          v-if="riichiFlag"
+          class="tiles"
+          v-for="tile in bottomPlayer.value.hand"
+        >
           <div v-if="tile.can_riichi">
-            <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
+            <MahjongTile
+              @click="discardTile(tile)"
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="false"
+            />
           </div>
           <div v-if="!tile.can_riichi">
-            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
+            <MahjongTile
+              :tile="tile.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="true"
+            />
           </div>
         </div>
         <div v-if="bottomPlayer.value.tsumo" class="tsumo">
           <div v-if="riichiFlag">
             <div v-if="!bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
+              <MahjongTile
+                :tile="bottomPlayer.value.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :limit="true"
+              />
             </div>
             <div v-if="bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name"
-                :scale="0.5" :rotate="0" :limit="false" />
+              <MahjongTile
+                @click="discardTile(bottomPlayer.value.tsumo)"
+                :tile="bottomPlayer.value.tsumo.name"
+                :scale="0.5"
+                :rotate="0"
+                :limit="false"
+              />
             </div>
           </div>
           <div v-if="!riichiFlag">
-            <MahjongTile @click="discardTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
-              :rotate="0" :limit="false" />
+            <MahjongTile
+              @click="discardTile(bottomPlayer.value.tsumo)"
+              :tile="bottomPlayer.value.tsumo.name"
+              :scale="0.5"
+              :rotate="0"
+              :limit="false"
+            />
           </div>
         </div>
         <div class="calls" v-for="call in bottomPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div v-if="voteFlag">
-                <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+                <MahjongTile
+                  @click="discardTile(tile)"
+                  :tile="tile.name"
+                  :scale="0.5"
+                  :rotate="0"
+                />
               </div>
               <div v-else>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -384,7 +449,12 @@ socket.on("notice_agari", (score) => {
             <div v-if="player.id == myId">
               <div class="three-tiles-vote">
                 <div class="tiles" v-for="tile in player.selected_tiles">
-                  <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+                  <MahjongTile
+                    @click="cancelTile(tile)"
+                    :tile="tile.name"
+                    :scale="0.5"
+                    :rotate="0"
+                  />
                 </div>
               </div>
               <button class="disable-vote" disabled>
@@ -499,19 +569,21 @@ socket.on("notice_agari", (score) => {
           </button>
         </div>
       </div>
-      <!-- モーダルウィンドウ-->
-      <!-- <div class="modal" :class="{ 'show-modal': showModal }"> -->
-      <!--   <div class="modal-content"> -->
-      <!--     <span class="close-button" @click="closeModal">&times;</span> -->
-      <!--     <h2>Final Score Results</h2> -->
-      <!--     <div v-for="player in players"> -->
-      <!--       <p v-if="player.score_info"> -->
-      <!--         {{ player.name }}: {{ player.score_info.cost }} -->
-      <!--       </p> -->
-      <!--     </div> -->
-      <!--     <button class="modal-close-button" @click="closeModal">Close</button> -->
-      <!--   </div> -->
-      <!-- </div> -->
+      <div class="modal" :class="{ 'show-modal': showModal }">
+        <div class="modal-content">
+          <span class="close-button" @click="closeModal">&times;</span>
+          <h2>Final Score Results</h2>
+          <div v-for="player in players">
+            <div v-if="player.score">
+              <p>{{ player.name }}: {{ player.score.score }}</p>
+              <p>{{ player.score.han }}翻　{{ player.score.fu }}符</p>
+              <p v-for="yaku in player.score.yaku">{{ yaku }}</p>
+              <hr />
+            </div>
+          </div>
+          <button class="modal-close-button" @click="closeModal">Close</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -531,10 +603,12 @@ socket.on("notice_agari", (score) => {
   width: 100vw;
   height: 56.25vw;
   background-size: cover;
-  background: linear-gradient(45deg,
-      rgba(250, 208, 196, 0.5),
-      rgba(255, 209, 255, 0.5),
-      rgba(168, 237, 234, 0.5));
+  background: linear-gradient(
+    45deg,
+    rgba(250, 208, 196, 0.5),
+    rgba(255, 209, 255, 0.5),
+    rgba(168, 237, 234, 0.5)
+  );
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 }

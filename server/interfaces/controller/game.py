@@ -77,22 +77,12 @@ def set(socket_io: Server):
 
         round_usecase.call(socket_io, round_id, players, player, call_type)
 
-    @socket_io.on("ron")
-    def on_ron(socket_id: str):
+    @socket_io.on("agari")
+    def on_agari(socket_id: str, agari_type: str):
         player = player_util.get_player_by_socket_id(socket_id)
         room = room_util.get_room_by_player_id(player.id)
         players = player_util.get_players_in_room(room.number)
         round_id = round_util.get_round_id_by_room_id(room.id)
         round = round_util.get_round(round_id)
 
-        round_usecase.ron(socket_io, round, players, player)
-
-    @socket_io.on("tsumo")
-    def on_tsumo(socket_id: str):
-        player = player_util.get_player_by_socket_id(socket_id)
-        room = room_util.get_room_by_player_id(player.id)
-        players = player_util.get_players_in_room(room.number)
-        round_id = round_util.get_round_id_by_room_id(room.id)
-        round = round_util.get_round(round_id)
-
-        round_usecase.tsumo(socket_io, round, players, player)
+        round_usecase.agari(socket_io, round, players, player, agari_type)

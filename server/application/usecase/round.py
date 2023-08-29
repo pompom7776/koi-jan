@@ -67,10 +67,18 @@ def update_current_player(socket_io: Server,
                           round_id: int,
                           players: List[Player],
                           player_id: int):
-    current_wind = round_repo.fetch_wind_by_player_id(round_id, player_id)
-    next_wind = round_util.get_next_wind(current_wind)
-    next_player_id = round_repo.fetch_player_id_by_wind(round_id,
-                                                        next_wind)
+    current_player_id = player_id
+    while True:
+        current_wind = round_repo.fetch_wind_by_player_id(round_id,
+                                                          current_player_id)
+        next_wind = round_util.get_next_wind(current_wind)
+        next_player_id = round_repo.fetch_player_id_by_wind(round_id,
+                                                            next_wind)
+        if agari_repo.fetch_agari(round_id, next_player_id):
+            current_player_id = next_player_id
+        else:
+            break
+
     emit.update_current_player(socket_io,
                                [p.socket_id for p in players],
                                next_player_id)
@@ -130,7 +138,15 @@ def draw_tile(socket_io: Server,
     player.discarded = discard_repo.fetch_discarded_tiles(round.id, player.id)
     player.call = call_repo.fetch_call(round.id, player.id)
     player.is_riichi = riichi_repo.fetch_riichi(round.id, player.id)
-    tile = draw_repo.draw_tile(round.id, player.id)[0]
+    tiles = draw_repo.draw_tile(round.id, player.id)
+    if tiles is None:
+        emit.notice_end(socket_io, [p.socket_id for p in players])
+        for p in players:
+            p.score = agari_repo.fetch_score(round.id, p.id)
+        emit.update_players(socket_io, [p.socket_id for p in players], players)
+        return
+    else:
+        tile = tiles[0]
     player.tsumo = tile
     emit.update_player(socket_io, [p.socket_id for p in players], player)
     remaining_number = wall_repo.fetch_remaining_number(round.wall_id)
@@ -143,7 +159,7 @@ def draw_tile(socket_io: Server,
     if can_tsumo:
         emit.notice_can_tsumo(socket_io, [player.socket_id])
 
-    if player.is_riichi and not can_tsumo:
+    if (player.is_riichi and not can_tsumo):
         discard_tile(socket_io, round.id, players,
                      player, player.tsumo.id, False)
     else:
@@ -187,52 +203,46 @@ def call(socket_io: Server,
     emit.notice_drew(socket_io, [caller.socket_id])
 
 
-def ron(socket_io: Server,
-        round: Round,
-        players: List[Player],
-        player: Player):
-    player.hand = draw_repo.fetch_hand(round.id, player.id)
-    player.discarded = discard_repo.fetch_discarded_tiles(round.id, player.id)
-    player.call = call_repo.fetch_call(round.id, player.id)
-    player.is_riichi = riichi_repo.fetch_riichi(round.id, player.id)
-
-    tile_id, player_id = discard_repo.fetch_latest_discarded_tile(round.id)
-    tile = tile_repo.fetch_tile(tile_id)
-    player.hand.append(tile)
-
-    seat_wind = round_repo.fetch_wind_by_player_id(round.id, player.id)
-    result = score_util.agari(player, tile, round.dora,
-                              seat_wind, round.round_wind)
-    agari_id = agari_repo.agari(round.id, player.id, player_id, tile_id, "ron")
-    cost = result.cost["main"] + result.cost["additional"]*2
-    yaku = [yaku.name for yaku in result.yaku]
-    score = agari_repo.set_score(agari_id, cost, result.han, result.fu, yaku)
-
-    emit.notice_agari(socket_io, [p.socket_id for p in players], score)
-
-
-def tsumo(socket_io: Server,
+def agari(socket_io: Server,
           round: Round,
           players: List[Player],
-          player: Player):
+          player: Player,
+          agari_type: str):
     player.hand = draw_repo.fetch_hand(round.id, player.id)
     player.discarded = discard_repo.fetch_discarded_tiles(round.id, player.id)
     player.call = call_repo.fetch_call(round.id, player.id)
     player.is_riichi = riichi_repo.fetch_riichi(round.id, player.id)
 
-    tile_id, player_id = draw_repo.fetch_latest_draw_tile(round.id)
-    player.hand = list(filter(lambda t: t.id != tile_id, player.hand))
-    player.tsumo = tile_repo.fetch_tile(tile_id)
-
     seat_wind = round_repo.fetch_wind_by_player_id(round.id, player.id)
-    result = score_util.agari(player, player.tsumo, round.dora,
-                              seat_wind, round.round_wind)
+
+    if agari_type == "ron":
+        tile_id, player_id = discard_repo.fetch_latest_discarded_tile(round.id)
+        tile = tile_repo.fetch_tile(tile_id)
+        player.hand.append(tile)
+        result = score_util.agari(player, tile, round.dora,
+                                  seat_wind, round.round_wind)
+    elif agari_type == "tsumo":
+        tile_id, player_id = draw_repo.fetch_latest_draw_tile(round.id)
+        player.hand = list(filter(lambda t: t.id != tile_id, player.hand))
+        player.tsumo = tile_repo.fetch_tile(tile_id)
+        result = score_util.agari(player, player.tsumo, round.dora,
+                                  seat_wind, round.round_wind)
+
     agari_id = agari_repo.agari(round.id, player.id, player_id, tile_id, "ron")
     cost = result.cost["main"] + result.cost["additional"]*2
     yaku = [yaku.name for yaku in result.yaku]
     score = agari_repo.set_score(agari_id, cost, result.han, result.fu, yaku)
 
     emit.notice_agari(socket_io, [p.socket_id for p in players], score)
+
+    agari_count = agari_repo.fetch_agari_count(round.id)
+    if agari_count >= 3:
+        emit.notice_end(socket_io, [p.socket_id for p in players])
+        for p in players:
+            p.score = agari_repo.fetch_score(round.id, p.id)
+        emit.update_players(socket_io, [p.socket_id for p in players], players)
+    else:
+        update_current_player(socket_io, round.id, players, player.id)
 
 
 def tiles_discarded_during_riichi(socket_io: Server,
