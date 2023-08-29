@@ -37,7 +37,7 @@ INSERT INTO yaku (en_name, ja_name) VALUES
 ('Toitoi', '対々和'),
 ('Menzen Tsumo', '門前清自摸和'),
 ('Yakuhai (west)', '役牌（西）'),
-('Yakuhai (wind of place)', '役牌（場風）'),
+('Yakuhai (wind of place)', '役牌（自風）'),
 ('Yakuhai (wind of round)', '役牌（場風）'),
 ('Daisangen', '大三元'),
 ('Chinroutou', '清老頭'),

@@ -85,11 +85,31 @@ def notice_can_tsumo(socket_io: Server, to: List[str]):
         socket_io.emit("notice_can_tsumo", room=socket_id)
 
 
-def notice_agari(socket_io: Server, to: List[str], score: Score):
+def notice_agari(socket_io: Server, to: List[str]):
     for socket_id in to:
-        socket_io.emit("notice_agari", asdict(score), room=socket_id)
+        socket_io.emit("notice_agari", room=socket_id)
 
 
-def notice_end(socket_io: Server, to: List[str]):
+def notice_end_round(socket_io: Server, to: List[str]):
     for socket_id in to:
-        socket_io.emit("notice_end", room=socket_id)
+        socket_io.emit("notice_end_round", room=socket_id)
+
+
+def notice_start_vote(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_start_vote", room=socket_id)
+
+
+def notice_selected(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_selected", room=socket_id)
+
+
+def notice_unselected(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_unselected", room=socket_id)
+
+
+def notice_end_vote(socket_io: Server, to: List[str]):
+    for socket_id in to:
+        socket_io.emit("notice_end_vote", room=socket_id)

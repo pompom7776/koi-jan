@@ -16,4 +16,6 @@ class Player:
     discarded: List[Tile] = field(default_factory=list)
     call: List[Call] = field(default_factory=list)
     is_riichi: bool = False
+    agari: bool = False
     score: Score = None
+    selected: List[Tile] = field(default_factory=list)

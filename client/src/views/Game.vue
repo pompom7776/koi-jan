@@ -22,8 +22,9 @@ const currentPlayerId = ref(0);
 
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
-const endFlag = ref(false);
 const voteFlag = ref(false);
+const votedFlag = ref(false);
+const selectCount = ref(0);
 
 const showModal = ref(false);
 
@@ -119,13 +120,21 @@ const assignRelativeSeats = (myWind) => {
   relativeSeats.value = assignedRelativeSeats;
 };
 
-const discardTile = (tile) => {
+const clickTile = (tile) => {
   if (drawFlag.value) {
     socket.emit("discard_tile", tile.id, riichiFlag.value);
     drawFlag.value = false;
     canRiichi.value = false;
     canTsumo.value = false;
   }
+
+  if (voteFlag.value && selectCount.value < 3) {
+    socket.emit("select_tile", tile.id);
+  }
+};
+
+const cancelTile = (tile) => {
+  socket.emit("cancel_tile", tile.id);
 };
 
 const skip = () => {
@@ -172,10 +181,14 @@ const tsumo = () => {
 
 const closeModal = () => {
   showModal.value = false;
-  endFlag.value = false;
   if (host.value == "true") {
-    socket.emit("close_score_result");
+    socket.emit("close_result");
   }
+};
+
+const vote = (targetPlayerId) => {
+  socket.emit("vote", targetPlayerId);
+  votedFlag.value = true;
 };
 
 socket.on("reconnected", (socket_id) => {
@@ -263,16 +276,40 @@ socket.on("notice_can_riichi", () => {
 
 socket.on("notice_can_tsumo", () => {
   canTsumo.value = true;
+  drawFlag.value = false;
 });
 
-socket.on("notice_agari", (score) => {
-  console.log(score);
+socket.on("notice_agari", () => {
+  console.log("agari");
+  riichiFlag.value = false;
+
+  reloadDisplay();
 });
 
-socket.on("notice_end", () => {
-  console.log("end");
+socket.on("notice_end_round", () => {
   showModal.value = true;
-  endFlag.value = true;
+  drawFlag.value = false;
+  riichiFlag.value = false;
+
+  reloadDisplay();
+});
+
+socket.on("notice_start_vote", () => {
+  voteFlag.value = true;
+  selectCount.value = 0;
+});
+
+socket.on("notice_end_vote", () => {
+  voteFlag.value = false;
+  selectCount.value = 0;
+});
+
+socket.on("notice_selected", () => {
+  selectCount.value += 1;
+});
+
+socket.on("notice_unselected", () => {
+  selectCount.value -= 1;
 });
 </script>
 
@@ -352,82 +389,37 @@ socket.on("notice_end", () => {
         </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div
-          v-if="!riichiFlag"
-          class="tiles"
-          v-for="tile in bottomPlayer.value.hand"
-        >
-          <MahjongTile
-            @click="discardTile(tile)"
-            :tile="tile.name"
-            :scale="0.5"
-            :rotate="0"
-            :limit="false"
-          />
+        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+          <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
         </div>
-        <div
-          v-if="riichiFlag"
-          class="tiles"
-          v-for="tile in bottomPlayer.value.hand"
-        >
+        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
           <div v-if="tile.can_riichi">
-            <MahjongTile
-              @click="discardTile(tile)"
-              :tile="tile.name"
-              :scale="0.5"
-              :rotate="0"
-              :limit="false"
-            />
+            <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
           </div>
           <div v-if="!tile.can_riichi">
-            <MahjongTile
-              :tile="tile.name"
-              :scale="0.5"
-              :rotate="0"
-              :limit="true"
-            />
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
           </div>
         </div>
         <div v-if="bottomPlayer.value.tsumo" class="tsumo">
           <div v-if="riichiFlag">
             <div v-if="!bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile
-                :tile="bottomPlayer.value.tsumo.name"
-                :scale="0.5"
-                :rotate="0"
-                :limit="true"
-              />
+              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
             </div>
             <div v-if="bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile
-                @click="discardTile(bottomPlayer.value.tsumo)"
-                :tile="bottomPlayer.value.tsumo.name"
-                :scale="0.5"
-                :rotate="0"
-                :limit="false"
-              />
+              <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+                :rotate="0" :limit="false" />
             </div>
           </div>
           <div v-if="!riichiFlag">
-            <MahjongTile
-              @click="discardTile(bottomPlayer.value.tsumo)"
-              :tile="bottomPlayer.value.tsumo.name"
-              :scale="0.5"
-              :rotate="0"
-              :limit="false"
-            />
+            <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+              :rotate="0" :limit="false" />
           </div>
         </div>
         <div class="calls" v-for="call in bottomPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div v-if="voteFlag">
-                <MahjongTile
-                  @click="discardTile(tile)"
-                  :tile="tile.name"
-                  :scale="0.5"
-                  :rotate="0"
-                />
+                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
               <div v-else>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -436,7 +428,10 @@ socket.on("notice_end", () => {
           </div>
           <div class="kan" v-if="call.type == 'kan'">
             <div class="tiles" v-for="tile in call.tiles">
-              <div>
+              <div v-if="voteFlag">
+                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+              <div v-else>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
             </div>
@@ -448,13 +443,8 @@ socket.on("notice_end", () => {
           <div v-for="player in players">
             <div v-if="player.id == myId">
               <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected_tiles">
-                  <MahjongTile
-                    @click="cancelTile(tile)"
-                    :tile="tile.name"
-                    :scale="0.5"
-                    :rotate="0"
-                  />
+                <div class="tiles" v-for="tile in player.selected">
+                  <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
                 </div>
               </div>
               <button class="disable-vote" disabled>
@@ -463,11 +453,20 @@ socket.on("notice_end", () => {
             </div>
             <div v-else>
               <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected_tiles">
+                <div class="tiles" v-for="tile in player.selected">
                   <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
                 </div>
               </div>
-              <button @click="vote(player.id)">{{ player.name }}に投票</button>
+              <div v-if="votedFlag">
+                <button class="disable-vote" disabled>
+                  {{ player.name }}に投票
+                </button>
+              </div>
+              <div v-else>
+                <button @click="vote(player.id)">
+                  {{ player.name }}に投票
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -556,10 +555,10 @@ socket.on("notice_end", () => {
         <div class="button-container">
           <button @click="call('pon')" v-if="canPon">ポン</button>
           <button @click="call('kan')" v-if="canKan">カン</button>
-          <button @click="riichi" v-if="canRiichi && riichiFlag">
+          <button @click="riichi" v-if="canRiichi && riichiFlag && !canTsumo">
             リーチ: ON
           </button>
-          <button @click="riichi" v-if="canRiichi && !riichiFlag">
+          <button @click="riichi" v-if="canRiichi && !riichiFlag && !canTsumo">
             リーチ: OFF
           </button>
           <button @click="tsumo" v-if="canTsumo">ツモ</button>
@@ -571,7 +570,6 @@ socket.on("notice_end", () => {
       </div>
       <div class="modal" :class="{ 'show-modal': showModal }">
         <div class="modal-content">
-          <span class="close-button" @click="closeModal">&times;</span>
           <h2>Final Score Results</h2>
           <div v-for="player in players">
             <div v-if="player.score">
@@ -603,12 +601,10 @@ socket.on("notice_end", () => {
   width: 100vw;
   height: 56.25vw;
   background-size: cover;
-  background: linear-gradient(
-    45deg,
-    rgba(250, 208, 196, 0.5),
-    rgba(255, 209, 255, 0.5),
-    rgba(168, 237, 234, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 }

@@ -27,7 +27,7 @@ def set(socket_io: Server):
         round_usecase.deal_tiles(socket_io, room)
 
     @socket_io.on("discard_tile")
-    def on_discard_tile(socket_id: str, tile_id: id, is_riichi: bool = False):
+    def on_discard_tile(socket_id: str, tile_id: int, is_riichi: bool = False):
         player = player_util.get_player_by_socket_id(socket_id)
         room = room_util.get_room_by_player_id(player.id)
         players = player_util.get_players_in_room(room.number)
@@ -63,7 +63,7 @@ def set(socket_io: Server):
         players = player_util.get_players_in_room(room.number)
         round_id = round_util.get_round_id_by_room_id(room.id)
 
-        discard_player_id = round_usecase.get_latest_discard_player(round_id)
+        discard_player_id = player_util.get_latest_discard_player(round_id)
 
         round_usecase.update_current_player(socket_io, round_id,
                                             players, discard_player_id)
@@ -86,3 +86,42 @@ def set(socket_io: Server):
         round = round_util.get_round(round_id)
 
         round_usecase.agari(socket_io, round, players, player, agari_type)
+
+    @socket_io.on("close_result")
+    def on_close_result(socket_id: str):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+
+        round_usecase.start_vote(socket_io, round_id, players)
+
+    @socket_io.on("select_tile")
+    def on_select_tile(socket_id: str, tile_id: int):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+
+        round_usecase.select_tile(socket_io, round_id, players,
+                                  player, tile_id)
+
+    @socket_io.on("cancel_tile")
+    def on_cancel_tile(socket_id: str, tile_id: int):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+
+        round_usecase.cancel_tile(socket_io, round_id, players,
+                                  player, tile_id)
+
+    @socket_io.on("vote")
+    def on_vote(socket_id: str, target_player_id: int):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+
+        round_usecase.vote(socket_io, round_id, players,
+                           player, target_player_id)
