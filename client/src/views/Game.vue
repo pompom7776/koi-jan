@@ -19,12 +19,15 @@ const remainingNumber = ref(0);
 const seatWinds = ref({});
 const dora = ref([]);
 const currentPlayerId = ref(0);
+const chatMessage = ref("");
+const chats = ref([]);
 
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
 const voteFlag = ref(false);
 const votedFlag = ref(false);
 const selectCount = ref(0);
+const chatFlag = ref(true);
 
 const showModal = ref(false);
 
@@ -191,10 +194,16 @@ const vote = (targetPlayerId) => {
   votedFlag.value = true;
 };
 
+const sendMessage = () => {
+  socket.emit("send_message", chatMessage.value);
+  chatMessage.value = "";
+};
+
 socket.on("reconnected", (socket_id) => {
   socketId.value = socket_id;
   sessionStorage.setItem("socketId", socket_id);
   if (host.value == "true") socket.emit("setup_round");
+  socket.emit("get_messages");
 });
 
 socket.on("update_game", (received_game) => {
@@ -311,11 +320,54 @@ socket.on("notice_selected", () => {
 socket.on("notice_unselected", () => {
   selectCount.value -= 1;
 });
+
+socket.on("update_chat", (received_chats) => {
+  chats.value = received_chats;
+});
 </script>
 
 <template>
   <div class="body">
     <div class="container" v-if="displayFlag">
+      <div v-if="chatFlag">
+        <div id="chat-container">
+          <div id="messages-container">
+            <div id="chat-header">
+              <div id="chat-title">チャット</div>
+              <button id="chat-close-button" @click="chatFlag = false">
+                &#9661;
+              </button>
+            </div>
+            <div id="messages">
+              <div v-for="chat in chats">
+                <div class="message ms-left">
+                  <div class="sender-name">{{ chat.player_name }}</div>
+                  <div class="message-box">
+                    <div class="message-content">
+                      <div class="message-text">{{ chat.message }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ms-clear"></div>
+              </div>
+            </div>
+            <div id="ms-send">
+              <textarea id="send-message" v-model="chatMessage"></textarea>
+              <button id="send-btn" @click="sendMessage">送信</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div id="chat-close-container">
+          <div id="chat-header">
+            <div id="chat-title">チャット</div>
+            <button id="chat-close-button" @click="chatFlag = true">
+              &#9651;
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="top-content content" v-if="topPlayer">
         <div class="tiles" v-for="_ in topPlayer.value.hand">
           <MahjongTile tile="-" :scale="0.5" :rotate="0" />
@@ -920,5 +972,175 @@ button:hover {
 
 .tiles {
   margin: 0 0.15vw;
+}
+
+#chat-container {
+  height: 40vh;
+  width: 30vw;
+  max-width: 400px;
+  position: fixed;
+  bottom: 12%;
+  left: 2%;
+}
+
+#chat-close-container {
+  position: fixed;
+  width: 30vw;
+  max-width: 400px;
+  bottom: 5%;
+  left: 2%;
+}
+
+#messages-container {
+  height: 100%;
+  width: 100%;
+}
+
+#chat-header {
+  padding: 6px;
+  font-size: 16px;
+  height: 3vh;
+  background: #ffc0cb;
+  border: 1px solid #ea384955;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-title {
+  color: rgb(234, 56, 73, 0.8);
+  float: left;
+  display: flex;
+  justify-content: left;
+}
+
+#chat-close-button {
+  width: 8px;
+  height: 8px;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#messages {
+  overflow: auto;
+  height: 100%;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  background-color: #fff5;
+}
+
+.message {
+  margin: 0px;
+  padding: 0 14px;
+  font-size: 16px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.sender-name {
+  margin-top: 15px;
+  font-size: 4px;
+}
+
+.message-box {
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.message-content {
+  padding: 15px;
+}
+
+.ms-left {
+  float: left;
+  line-height: 1em;
+}
+
+.ms-left .message-box {
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 30px 0px;
+  margin-right: 50px;
+}
+
+.ms-right {
+  float: right;
+  line-height: 1em;
+}
+
+.ms-right .message-box {
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 0px 30px;
+  margin-left: 50px;
+}
+
+.ms-clear {
+  clear: both;
+}
+
+#ms-send {
+  background-color: #fffa;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  border-bottom: 1px solid #ea384955;
+  height: 48px;
+  padding: 4px;
+}
+
+#send-message {
+  resize: none;
+  width: calc(100% - 75px);
+  line-height: 16px;
+  height: 48px;
+  padding: 14px 6px 0px 6px;
+  border: 1px solid #ea384955;
+  border-radius: 8px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+#send-btn {
+  width: 64px;
+  height: 40px;
+  font-size: 16px;
+  float: right;
+  background: #ffc0cb;
+  border: 1px solid;
+}
+
+#send-btn:hover {
+  background: #ea3849cc;
+  color: #fff;
+  cursor: pointer;
+}
+
+button {
+  display: inline-block;
+  background-color: rgb(234, 56, 73, 0.8);
+  color: #fff;
+  width: 140px;
+  border: 3px solid transparent;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  margin: 5px;
+  transition: 0.5s;
+  font-size: 20px;
+}
+
+button:disabled {
+  background-color: rgb(245, 235, 240);
+}
+
+button:enabled:hover {
+  background-color: #fff;
+  color: rgb(234, 56, 73, 0.8);
+  transition: 0.5s;
+  border: 3px solid rgb(234, 56, 73, 0.8);
 }
 </style>

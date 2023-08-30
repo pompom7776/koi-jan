@@ -224,4 +224,30 @@ erDiagram
   }
   vote ||--|| round: ""
   vote ||--|| player: ""
+
+  send_chat {
+    int id PK
+    int room_id FK
+    int player_id FK
+    text message
+    timestamp send_time
+  }
+  send_chat ||--|| room: ""
+  send_chat ||--|| player: ""
+
+  reaction {
+    int id PK
+    text name
+  }
+
+  send_reaction {
+    int id PK
+    int room_id FK
+    int player_id FK
+    int reaction_id FK
+    timestamp send_time
+  }
+  send_reaction ||--|| room: ""
+  send_reaction ||--|| player: ""
+  send_reaction ||--|| reaction: ""
 ```

@@ -1,3 +1,6 @@
+-- DROP TABLE IF EXISTS send_reaction;
+-- DROP TABLE IF EXISTS reaction;
+-- DROP TABLE IF EXISTS send_chat;
 -- DROP TABLE IF EXISTS vote;
 -- DROP TABLE IF EXISTS select_tile;
 -- DROP TABLE IF EXISTS riichi;
@@ -23,8 +26,7 @@
 -- DROP TABLE IF EXISTS player_detail;
 -- DROP TABLE IF EXISTS player;
 -- DROP TABLE IF EXISTS room;
---
---
+
 -- テーブル: room
 CREATE TABLE room (
     id SERIAL PRIMARY KEY,
@@ -275,4 +277,33 @@ CREATE TABLE vote (
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (vote_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id)
+);
+
+-- テーブル: send_chat
+CREATE TABLE send_chat (
+    id SERIAL PRIMARY KEY,
+    room_id INT,
+    player_id INT,
+    message TEXT,
+    send_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES room(id),
+    FOREIGN KEY (player_id) REFERENCES player(id)
+);
+
+-- テーブル: reaction
+CREATE TABLE reaction (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+-- テーブル: send_reaction
+CREATE TABLE send_reaction (
+    id SERIAL PRIMARY KEY,
+    room_id INT,
+    player_id INT,
+    reaction_id INT,
+    send_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES room(id),
+    FOREIGN KEY (player_id) REFERENCES player(id),
+    FOREIGN KEY (reaction_id) REFERENCES reaction(id)
 );
