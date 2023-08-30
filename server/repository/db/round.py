@@ -87,6 +87,20 @@ def fetch_player_id_by_wind(round_id: int, wind: str) -> int:
         return None
 
 
+def fetch_round_count(game_id: int) -> int:
+    query = (
+        "SELECT COUNT(*) "
+        "FROM round "
+        "WHERE game_id = %s"
+    )
+    result = fetch_data(query, (game_id,))
+
+    if result:
+        return result[0][0]
+    else:
+        return None
+
+
 def fetch_round(round_id: int) -> Round:
     query = (
         "SELECT id, game_id, round_number, round_wind, dealer_id, wall_id "
@@ -101,6 +115,23 @@ def fetch_round(round_id: int) -> Round:
         round = Round(id, game_id, round_number,
                       round_wind, dealer_id, wall_id)
         return round
+    else:
+        return None
+
+
+def fetch_previous_round_id(game_id: int) -> int:
+    query = (
+        "SELECT id "
+        "FROM round "
+        "WHERE game_id = %s "
+        "ORDER BY start_time DESC "
+        "LIMIT 2"
+    )
+
+    result = fetch_data(query, (game_id,))
+
+    if len(result) >= 2:
+        return result[1][0]
     else:
         return None
 

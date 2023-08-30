@@ -22,7 +22,7 @@ def draw_tile(round_id: int,
     )
     remaining_number = fetch_data(query, (wall_id, ))[0][0]
 
-    if remaining_number <= 14:
+    if remaining_number <= 80:
         return None
 
     query = (
