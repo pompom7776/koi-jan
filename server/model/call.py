@@ -4,12 +4,9 @@ from typing import List
 from model.tile import Tile
 
 
-MAX_TILE_NUMBER = 136
-
-
 @dataclass
-class Wall:
-    id: int
-    remaining_number: int
-    dora_number: int
+class Call:
+    type: str
     tiles: List[Tile]
+    target_player_id: int
+    target_tile_id: int

@@ -1,28 +1,31 @@
-DROP TABLE IF EXISTS vote;
-DROP TABLE IF EXISTS select_tile;
-DROP TABLE IF EXISTS riichi;
-DROP TABLE IF EXISTS score_yaku;
-DROP TABLE IF EXISTS yaku;
-DROP TABLE IF EXISTS score;
-DROP TABLE IF EXISTS agari;
-DROP TABLE IF EXISTS call_tile;
-DROP TABLE IF EXISTS call;
-DROP TABLE IF EXISTS discard;
-DROP TABLE IF EXISTS draw;
-DROP TABLE IF EXISTS seat_wind;
-DROP TABLE IF EXISTS round;
-DROP TABLE IF EXISTS wall_tile;
-DROP TABLE IF EXISTS tile;
-DROP TABLE IF EXISTS wall;
-DROP TABLE IF EXISTS game;
-DROP TABLE IF EXISTS ready_room;
-DROP TABLE IF EXISTS leave_room;
-DROP TABLE IF EXISTS enter_room;
-DROP TABLE IF EXISTS close_room;
-DROP TABLE IF EXISTS create_room;
-DROP TABLE IF EXISTS player;
-DROP TABLE IF EXISTS room;
-
+-- DROP TABLE IF EXISTS send_reaction;
+-- DROP TABLE IF EXISTS reaction;
+-- DROP TABLE IF EXISTS send_chat;
+-- DROP TABLE IF EXISTS vote;
+-- DROP TABLE IF EXISTS select_tile;
+-- DROP TABLE IF EXISTS riichi;
+-- DROP TABLE IF EXISTS score_yaku;
+-- DROP TABLE IF EXISTS yaku;
+-- DROP TABLE IF EXISTS score;
+-- DROP TABLE IF EXISTS agari;
+-- DROP TABLE IF EXISTS call_tile;
+-- DROP TABLE IF EXISTS call;
+-- DROP TABLE IF EXISTS discard;
+-- DROP TABLE IF EXISTS draw;
+-- DROP TABLE IF EXISTS seat_wind;
+-- DROP TABLE IF EXISTS round;
+-- DROP TABLE IF EXISTS wall_tile;
+-- DROP TABLE IF EXISTS tile;
+-- DROP TABLE IF EXISTS wall;
+-- DROP TABLE IF EXISTS game;
+-- DROP TABLE IF EXISTS ready_room;
+-- DROP TABLE IF EXISTS leave_room;
+-- DROP TABLE IF EXISTS enter_room;
+-- DROP TABLE IF EXISTS close_room;
+-- DROP TABLE IF EXISTS create_room;
+-- DROP TABLE IF EXISTS player_detail;
+-- DROP TABLE IF EXISTS player;
+-- DROP TABLE IF EXISTS room;
 
 -- テーブル: room
 CREATE TABLE room (
@@ -32,19 +35,25 @@ CREATE TABLE room (
 
 -- テーブル: player
 CREATE TABLE player (
+    id SERIAL PRIMARY KEY
+);
+
+-- テーブル: player_detail
+CREATE TABLE player_detail (
     id SERIAL PRIMARY KEY,
+    player_id INT,
     name VARCHAR(8),
     socket_id TEXT,
-    room_id INT,
-    FOREIGN KEY (room_id) REFERENCES room(id)
+    FOREIGN KEY (player_id) REFERENCES player(id)
 );
+
 
 -- テーブル: create_room
 CREATE TABLE create_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     host_id INT,
-    create_time TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (host_id) REFERENCES player(id)
 );
@@ -53,7 +62,7 @@ CREATE TABLE create_room (
 CREATE TABLE close_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
-    close_time TIMESTAMP,
+    close_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
@@ -62,7 +71,7 @@ CREATE TABLE enter_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    enter_time TIMESTAMP,
+    enter_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -72,7 +81,7 @@ CREATE TABLE leave_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    leave_time TIMESTAMP,
+    leave_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -82,7 +91,7 @@ CREATE TABLE ready_room (
     id SERIAL PRIMARY KEY,
     room_id INT,
     player_id INT,
-    ready_time TIMESTAMP,
+    ready_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
@@ -91,8 +100,8 @@ CREATE TABLE ready_room (
 CREATE TABLE game (
     id SERIAL PRIMARY KEY,
     room_id INT,
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
@@ -128,8 +137,8 @@ CREATE TABLE round (
     round_wind VARCHAR(5),
     dealer_id INT,
     wall_id INT,
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (game_id) REFERENCES game(id),
     FOREIGN KEY (dealer_id) REFERENCES player(id),
     FOREIGN KEY (wall_id) REFERENCES wall(id)
@@ -151,7 +160,7 @@ CREATE TABLE draw (
     round_id INT,
     player_id INT,
     tile_id INT,
-    draw_time TIMESTAMP,
+    draw_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -163,7 +172,7 @@ CREATE TABLE discard (
     round_id INT,
     player_id INT,
     tile_id INT,
-    discard_time TIMESTAMP,
+    discard_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -176,12 +185,12 @@ CREATE TABLE call (
     type VARCHAR(9),
     call_player_id INT,
     target_player_id INT,
-    targettile_id INT,
-    call_time TIMESTAMP,
+    target_tile_id INT,
+    call_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (call_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id),
-    FOREIGN KEY (targettile_id) REFERENCES tile(id)
+    FOREIGN KEY (target_tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: call_tile
@@ -199,11 +208,13 @@ CREATE TABLE agari (
     round_id INT,
     player_id INT,
     target_player_id INT,
+    target_tile_id INT,
     type VARCHAR(5),
-    agari_time TIMESTAMP,
+    agari_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
-    FOREIGN KEY (target_player_id) REFERENCES player(id)
+    FOREIGN KEY (target_player_id) REFERENCES player(id),
+    FOREIGN KEY (target_tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: score
@@ -237,9 +248,11 @@ CREATE TABLE riichi (
     id SERIAL PRIMARY KEY,
     round_id INT,
     player_id INT,
-    riichi_time TIMESTAMP,
+    tile_id INT,
+    riichi_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
-    FOREIGN KEY (player_id) REFERENCES player(id)
+    FOREIGN KEY (player_id) REFERENCES player(id),
+    FOREIGN KEY (tile_id) REFERENCES tile(id)
 );
 
 -- テーブル: select
@@ -248,7 +261,7 @@ CREATE TABLE select_tile (
     round_id INT,
     player_id INT,
     tile_id INT,
-    select_time TIMESTAMP,
+    select_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (player_id) REFERENCES player(id),
     FOREIGN KEY (tile_id) REFERENCES tile(id)
@@ -260,8 +273,37 @@ CREATE TABLE vote (
     round_id INT,
     vote_player_id INT,
     target_player_id INT,
-    vote_time TIMESTAMP,
+    vote_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (round_id) REFERENCES round(id),
     FOREIGN KEY (vote_player_id) REFERENCES player(id),
     FOREIGN KEY (target_player_id) REFERENCES player(id)
+);
+
+-- テーブル: send_chat
+CREATE TABLE send_chat (
+    id SERIAL PRIMARY KEY,
+    room_id INT,
+    player_id INT,
+    message TEXT,
+    send_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES room(id),
+    FOREIGN KEY (player_id) REFERENCES player(id)
+);
+
+-- テーブル: reaction
+CREATE TABLE reaction (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+-- テーブル: send_reaction
+CREATE TABLE send_reaction (
+    id SERIAL PRIMARY KEY,
+    room_id INT,
+    player_id INT,
+    reaction_id INT,
+    send_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES room(id),
+    FOREIGN KEY (player_id) REFERENCES player(id),
+    FOREIGN KEY (reaction_id) REFERENCES reaction(id)
 );

@@ -1,4 +1,9 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Chat:
-    def __init__(self, player_id: int, text: str):
-        self.player_id = player_id
-        self.text = text
+    id: int
+    player_id: int
+    player_name: str
+    message: str

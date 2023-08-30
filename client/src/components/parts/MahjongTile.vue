@@ -48,8 +48,8 @@ const tileNames = {
 };
 
 const size = computed(() => ({
-  width: `${4.3 * scale}vw`,
-  height: `${5 * scale}vw`,
+  width: `${5 * scale}vw`,
+  height: `${6 * scale}vw`,
 }));
 
 const getHighlight = computed(() => {
@@ -129,23 +129,26 @@ const getImagePath = (tile) => {
     </div>
   </div>
 </template>
+
 <style>
 .tile {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   font-weight: bold;
   writing-mode: vertical-rl;
   background-color: white;
   color: black;
   position: relative;
+  margin: 0 0.5vw;
 }
 
 .back-tile {
   pointer-events: none;
-  color: orange;
-  background-color: orange;
+  color: #ffc3cd;
+  background-color: #ffc3cd;
+  box-shadow: 2px 2px 4px rgba(128, 128, 128, 0.56), -2px -2px 4px rgb(255, 255, 255);
 }
 
 .tile-value {

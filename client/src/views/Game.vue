@@ -1,135 +1,42 @@
 <script setup>
 import io from "socket.io-client";
 import { computed, nextTick, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
 import MahjongTile from "@/components/parts/MahjongTile.vue";
 
 const socket = io("http://localhost:8888");
-
-const socketId = ref("");
-const playerId = ref("");
-const host = ref(false);
-
 const displayFlag = ref(true);
 
-const roomId = ref("");
-const players = ref({});
-const table = ref({});
+const socketId = ref("");
+const host = ref(false);
+const roomId = ref(0);
+const roomNumber = ref(0);
+const players = ref([]);
+const myId = ref(0);
+const roundNumber = ref();
+const roundWind = ref("");
+const dealerName = ref(null);
+const remainingNumber = ref(0);
+const seatWinds = ref({});
+const dora = ref([]);
 const currentPlayerId = ref(0);
-const currentPlayerName = ref(0);
-const dealer = ref("");
-const doraTiles = ref([]);
+const chatMessage = ref("");
+const chats = ref([]);
 
-const topPlayer = ref(null);
-const leftPlayer = ref(null);
-const rightPlayer = ref(null);
-const bottomPlayer = ref(null);
-
-const action = ref({
-  riichi: false,
-  chi: false,
-  pon: false,
-  kan: false,
-  tsumo: false,
-  ron: false,
-});
-
-const discardFlag = ref(false);
+const drawFlag = ref(false);
 const riichiFlag = ref(false);
-const endFlag = ref(false);
 const voteFlag = ref(false);
-const selectFlag = ref(0);
+const votedFlag = ref(false);
+const selectCount = ref(0);
+const chatFlag = ref(true);
 
-const getSeatByPlayerId = (playerId) => {
-  const seatWinds = table.value["seat_winds"];
-  for (const seat in table.value["seat_winds"]) {
-    if (seatWinds[seat] == playerId) {
-      return seat;
-    }
-  }
-  return null;
-};
+const showModal = ref(false);
 
-const assignRelativeSeats = (mySeat) => {
-  const seatWinds = table.value["seat_winds"];
-  const seatOrder = ["east", "south", "west", "north"];
-  const relativeSeats = {};
-  const myIndex = seatOrder.indexOf(mySeat);
+const canPon = ref(false);
+const canKan = ref(false);
+const canRon = ref(false);
+const canRiichi = ref(false);
+const canTsumo = ref(false);
 
-  relativeSeats.right = seatWinds[seatOrder[(myIndex + 1) % seatOrder.length]];
-  relativeSeats.top = seatWinds[seatOrder[(myIndex + 2) % seatOrder.length]];
-  relativeSeats.left = seatWinds[seatOrder[(myIndex + 3) % seatOrder.length]];
-
-  return relativeSeats;
-};
-
-const discardTile = (tile) => {
-  if (discardFlag.value) {
-    socket.emit("discard_tile", tile.id);
-    discardFlag.value = false;
-    action.value = {
-      riichi: false,
-      chi: false,
-      pon: false,
-      kan: false,
-      tsumo: false,
-      ron: false,
-    };
-  }
-
-  if (voteFlag.value && selectFlag.value < 3) {
-    socket.emit("select_tile", tile.id);
-  }
-};
-
-const cancelTile = (tile) => {
-  socket.emit("cancel_tile", tile.id);
-  selectFlag.value -= 1;
-};
-
-const riichi = () => {
-  socket.emit("riichi");
-};
-
-const tsumo = () => {
-  socket.emit("tsumo_agari");
-};
-
-const pon = () => {
-  socket.emit("pon");
-};
-
-const skipPon = () => {
-  socket.emit("skip_pon");
-};
-
-const daiMinKan = () => {
-  socket.emit("dai_min_kan");
-};
-
-const skipDaiMinKan = () => {
-  socket.emit("skip_dai_min_kan");
-};
-
-const ron = () => {
-  socket.emit("ron");
-};
-
-const skipRon = () => {
-  socket.emit("skip_ron");
-};
-
-const closeEndDisplay = () => {
-  endFlag.value = false;
-  if (host.value == "true") {
-    socket.emit("close_score_result");
-  }
-};
-
-const vote = (player_id) => {
-  socket.emit("vote", player_id);
-  voteFlag.value = false;
-};
 const windDirections = {
   east: "東",
   south: "南",
@@ -137,124 +44,338 @@ const windDirections = {
   north: "北",
 };
 
-const getImgDirection = (pid) => {
-  if (pid == currentPlayerId.value) {
-    return {
-      width: "6vw",
-    };
-  } else {
-    return {
-      width: "4vw",
-    };
-  }
-};
+const relativeSeats = ref({});
 
-const showModal = ref(false);
-const closeModal = () => {
-  showModal.value = false;
-  closeEndDisplay();
-};
-
-const route = useRoute();
+const bottomPlayer = ref(null);
+const rightPlayer = ref(null);
+const topPlayer = ref(null);
+const leftPlayer = ref(null);
 
 onMounted(() => {
-  playerId.value = sessionStorage.getItem("playerId");
   socketId.value = sessionStorage.getItem("socketId");
   host.value = sessionStorage.getItem("host");
-  socket.emit("reconnect", socketId.value);
-  socket.on("reconnected", (idInfo) => {
-    sessionStorage.setItem("socketId", idInfo["sid"]);
-    sessionStorage.setItem("playerId", idInfo["pid"]);
-    socketId.value = sessionStorage.getItem("socketId");
+  socket.emit("connect_game", socketId.value);
+});
+
+const reloadDisplay = async () => {
+  displayFlag.value = false;
+  await nextTick(() => {
+    displayFlag.value = true;
   });
+};
 
-  roomId.value = route.params.roomId;
-
-  if (host.value == "true") {
-    socket.emit("run_game", roomId.value);
+const getMyIdBySocketId = (players, socketId) => {
+  for (var i = 0; i < players.length; i++) {
+    if (players[i]["socket_id"] == socketId) return players[i]["id"];
   }
-  socket.on("update_game_info", async (gameInfo) => {
-    console.log(gameInfo);
-    roomId.value = gameInfo["room_id"];
-    players.value = gameInfo["players"];
-    table.value = gameInfo["table"];
-    currentPlayerId.value = gameInfo["current_player"];
-    currentPlayerName.value = players.value.find(
-      (player) => player.id == currentPlayerId.value
-    ).name;
+};
+const getPlayerNameById = (playerId) => {
+  const player = players.value.find((player) => player.id == playerId);
+  if (player) {
+    return player["name"];
+  } else {
+    return "";
+  }
+};
 
-    dealer.value = players.value.find(
-      (player) => player.id == table.value.dealer
-    ).name;
-    doraTiles.value = table.value.dora;
+const setSeatPlayers = (myId) => {
+  const myWind = getWindByPlayerId(myId);
+  assignRelativeSeats(myWind);
+  bottomPlayer.value = computed(() =>
+    players.value.find((player) => player.id == relativeSeats.value["bottom"])
+  );
+  rightPlayer.value = computed(() =>
+    players.value.find((player) => player.id == relativeSeats.value["right"])
+  );
+  topPlayer.value = computed(() =>
+    players.value.find((player) => player.id == relativeSeats.value["top"])
+  );
+  leftPlayer.value = computed(() =>
+    players.value.find((player) => player.id == relativeSeats.value["left"])
+  );
+};
+const getWindByPlayerId = (playerId) => {
+  for (var i = 0; i < seatWinds.value.length; i++) {
+    if (seatWinds.value[i]["player_id"] == playerId)
+      return seatWinds.value[i]["wind"];
+  }
+};
+const assignRelativeSeats = (myWind) => {
+  const winds = ["east", "south", "west", "north"];
+  const myIndex = winds.indexOf(myWind);
 
-    const mySeat = getSeatByPlayerId(playerId.value);
-    const relativeSeats = assignRelativeSeats(mySeat);
-    topPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["top"])
-    );
-    leftPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["left"])
-    );
-    rightPlayer.value = computed(() =>
-      players.value.find((player) => player.id == relativeSeats["right"])
-    );
-    bottomPlayer.value = computed(() =>
-      players.value.find((player) => player.id == playerId.value)
-    );
+  const assignedRelativeSeats = {};
+  assignedRelativeSeats.bottom = myId.value;
+  for (var i = 0; i < seatWinds.value.length; i++) {
+    if (seatWinds.value[i]["wind"] == winds[(myIndex + 1) % winds.length]) {
+      assignedRelativeSeats.right = seatWinds.value[i]["player_id"];
+    } else if (
+      seatWinds.value[i]["wind"] == winds[(myIndex + 2) % winds.length]
+    ) {
+      assignedRelativeSeats.top = seatWinds.value[i]["player_id"];
+    } else if (
+      seatWinds.value[i]["wind"] == winds[(myIndex + 3) % winds.length]
+    ) {
+      assignedRelativeSeats.left = seatWinds.value[i]["player_id"];
+    }
+  }
 
-    displayFlag.value = false;
-    await nextTick(() => {
-      displayFlag.value = true;
-    });
-  });
+  relativeSeats.value = assignedRelativeSeats;
+};
 
-  socket.on("draw_tile", (playerAction) => {
-    action.value = playerAction;
-    discardFlag.value = true;
-  });
+const clickTile = (tile) => {
+  if (drawFlag.value) {
+    socket.emit("discard_tile", tile.id, riichiFlag.value);
+    drawFlag.value = false;
+    canRiichi.value = false;
+    canTsumo.value = false;
+  }
 
-  socket.on("update_action", (playerAction) => {
-    action.value = playerAction;
-  });
+  if (voteFlag.value && selectCount.value < 3) {
+    socket.emit("select_tile", tile.id);
+  }
+};
 
-  socket.on("riichi", (isRiichi) => {
-    console.log(isRiichi);
-    riichiFlag.value = isRiichi;
-  });
+const cancelTile = (tile) => {
+  socket.emit("cancel_tile", tile.id);
+};
 
-  socket.on("end_round", () => {
-    showModal.value = true;
-    endFlag.value = true;
-  });
+const skip = () => {
+  if (canTsumo.value) {
+    canRiichi.value = false;
+    canTsumo.value = false;
+  } else {
+    socket.emit("skip");
+    canPon.value = false;
+    canKan.value = false;
+    canRon.value = false;
+  }
+};
+const call = (callType) => {
+  socket.emit("call", callType);
+  canPon.value = false;
+  canKan.value = false;
+  canRon.value = false;
+  canRiichi.value = false;
+  canTsumo.value = false;
+};
+const riichi = () => {
+  riichiFlag.value = !riichiFlag.value;
+  if (riichiFlag.value == true) {
+    socket.emit("riichi");
+  }
+};
+const ron = () => {
+  socket.emit("agari", "ron");
+  canPon.value = false;
+  canKan.value = false;
+  canRon.value = false;
+  canRiichi.value = false;
+  canTsumo.value = false;
+};
+const tsumo = () => {
+  socket.emit("agari", "tsumo");
+  canPon.value = false;
+  canKan.value = false;
+  canRon.value = false;
+  canRiichi.value = false;
+  canTsumo.value = false;
+};
 
-  socket.on("vote_start", () => {
-    riichiFlag.value = false;
-    discardFlag.value = false;
-    voteFlag.value = true;
-    selectFlag.value = 0;
-  });
+const closeModal = () => {
+  showModal.value = false;
+  if (host.value == "true") {
+    socket.emit("close_result");
+  }
+};
 
-  socket.on("selected", () => {
-    selectFlag.value += 1;
-  });
+const vote = (targetPlayerId) => {
+  socket.emit("vote", targetPlayerId);
+  votedFlag.value = true;
+};
+
+const sendMessage = () => {
+  socket.emit("send_message", chatMessage.value);
+  chatMessage.value = "";
+};
+
+socket.on("reconnected", (socket_id) => {
+  socketId.value = socket_id;
+  sessionStorage.setItem("socketId", socket_id);
+  if (host.value == "true") socket.emit("setup_round");
+  socket.emit("get_messages");
+});
+
+socket.on("update_game", (received_game) => {
+  roomId.value = received_game["id"];
+  roomNumber.value = received_game["number"];
+
+  players.value = received_game["players"];
+  roundNumber.value = received_game["game"]["round"]["round_number"];
+  roundWind.value = received_game["game"]["round"]["round_wind"];
+  dealerName.value = players.value.find(
+    (player) => player.id == received_game["game"]["round"]["dealer_id"]
+  ).name;
+  remainingNumber.value =
+    received_game["game"]["round"]["wall_remaining_number"];
+  seatWinds.value = received_game["game"]["round"]["seat_winds"];
+  dora.value = received_game["game"]["round"]["dora"];
+  currentPlayerId.value = received_game["game"]["round"]["current_player_id"];
+
+  myId.value = getMyIdBySocketId(players.value, socketId.value);
+  setSeatPlayers(myId.value);
+
+  reloadDisplay();
+});
+
+socket.on("update_players", (received_players) => {
+  players.value = received_players;
+
+  reloadDisplay();
+});
+
+socket.on("update_player", (received_player) => {
+  console.log(received_player);
+  for (var i = 0; i < players.value.length; i++) {
+    if (players.value[i]["id"] == received_player["id"]) {
+      players.value[i] = received_player;
+    }
+  }
+  setSeatPlayers(myId.value);
+
+  reloadDisplay();
+});
+
+socket.on("update_remaining_number", (received_remaining_number) => {
+  remainingNumber.value = received_remaining_number;
+
+  reloadDisplay();
+});
+
+socket.on("update_current_player", (received_player_id) => {
+  currentPlayerId.value = received_player_id;
+
+  reloadDisplay();
+});
+
+socket.on("notice_drew", () => {
+  drawFlag.value = true;
+});
+
+socket.on("notice_next_draw", () => {
+  socket.emit("draw_tile");
+});
+
+socket.on("notice_can_pon", () => {
+  canPon.value = true;
+});
+
+socket.on("notice_can_kan", () => {
+  canKan.value = true;
+});
+
+socket.on("notice_can_ron", () => {
+  canRon.value = true;
+});
+
+socket.on("notice_can_riichi", () => {
+  riichiFlag.value = false;
+  canRiichi.value = true;
+});
+
+socket.on("notice_can_tsumo", () => {
+  canTsumo.value = true;
+  drawFlag.value = false;
+});
+
+socket.on("notice_agari", () => {
+  console.log("agari");
+  riichiFlag.value = false;
+
+  reloadDisplay();
+});
+
+socket.on("notice_end_round", () => {
+  showModal.value = true;
+  drawFlag.value = false;
+  riichiFlag.value = false;
+
+  reloadDisplay();
+});
+
+socket.on("notice_start_vote", () => {
+  voteFlag.value = true;
+  selectCount.value = 0;
+});
+
+socket.on("notice_end_vote", () => {
+  voteFlag.value = false;
+  selectCount.value = 0;
+});
+
+socket.on("notice_selected", () => {
+  selectCount.value += 1;
+});
+
+socket.on("notice_unselected", () => {
+  selectCount.value -= 1;
+});
+
+socket.on("update_chat", (received_chats) => {
+  chats.value = received_chats;
 });
 </script>
 
 <template>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap" rel="stylesheet" />
   <div class="body">
     <div class="container" v-if="displayFlag">
+      <div v-if="chatFlag">
+        <div id="chat-container">
+          <div id="messages-container">
+            <div id="chat-header">
+              <div id="chat-title">チャット</div>
+              <button id="chat-close-button" @click="chatFlag = false">
+                &#9661;
+              </button>
+            </div>
+            <div id="messages">
+              <div v-for="chat in chats">
+                <div class="message ms-left">
+                  <div class="sender-name">{{ chat.player_name }}</div>
+                  <div class="message-box">
+                    <div class="message-content">
+                      <div class="message-text">{{ chat.message }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ms-clear"></div>
+              </div>
+            </div>
+            <div id="ms-send">
+              <textarea id="send-message" v-model="chatMessage"></textarea>
+              <button id="send-btn" @click="sendMessage">送信</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div id="chat-close-container">
+          <div id="chat-header">
+            <div id="chat-title">チャット</div>
+            <button id="chat-close-button" @click="chatFlag = true">
+              &#9651;
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="top-content content" v-if="topPlayer">
-        <div class="tiles" v-for="_ in topPlayer.value.hand.tiles">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tiles" v-for="_ in topPlayer.value.hand">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="tsumo" v-if="topPlayer.value.hand.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tsumo" v-if="topPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="calls" v-for="call in topPlayer.value.hand.calls">
+        <div class="calls" v-for="call in topPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
@@ -262,7 +383,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'dai_min_kan'">
+          <div class="kan" v-if="call.type == 'kan'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -272,13 +393,13 @@ onMounted(() => {
         </div>
       </div>
       <div class="left-content content" v-if="leftPlayer">
-        <div class="tiles" v-for="_ in leftPlayer.value.hand.tiles">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tiles" v-for="_ in leftPlayer.value.hand">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="tsumo" v-if="leftPlayer.value.hand.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tsumo" v-if="leftPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="calls" v-for="call in leftPlayer.value.hand.calls">
+        <div class="calls" v-for="call in leftPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
@@ -286,7 +407,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'dai_min_kan'">
+          <div class="kan" v-if="call.type == 'kan'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -296,13 +417,13 @@ onMounted(() => {
         </div>
       </div>
       <div class="right-content content" v-if="rightPlayer">
-        <div class="tiles" v-for="_ in rightPlayer.value.hand.tiles">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tiles" v-for="_ in rightPlayer.value.hand">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="tsumo" v-if="rightPlayer.value.hand.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" :isRedDora="false" />
+        <div class="tsumo" v-if="rightPlayer.value.tsumo">
+          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
         </div>
-        <div class="calls" v-for="call in rightPlayer.value.hand.calls">
+        <div class="calls" v-for="call in rightPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
@@ -310,7 +431,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'dai_min_kan'">
+          <div class="kan" v-if="call.type == 'kan'">
             <div class="tiles" v-for="tile in call.tiles">
               <div>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
@@ -320,49 +441,49 @@ onMounted(() => {
         </div>
       </div>
       <div class="bottom-content content" v-if="bottomPlayer">
-        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand.tiles">
-          <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :isRedDora="tile.bonus"
-            :limit="false" />
+        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+          <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
         </div>
-        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand.tiles">
+        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
           <div v-if="tile.can_riichi">
-            <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :isRedDora="tile.bonus"
-              :limit="false" />
+            <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
           </div>
           <div v-if="!tile.can_riichi">
-            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :isRedDora="tile.bonus" :limit="true" />
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
           </div>
         </div>
-        <div v-if="bottomPlayer.value.hand.tsumo" class="tsumo">
+        <div v-if="bottomPlayer.value.tsumo" class="tsumo">
           <div v-if="riichiFlag">
-            <div v-if="!bottomPlayer.value.hand.tsumo.can_riichi">
-              <MahjongTile :tile="bottomPlayer.value.hand.tsumo.name" :scale="0.5" :rotate="0"
-                :isRedDora="bottomPlayer.value.hand.tsumo.bonus" :limit="true" />
+            <div v-if="!bottomPlayer.value.tsumo.can_riichi">
+              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
             </div>
-            <div v-if="bottomPlayer.value.hand.tsumo.can_riichi">
-              <MahjongTile @click="discardTile(bottomPlayer.value.hand.tsumo)" :tile="bottomPlayer.value.hand.tsumo.name"
-                :scale="0.5" :rotate="0" :isRedDora="bottomPlayer.value.hand.tsumo.bonus" :limit="false" />
+            <div v-if="bottomPlayer.value.tsumo.can_riichi">
+              <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+                :rotate="0" :limit="false" />
             </div>
           </div>
           <div v-if="!riichiFlag">
-            <MahjongTile @click="discardTile(bottomPlayer.value.hand.tsumo)" :tile="bottomPlayer.value.hand.tsumo.name"
-              :scale="0.5" :rotate="0" :isRedDora="bottomPlayer.value.hand.tsumo.bonus" :limit="false" />
+            <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+              :rotate="0" :limit="false" />
           </div>
         </div>
-        <div class="calls" v-for="call in bottomPlayer.value.hand.calls">
+        <div class="calls" v-for="call in bottomPlayer.value.call">
           <div class="pon" v-if="call.type == 'pon'">
             <div class="tiles" v-for="tile in call.tiles">
               <div v-if="voteFlag">
-                <MahjongTile @click="discardTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
               <div v-else>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'dai_min_kan'">
+          <div class="kan" v-if="call.type == 'kan'">
             <div class="tiles" v-for="tile in call.tiles">
-              <div>
+              <div v-if="voteFlag">
+                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+              <div v-else>
                 <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
             </div>
@@ -372,9 +493,9 @@ onMounted(() => {
       <div v-if="voteFlag">
         <div class="center-content-vote">
           <div v-for="player in players">
-            <div v-if="player.id == playerId">
+            <div v-if="player.id == myId">
               <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected_tiles">
+                <div class="tiles" v-for="tile in player.selected">
                   <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
                 </div>
               </div>
@@ -384,11 +505,20 @@ onMounted(() => {
             </div>
             <div v-else>
               <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected_tiles">
+                <div class="tiles" v-for="tile in player.selected">
                   <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
                 </div>
               </div>
-              <button @click="vote(player.id)">{{ player.name }}に投票</button>
+              <div v-if="votedFlag">
+                <button class="disable-vote" disabled>
+                  {{ player.name }}に投票
+                </button>
+              </div>
+              <div v-else>
+                <button @click="vote(player.id)">
+                  {{ player.name }}に投票
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -397,43 +527,43 @@ onMounted(() => {
         <div class="center-content">
           <!-- 局・本場・順目・残り・東西南北・ドラ -->
           <div class="all_tiles">
-            <div class="tiles" v-for="tile in doraTiles">
+            <div class="tiles" v-for="tile in dora">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="round-wind">{{ windDirections[table.round_wind] }}</div>
+          <div class="round-wind">{{ windDirections[roundWind] }}</div>
           <div class="center-all">
-            <div>部屋番号 : {{ roomId }}</div>
-            <div>残り枚数 : {{ table.wall_num }}</div>
-            <div>現在の番 : {{ currentPlayerName }}</div>
-            <div>親 : {{ dealer }}</div>
-            <div>局 : {{ table.round }}</div>
+            <div>部屋番号 : {{ roomNumber }}</div>
+            <div>残り枚数 : {{ remainingNumber }}</div>
+            <div>現在の手番 : {{ getPlayerNameById(currentPlayerId) }}</div>
+            <div>親 : {{ dealerName }}</div>
+            <div>局 : {{ roundNumber }}</div>
           </div>
         </div>
         <div class="top-discarded discarded" v-if="topPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in topPlayer.value.discarded_tiles">
+            <div class="tiles" v-for="tile in topPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
         <div class="left-discarded discarded" v-if="leftPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in leftPlayer.value.discarded_tiles">
+            <div class="tiles" v-for="tile in leftPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
         <div class="right-discarded discarded" v-if="rightPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in rightPlayer.value.discarded_tiles">
+            <div class="tiles" v-for="tile in rightPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
         <div class="bottom-discarded discarded" v-if="bottomPlayer">
           <div class="discarded">
-            <div class="tiles" v-for="tile in bottomPlayer.value.discarded_tiles">
+            <div class="tiles" v-for="tile in bottomPlayer.value.discarded">
               <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
@@ -441,55 +571,65 @@ onMounted(() => {
       </div>
       <div class="all_direction">
         <div class="top-direction direction" v-if="topPlayer">
-          <img :style="getImgDirection(topPlayer.value.id)" :src="`/${topPlayer.value.seat_wind}.png`" />
+          <!-- <img -->
+          <!--   :style="getImgDirection(topPlayer.id)" -->
+          <!--   :src="`/${topPlayer.seat_wind}.png`" -->
+          <!-- /> -->
           <p class="name-direction">{{ topPlayer.value.name }}</p>
-          <p class="score-direction">{{ topPlayer.value.score }}点</p>
+          <!-- <p class="score-direction">{{ topPlayer.score }}点</p> -->
         </div>
         <div class="left-direction direction" v-if="leftPlayer">
-          <img :style="getImgDirection(leftPlayer.value.id)" :src="`/${leftPlayer.value.seat_wind}.png`" />
+          <!-- <img -->
+          <!--   :style="getImgDirection(leftPlayer.value.id)" -->
+          <!--   :src="`/${leftPlayer.seat_wind}.png`" -->
+          <!-- /> -->
           <p class="name-direction">{{ leftPlayer.value.name }}</p>
-          <p class="score-direction">{{ leftPlayer.value.score }}点</p>
+          <!-- <p class="score-direction">{{ leftPlayer.score }}点</p> -->
         </div>
         <div class="right-direction direction" v-if="rightPlayer">
-          <img :style="getImgDirection(rightPlayer.value.id)" :src="`/${rightPlayer.value.seat_wind}.png`" />
+          <!-- <img -->
+          <!--   :style="getImgDirection(rightPlayer.id)" -->
+          <!--   :src="`/${rightPlayer.seat_wind}.png`" -->
+          <!-- /> -->
           <p class="name-direction">{{ rightPlayer.value.name }}</p>
-          <p class="score-direction">{{ rightPlayer.value.score }}点</p>
+          <!-- <p class="score-direction">{{ rightPlayer.score }}点</p> -->
         </div>
         <div class="bottom-direction direction" v-if="bottomPlayer">
-          <img :style="getImgDirection(bottomPlayer.value.id)" :src="`/${bottomPlayer.value.seat_wind}.png`" />
+          <!-- <img -->
+          <!--   :style="getImgDirection(bottomPlayer.id)" -->
+          <!--   :src="`/${bottomPlayer.seat_wind}.png`" -->
+          <!-- /> -->
           <p class="name-direction">{{ bottomPlayer.value.name }}</p>
-          <p class="score-direction">{{ bottomPlayer.value.score }}点</p>
+          <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
         </div>
       </div>
       <div class="all_button">
         <div class="button-container">
-          <button @click="riichi" v-if="action.riichi && riichiFlag" class="riichi">
+          <button @click="call('pon')" v-if="canPon">ポン</button>
+          <button @click="call('kan')" v-if="canKan">カン</button>
+          <button @click="riichi" v-if="canRiichi && riichiFlag && !canTsumo">
             リーチ: ON
           </button>
-          <button @click="riichi" v-if="action.riichi && !riichiFlag" class="riichi">
+          <button @click="riichi" v-if="canRiichi && !riichiFlag && !canTsumo">
             リーチ: OFF
           </button>
-          <button @click="pon" v-if="action.pon">ポン</button>
-          <button @click="skipPon" v-if="action.pon">スキップ</button>
-          <button @click="daiMinKan" v-if="action.kan">カン</button>
-          <button @click="skipDaiMinKan" v-if="action.kan">スキップ</button>
-          <button @click="ron" v-if="action.ron">ロン</button>
-          <button @click="skipRon" v-if="action.ron">スキップ</button>
-          <button @click="tsumo" v-if="action.tsumo" class="tsumo">ツモ</button>
-          <button @click="discardTile(bottomPlayer.value.hand.tsumo)" v-if="action.tsumo" class="tsumo">
+          <button @click="tsumo" v-if="canTsumo">ツモ</button>
+          <button @click="ron" v-if="canRon">ロン</button>
+          <button @click="skip" v-if="canPon || canKan || canRon || canTsumo">
             スキップ
           </button>
         </div>
       </div>
-      <!-- モーダルウィンドウ-->
       <div class="modal" :class="{ 'show-modal': showModal }">
         <div class="modal-content">
-          <span class="close-button" @click="closeModal">&times;</span>
           <h2>Final Score Results</h2>
           <div v-for="player in players">
-            <p v-if="player.score_info">
-              {{ player.name }}: {{ player.score_info.cost }}
-            </p>
+            <div v-if="player.score">
+              <p>{{ player.name }}: {{ player.score.score }}</p>
+              <p>{{ player.score.han }}翻　{{ player.score.fu }}符</p>
+              <p v-for="yaku in player.score.yaku">{{ yaku }}</p>
+              <hr />
+            </div>
           </div>
           <button class="modal-close-button" @click="closeModal">Close</button>
         </div>
@@ -504,7 +644,6 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #444444;
   margin: 0;
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
@@ -513,8 +652,27 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   height: 56.25vw;
-  background-image: url("@/assets/rose_wallpaper.jpg");
   background-size: cover;
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
+  background-size: 200% 200%;
+  animation: bggradient 5s ease infinite;
+}
+
+@keyframes bggradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .top-content {
@@ -606,7 +764,7 @@ img {
   flex-direction: column;
   justify-content: center;
   align-items: left;
-  background-color: #ffc3cd;
+  background-color: #fff;
   border-radius: 20px;
 }
 
@@ -642,8 +800,8 @@ img {
   /* flex-direction: column; */
   justify-content: center;
   align-items: center;
-  border: 7px solid #ffc3cd;
-  background-color: #fff;
+  /* border: 7px solid #ffc3cd; */
+  /* background-color: #fff; */
   border-radius: 20px;
   font-size: 1.1vw;
 }
@@ -721,7 +879,7 @@ button:hover {
   top: 3.5vw;
   left: 15.8vw;
   font-size: 10vw;
-  color: #fff;
+  color: #ffc3cd;
 }
 
 .center-all {
@@ -729,7 +887,7 @@ button:hover {
   top: 2vw;
   left: 2vw;
   font-size: 1.3vw;
-  color: #fff;
+  color: #ffc3cd;
 }
 
 .modal {
@@ -753,7 +911,6 @@ button:hover {
   pointer-events: auto;
 }
 
-/* Style for the modal content */
 .modal-content {
   background-color: #fff;
   padding: 20px;
@@ -763,7 +920,6 @@ button:hover {
   width: 80%;
 }
 
-/* Style for the modal close button */
 .close-button {
   position: absolute;
   top: 10px;
@@ -812,5 +968,179 @@ button:hover {
 .disable-vote:hover {
   background-color: #ffe6f0;
   color: #fff;
+}
+
+.tiles {
+  margin: 0 0.15vw;
+}
+
+#chat-container {
+  height: 40vh;
+  width: 30vw;
+  max-width: 400px;
+  position: fixed;
+  bottom: 12%;
+  left: 2%;
+}
+
+#chat-close-container {
+  position: fixed;
+  width: 30vw;
+  max-width: 400px;
+  bottom: 5%;
+  left: 2%;
+}
+
+#messages-container {
+  height: 100%;
+  width: 100%;
+}
+
+#chat-header {
+  padding: 6px;
+  font-size: 16px;
+  height: 3vh;
+  background: #ffc0cb;
+  border: 1px solid #ea384955;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-title {
+  color: rgb(234, 56, 73, 0.8);
+  float: left;
+  display: flex;
+  justify-content: left;
+}
+
+#chat-close-button {
+  width: 8px;
+  height: 8px;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#messages {
+  overflow: auto;
+  height: 100%;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  background-color: #fff5;
+}
+
+.message {
+  margin: 0px;
+  padding: 0 14px;
+  font-size: 16px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.sender-name {
+  margin-top: 15px;
+  font-size: 4px;
+}
+
+.message-box {
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.message-content {
+  padding: 15px;
+}
+
+.ms-left {
+  float: left;
+  line-height: 1em;
+}
+
+.ms-left .message-box {
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 30px 0px;
+  margin-right: 50px;
+}
+
+.ms-right {
+  float: right;
+  line-height: 1em;
+}
+
+.ms-right .message-box {
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 0px 30px;
+  margin-left: 50px;
+}
+
+.ms-clear {
+  clear: both;
+}
+
+#ms-send {
+  background-color: #fffa;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  border-bottom: 1px solid #ea384955;
+  height: 48px;
+  padding: 4px;
+}
+
+#send-message {
+  resize: none;
+  width: calc(100% - 75px);
+  line-height: 16px;
+  height: 48px;
+  padding: 14px 6px 0px 6px;
+  border: 1px solid #ea384955;
+  border-radius: 8px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+#send-btn {
+  width: 64px;
+  height: 40px;
+  font-size: 16px;
+  float: right;
+  background: #ffc0cb;
+  border: 1px solid;
+}
+
+#send-btn:hover {
+  background: #ea3849cc;
+  color: #fff;
+  cursor: pointer;
+}
+
+button {
+  display: inline-block;
+  background-color: rgb(234, 56, 73, 0.8);
+  color: #fff;
+  width: 140px;
+  border: 3px solid transparent;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  margin: 5px;
+  transition: 0.5s;
+  font-size: 20px;
+}
+
+button:disabled {
+  background-color: rgb(245, 235, 240);
+}
+
+button:enabled:hover {
+  background-color: #fff;
+  color: rgb(234, 56, 73, 0.8);
+  transition: 0.5s;
+  border: 3px solid rgb(234, 56, 73, 0.8);
 }
 </style>

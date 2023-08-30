@@ -53,9 +53,14 @@ erDiagram
 
   player {
     int id PK
+  }
+  player ||--|| player_detail : ""
+
+  player_detail {
+    int id PK
+    int player_id FK
     varchar(8) name
     text socket_id
-    int room_id FK
   }
 
   game {
@@ -137,7 +142,7 @@ erDiagram
     varchar(9) type
     int call_player_id FK
     int target_player_id FK
-    int targettile_id FK
+    int target_tile_id FK
     timestamp call_time
   }
   call ||--|| round: ""
@@ -157,11 +162,13 @@ erDiagram
     int round_id FK
     int player_id FK
     int target_player_id FK
+    int target_tile_id FK
     varchar(5) type
     timestamp agari_time
   }
   agari ||--|| round: ""
   agari ||--|| player: ""
+  agari ||--|| tile: ""
   agari ||--|| score: ""
 
   score {
@@ -190,10 +197,12 @@ erDiagram
     int id PK
     int round_id FK
     int player_id FK
+    int tile_id FK
     timestamp riichi_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
+  riichi ||--|| round: ""
+  riichi ||--|| player: ""
+  riichi ||--|| tile: ""
 
   select_tile {
     int id PK
@@ -202,9 +211,9 @@ erDiagram
     int tile_id FK
     timestamp select_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
-  draw ||--|| tile: ""
+  select_tile ||--|| round: ""
+  select_tile ||--|| player: ""
+  select_tile ||--|| tile: ""
 
   vote {
     int id PK
@@ -213,6 +222,32 @@ erDiagram
     int target_player_id FK
     timestamp vote_time
   }
-  draw ||--|| round: ""
-  draw ||--|| player: ""
+  vote ||--|| round: ""
+  vote ||--|| player: ""
+
+  send_chat {
+    int id PK
+    int room_id FK
+    int player_id FK
+    text message
+    timestamp send_time
+  }
+  send_chat ||--|| room: ""
+  send_chat ||--|| player: ""
+
+  reaction {
+    int id PK
+    text name
+  }
+
+  send_reaction {
+    int id PK
+    int room_id FK
+    int player_id FK
+    int reaction_id FK
+    timestamp send_time
+  }
+  send_reaction ||--|| room: ""
+  send_reaction ||--|| player: ""
+  send_reaction ||--|| reaction: ""
 ```

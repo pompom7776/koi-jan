@@ -2,9 +2,9 @@ import eventlet
 import eventlet.wsgi
 import socketio
 
-import controller.room
-import controller.waiting_room
-import controller.game
+import interfaces.controller.room as room_controller
+import interfaces.controller.game as game_controller
+import interfaces.controller.chat as chat_controller
 
 
 if __name__ == "__main__":
@@ -12,15 +12,8 @@ if __name__ == "__main__":
     socket_io = socketio.Server(cors_allowed_origins="http://localhost:5173")
     app = socketio.WSGIApp(socket_io)
 
-    @socket_io.on("connect")
-    def on_connect(socket_id, environ):
-        print(f"connected : {socket_id}")
-
-    rooms = []
-    players = []
-
-    controller.room.set(socket_io, rooms, players)
-    controller.waiting_room.set(socket_io, rooms, players)
-    controller.game.set(socket_io, rooms, players)
+    room_controller.set(socket_io)
+    game_controller.set(socket_io)
+    chat_controller.set(socket_io)
 
     eventlet.wsgi.server(eventlet.listen(("0.0.0.0", 8888)), app)
