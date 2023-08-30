@@ -24,3 +24,8 @@ clientのみ起動
 ```
 dokcer-compose up client
 ```
+
+DBをリセットしたい時(docker rmがされている状態で実行)
+```
+docker volume rm koi-jan_data-volume
+```
