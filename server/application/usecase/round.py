@@ -4,7 +4,7 @@ import random
 from socketio import Server
 
 from model.room import Room
-from model.round import Round
+from model.round import Round, SeatWind
 from model.player import Player
 from model.tile import Tile
 from model.round import WINDS
@@ -45,6 +45,30 @@ def setup_round(socket_io: Server, room: Room):
     room.game.round = round
 
     emit.update_game(socket_io, [p.socket_id for p in room.players], room)
+
+
+def get_round(socket_io: Server, room: Room, round_id: int, socket_id: str):
+    round = round_repo.fetch_round(round_id)
+    wall = wall_repo.fetch_wall(round.wall_id)
+    round.wall_remaining_number = wall.remaining_number
+    round.dora = wall_repo.fetch_dora(round.wall_id)
+    round.dora = round.dora + [Tile(0, "-", 0, "-")
+                               for _ in range(5-wall.dora_number)]
+    for p in room.players:
+        wind = round_repo.fetch_wind_by_player_id(round_id, p.id)
+        seat_wind = SeatWind(0, round_id, p.id, wind)
+        round.seat_winds.append(seat_wind)
+
+    round.current_player_id = round_repo.fetch_current_player_id(round_id)
+    room.game.round = round
+
+    for p in room.players:
+        p.hand = draw_repo.fetch_hand(round_id, p.id)
+        p.discarded = discard_repo.fetch_discarded_tiles(round_id, p.id)
+        p.call = call_repo.fetch_call(round_id, p.id)
+
+    print([p.hand for p in room.players])
+    emit.update_game(socket_io, [socket_id], room)
 
 
 def deal_tiles(socket_io: Server, room: Room):

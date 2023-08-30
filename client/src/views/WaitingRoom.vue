@@ -14,7 +14,7 @@ const readyPlayers = ref({});
 const host = ref("false");
 const ready = ref(false);
 
-const chatFlag = ref(true);
+const chatFlag = ref(false);
 const chatMessage = ref("");
 const chats = ref([]);
 
@@ -163,18 +163,8 @@ socket.on("update_chat", (received_chats) => {
       <ul>
         <p v-for="(player, index) in players" :key="index">
           Player{{ index + 1 }} : {{ player }}
-          <img
-            v-if="!readyPlayers[player]"
-            src="@/assets/pose_ng_woman.png"
-            alt="Pose NG Woman"
-            class="np_woman"
-          />
-          <img
-            v-if="readyPlayers[player]"
-            src="@/assets/pose_heart_man.png"
-            alt="Pose heart Man"
-            class="heart_man"
-          />
+          <img v-if="!readyPlayers[player]" src="@/assets/pose_ng_woman.png" alt="Pose NG Woman" class="np_woman" />
+          <img v-if="readyPlayers[player]" src="@/assets/pose_heart_man.png" alt="Pose heart Man" class="heart_man" />
         </p>
       </ul>
       <div class="button-group">
@@ -202,12 +192,10 @@ socket.on("update_chat", (received_chats) => {
   align-items: center;
   min-height: 100vh;
   /* background-image: url("@/assets/rose_wallpaper.jpg"); */
-  background: linear-gradient(
-    45deg,
-    rgba(250, 208, 196, 0.5),
-    rgba(255, 209, 255, 0.5),
-    rgba(168, 237, 234, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -297,7 +285,7 @@ button:enabled:hover {
   border: 3px solid rgb(234, 56, 73, 0.8);
 }
 
-button:checked + label {
+button:checked+label {
   background-color: red;
 }
 

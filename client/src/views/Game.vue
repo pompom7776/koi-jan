@@ -27,7 +27,7 @@ const riichiFlag = ref(false);
 const voteFlag = ref(false);
 const votedFlag = ref(false);
 const selectCount = ref(0);
-const chatFlag = ref(true);
+const chatFlag = ref(false);
 
 const showModal = ref(false);
 
@@ -204,9 +204,11 @@ socket.on("reconnected", (socket_id) => {
   sessionStorage.setItem("socketId", socket_id);
   if (host.value == "true") socket.emit("setup_round");
   socket.emit("get_messages");
+  socket.emit("get_round");
 });
 
 socket.on("update_game", (received_game) => {
+  console.log(received_game);
   roomId.value = received_game["id"];
   roomNumber.value = received_game["number"];
 
