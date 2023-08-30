@@ -120,3 +120,39 @@ def fetch_round_id_by_room_id(room_id: int) -> int:
         return round_id
     else:
         return None
+
+
+def fetch_current_player_id(round_id: int) -> int:
+    query = (
+        "SELECT player_id "
+        "FROM ("
+        "   SELECT call_player_id AS player_id, MAX(call_time) AS action_time "
+        "   FROM call "
+        "   WHERE round_id = %s "
+        "   GROUP BY call_player_id "
+        "   UNION ALL "
+        "   SELECT player_id, MAX(draw_time) AS action_time "
+        "   FROM draw "
+        "   WHERE round_id = %s "
+        "   GROUP BY player_id "
+        "   UNION ALL "
+        "   SELECT player_id, MAX(discard_time) AS action_time "
+        "   FROM discard "
+        "   WHERE round_id = %s "
+        "   GROUP BY player_id "
+        "   UNION ALL "
+        "   SELECT player_id, MAX(agari_time) AS action_time "
+        "   FROM agari "
+        "   WHERE round_id = %s "
+        "   GROUP BY player_id "
+        ") AS all_actions "
+        "ORDER BY action_time DESC "
+        "LIMIT 1"
+    )
+
+    result = fetch_data(query, (round_id, round_id, round_id, round_id))
+
+    if result:
+        return result[0][0]
+    else:
+        return None

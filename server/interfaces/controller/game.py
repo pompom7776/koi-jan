@@ -17,6 +17,15 @@ def set(socket_io: Server):
         room_usecase.reconnect(socket_io,
                                new_socket_id, old_socket_id, players)
 
+    @socket_io.on("get_round")
+    def on_get_round(socket_id: str):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        room.players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+        room.game = game_util.get_game_by_room_id(room.id)
+        round_usecase.get_round(socket_io, room, round_id, socket_id)
+
     @socket_io.on("setup_round")
     def on_setup_round(socket_id: str):
         player = player_util.get_player_by_socket_id(socket_id)
