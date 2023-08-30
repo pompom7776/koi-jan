@@ -47,6 +47,39 @@ def setup_round(socket_io: Server, room: Room):
     emit.update_game(socket_io, [p.socket_id for p in room.players], room)
 
 
+def next_round(socket_io: Server, room: Room):
+    tiles = tile_repo.fetch_all_tiles()
+    random.shuffle(tiles)
+    wall = wall_repo.create_wall(tiles)
+    random.shuffle(room.players)
+    dealer = room.players[0]
+    round_number = round_repo.fetch_round_count(room.game.id) + 1
+    if round_number >= 5:
+        emit.notice_end_game(socket_io,
+                             [p.socket_id for p in room.players])
+    round = round_repo.create_round(room.game.id, round_number, "east",
+                                    dealer.id, wall.id)
+    round.wall_remaining_number = wall.remaining_number
+    dora = wall_repo.fetch_dora(wall.id)
+    round.dora = dora + [Tile(0, "-", 0, "-")
+                         for _ in range(5-wall.dora_number)]
+    previous_round_id = round_repo.fetch_previous_round_id(room.game.id)
+    for p in room.players:
+        wind = round_repo.fetch_wind_by_player_id(previous_round_id, p.id)
+        seat_order = ["east", "south", "west", "north"]
+        current_seat_index = seat_order.index(wind)
+        next_seat_index = (current_seat_index + 1) % len(seat_order)
+        next_wind = seat_order[next_seat_index]
+        round_repo.set_seat_wind(round.id, p.id, next_wind)
+        seat_wind = SeatWind(0, round.id, p.id, next_wind)
+        round.seat_winds.append(seat_wind)
+
+    round.current_player_id = dealer.id
+    room.game.round = round
+
+    emit.update_game(socket_io, [p.socket_id for p in room.players], room)
+
+
 def get_round(socket_io: Server, room: Room, round_id: int, socket_id: str):
     round = round_repo.fetch_round(round_id)
     wall = wall_repo.fetch_wall(round.wall_id)
@@ -67,7 +100,6 @@ def get_round(socket_io: Server, room: Room, round_id: int, socket_id: str):
         p.discarded = discard_repo.fetch_discarded_tiles(round_id, p.id)
         p.call = call_repo.fetch_call(round_id, p.id)
 
-    print([p.hand for p in room.players])
     emit.update_game(socket_io, [socket_id], room)
 
 

@@ -313,6 +313,10 @@ socket.on("notice_start_vote", () => {
 socket.on("notice_end_vote", () => {
   voteFlag.value = false;
   selectCount.value = 0;
+
+  if (host.value == "true") {
+    socket.emit("next_round");
+  }
 });
 
 socket.on("notice_selected", () => {
@@ -321,6 +325,13 @@ socket.on("notice_selected", () => {
 
 socket.on("notice_unselected", () => {
   selectCount.value -= 1;
+});
+
+socket.on("notice_end_game", () => {
+  voteFlag.value = false;
+  selectCount.value = 0;
+
+  console.log("end");
 });
 
 socket.on("update_chat", (received_chats) => {
