@@ -102,34 +102,27 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  /* background-image: url("@/assets/heartsimple59.png"); */
-
   background: linear-gradient(45deg,
       rgba(221, 214, 243, 0.5),
       rgba(250, 172, 168, 0.5),
       rgba(255, 252, 220, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
-
   color: rgb(12, 30, 58);
   font-family: "M PLUS Rounded 1c", sans-serif;
   flex-direction: column;
 }
-
-@keyframes bggradient {
+@keyframes bggradient { 
   0% {
     background-position: 0% 50%;
   }
-
   50% {
     background-position: 100% 50%;
   }
-
   100% {
     background-position: 0% 50%;
   }
 }
-
 .center {
   display: flex;
   flex-direction: column;
@@ -143,7 +136,6 @@ onMounted(() => {
   /* background-color: #fff; */
   margin-top: 30px;
 }
-
 .input-group {
   display: flex;
   flex-direction: column;
@@ -243,6 +235,7 @@ input::placeholder {
 .join2-input input::placeholder {
   color: rgb(234, 56, 73, 0.8);
 }
+
 
 .radio-d {
   display: flex;

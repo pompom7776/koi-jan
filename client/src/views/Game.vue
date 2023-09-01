@@ -27,7 +27,8 @@ const riichiFlag = ref(false);
 const voteFlag = ref(false);
 const votedFlag = ref(false);
 const selectCount = ref(0);
-const chatFlag = ref(true);
+const chatFlag = ref(false);
+const reactionFlag = ref(false);
 
 const showModal = ref(false);
 
@@ -330,44 +331,69 @@ socket.on("update_chat", (received_chats) => {
   <div class="body">
     <div class="container" v-if="displayFlag">
       <div v-if="chatFlag">
-        <div id="chat-container">
-          <div id="messages-container">
-            <div id="chat-header">
-              <div id="chat-title">チャット</div>
-              <button id="chat-close-button" @click="chatFlag = false">
-                &#9661;
-              </button>
-            </div>
-            <div id="messages">
-              <div v-for="chat in chats">
-                <div class="message ms-left">
-                  <div class="sender-name">{{ chat.player_name }}</div>
-                  <div class="message-box">
-                    <div class="message-content">
-                      <div class="message-text">{{ chat.message }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="ms-clear"></div>
-              </div>
-            </div>
-            <div id="ms-send">
-              <textarea id="send-message" v-model="chatMessage"></textarea>
-              <button id="send-btn" @click="sendMessage">送信</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else>
-        <div id="chat-close-container">
+      <div id="chat-container">
+        <div id="messages-container">
           <div id="chat-header">
             <div id="chat-title">チャット</div>
-            <button id="chat-close-button" @click="chatFlag = true">
-              &#9651;
-            </button>
+            <a id="chat-close-btn" @click="chatFlag = false">
+              ×
+            </a>
+          </div>
+          <div id="messages">
+            <div v-for="chat in chats">
+              <div class="message ms-left">
+                <div class="sender-name">{{ chat.player_name }}</div>
+                <div class="message-box">
+                  <div class="message-content">
+                    <div class="message-text">{{ chat.message }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ms-clear"></div>
+            </div>
+          </div>
+          <div id="ms-send">
+            <textarea id="send-message" v-model="chatMessage"></textarea>
+            <button id="send-btn" @click="sendMessage">送信</button>
           </div>
         </div>
       </div>
+    </div>
+      <div v-else-if="reactionFlag">
+      <div id="re-container">
+        <div id="messages-container">
+          <div id="chat-header">
+            <div id="chat-title">スタンプ</div>
+            <a id="chat-close-btn" @click="reactionFlag = false">
+              ×
+            </a>
+          </div>
+          <div id="reaction">
+            <div>
+            <img src="/src/assets/face-happy.PNG" alt="face-happy">
+            <img src="/src/assets/face-straight.PNG" alt="face-straight">
+          </div>
+          <div>
+            <img src="/src/assets/face-beef.PNG" alt="face-beef">
+            <img src="/src/assets/face-woah.PNG" alt="face-woah">
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <div id="chat-close-container">
+          <a id="chat-btn" @click="chatFlag = true">
+          <img src="/src/assets/message-love.PNG" alt="message" class="message-img">
+        </a>
+      </div>
+      <div id="re-close-container">
+          <a id="chat-btn" @click="reactionFlag = true">
+          <img src="/src/assets/face-love.PNG" alt="face" class="face-img">
+        </a>
+      </div>
+    </div>
+
       <div class="top-content content" v-if="topPlayer">
         <div class="tiles" v-for="_ in topPlayer.value.hand">
           <MahjongTile tile="-" :scale="0.5" :rotate="0" />
@@ -661,19 +687,19 @@ socket.on("update_chat", (received_chats) => {
   animation: bggradient 5s ease infinite;
 }
 
-@keyframes bggradient {
+@keyframes bggradient { 
   0% {
     background-position: 0% 50%;
   }
-
   50% {
     background-position: 100% 50%;
   }
-
   100% {
     background-position: 0% 50%;
   }
 }
+
+
 
 .top-content {
   top: 10%;
@@ -704,6 +730,9 @@ socket.on("update_chat", (received_chats) => {
   transform: translate(-50%, -50%);
 }
 
+/* .bottom-content .tiles {
+  box-shadow: 2px 2px 4px rgba(128, 128, 128, 0.56), -2px -2px 4px rgb(255, 255, 255);
+} */
 .right-direction {
   top: 70%;
   left: 83%;
@@ -976,19 +1005,66 @@ button:hover {
 
 #chat-container {
   height: 40vh;
-  width: 30vw;
+  width: 20vw;
   max-width: 400px;
   position: fixed;
-  bottom: 12%;
-  left: 2%;
+  bottom: 14%;
+  right: 9.5%;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  /* opacity: 0; */
+  z-index: 1;
+}
+
+#re-container{
+  height: 30vh;
+  width: 15vw;
+  max-width: 400px;
+  position: fixed;
+  bottom: 7%;
+  right: 12%;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  /* opacity: 0; */
+  z-index: 1;
 }
 
 #chat-close-container {
   position: fixed;
-  width: 30vw;
-  max-width: 400px;
+  width: 60px;
+  height: 60px;
   bottom: 5%;
-  left: 2%;
+  right: 150px;
+  background: #fff;
+  border: 3.5px solid #efb0bb;
+  border-radius: 50px;
+  margin-right: 50px;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  /* opacity: 0; */
+  cursor: pointer;
+  z-index: 1;
+}
+
+#re-close-container {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 5%;
+  right: 230px;
+  background: #fff;
+  border: 3.5px solid #efb0bb;
+  border-radius: 50px;
+  margin-right: 50px;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  /* opacity: 0; */
+  cursor: pointer;
+  z-index: 1;
 }
 
 #messages-container {
@@ -999,36 +1075,93 @@ button:hover {
 #chat-header {
   padding: 6px;
   font-size: 16px;
-  height: 3vh;
+  height: 3.5vh;
   background: #ffc0cb;
   border: 1px solid #ea384955;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 10px 10px 0px 0px;
 }
 
 #chat-title {
-  color: rgb(234, 56, 73, 0.8);
   float: left;
   display: flex;
   justify-content: left;
+  color: #fff;
 }
 
-#chat-close-button {
+#chat-close-btn{
+  font-size: 25px;
+  cursor: pointer;
+  position: absolute;
+  top: 1px;
+  right: 10px;
+  color: #fff;
+}
+
+.chat-btn{
   width: 8px;
   height: 8px;
   font-size: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 30px 0px;
+  margin-right: 50px;
+}
+
+.message-img{
+  display: block;
+  margin: 0 auto; 
+  width: 3.5vw;
+  height: 3.5vw; 
+  position: absolute;
+  top: 55%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+}
+
+.face-img{
+  display: block;
+  margin: 0 auto; 
+  width: 3.5vw;
+  height: 3.5vw;
+  position: absolute;
+  top: 52%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
 }
 
 #messages {
   overflow: auto;
-  height: 100%;
+  height: 90%;
   border-right: 1px solid #ea384955;
   border-left: 1px solid #ea384955;
-  background-color: #fff5;
+  background-color: #fffa;
+}
+
+#reaction{
+  overflow: auto;
+  height: 90%;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  border-bottom: 1px solid #ea384955;
+  background-color: #fff;
+  border-radius: 0px 0px 10px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#reaction img{
+  width: 5vw;
+  height: 5vw;
+  margin: 10px;
+  display: block;
+  cursor: pointer;
 }
 
 .message {
@@ -1088,14 +1221,18 @@ button:hover {
   border-bottom: 1px solid #ea384955;
   height: 48px;
   padding: 4px;
+  border-radius: 0px 0px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 #send-message {
   resize: none;
   width: calc(100% - 75px);
   line-height: 16px;
-  height: 48px;
-  padding: 14px 6px 0px 6px;
+  height: 41px;
+  padding: 10px 6px 0px 6px;
   border: 1px solid #ea384955;
   border-radius: 8px;
   text-align: left;
@@ -1103,18 +1240,20 @@ button:hover {
 }
 
 #send-btn {
-  width: 64px;
+  width: 62px;
   height: 40px;
   font-size: 16px;
   float: right;
-  background: #ffc0cb;
-  border: 1px solid;
+  background: #ffc3cd;
+  text-align: center;
+  padding: 5px 10px;
 }
 
 #send-btn:hover {
-  background: #ea3849cc;
-  color: #fff;
-  cursor: pointer;
+  background-color: #fff;
+  color: #ffc3cd;
+  transition: 0.5s;
+  border: 2px solid #ffc3cd;
 }
 
 button {

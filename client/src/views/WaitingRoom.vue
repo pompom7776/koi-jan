@@ -14,7 +14,8 @@ const readyPlayers = ref({});
 const host = ref("false");
 const ready = ref(false);
 
-const chatFlag = ref(true);
+const chatFlag = ref(false);
+const reactionFlag = ref(false);
 const chatMessage = ref("");
 const chats = ref([]);
 
@@ -118,9 +119,9 @@ socket.on("update_chat", (received_chats) => {
         <div id="messages-container">
           <div id="chat-header">
             <div id="chat-title">チャット</div>
-            <button id="chat-close-button" @click="chatFlag = false">
-              &#9661;
-            </button>
+            <a id="chat-close-btn" @click="chatFlag = false">
+              ×
+            </a>
           </div>
           <div id="messages">
             <div v-for="chat in chats">
@@ -142,16 +143,42 @@ socket.on("update_chat", (received_chats) => {
         </div>
       </div>
     </div>
-    <div v-else>
-      <div id="chat-close-container">
-        <div id="chat-header">
-          <div id="chat-title">チャット</div>
-          <button id="chat-close-button" @click="chatFlag = true">
-            &#9651;
-          </button>
+
+    <div v-else-if="reactionFlag">
+      <div id="re-container">
+        <div id="messages-container">
+          <div id="chat-header">
+            <div id="chat-title">スタンプ</div>
+            <a id="chat-close-btn" @click="reactionFlag = false">
+              ×
+            </a>
+          </div>
+          <div id="reaction">
+            <div>
+            <img src="/src/assets/face-happy.PNG" alt="face-happy">
+            <img src="/src/assets/face-straight.PNG" alt="face-straight">
+          </div>
+          <div>
+            <img src="/src/assets/face-beef.PNG" alt="face-beef">
+            <img src="/src/assets/face-woah.PNG" alt="face-woah">
+          </div>
+          </div>
         </div>
       </div>
     </div>
+    <div v-else>
+      <div id="chat-close-container">
+          <a id="chat-btn" @click="chatFlag = true">
+          <img src="/src/assets/message-love.PNG" alt="message" class="message-img">
+        </a>
+      </div>
+      <div id="re-close-container">
+          <a id="chat-btn" @click="reactionFlag = true">
+          <img src="/src/assets/face-love.PNG" alt="face" class="face-img">
+        </a>
+      </div>
+    </div>
+
     <div class="center">
       <div class="alert-message">
         {{ message }}
@@ -165,15 +192,15 @@ socket.on("update_chat", (received_chats) => {
           Player{{ index + 1 }} : {{ player }}
           <img
             v-if="!readyPlayers[player]"
-            src="@/assets/pose_ng_woman.png"
+            src="@/assets/ready.png"
             alt="Pose NG Woman"
-            class="np_woman"
+            class="ready"
           />
           <img
             v-if="readyPlayers[player]"
-            src="@/assets/pose_heart_man.png"
-            alt="Pose heart Man"
-            class="heart_man"
+            src="@/assets/ready_go.png"
+            alt="readygo"
+            class="readygo"
           />
         </p>
       </ul>
@@ -215,7 +242,6 @@ socket.on("update_chat", (received_chats) => {
   color: rgb(234, 56, 73, 0.8);
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
-
 @keyframes bggradient {
   0% {
     background-position: 0% 50%;
@@ -229,7 +255,6 @@ socket.on("update_chat", (received_chats) => {
     background-position: 0% 50%;
   }
 }
-
 .center {
   display: flex;
   flex-direction: column;
@@ -265,7 +290,6 @@ p {
 .button-group div {
   display: inline-block;
 }
-
 button:disabled {
   background-color: rgb(245, 235, 240);
 }
@@ -273,7 +297,6 @@ button:disabled {
 button input[type="radio"] {
   display: none;
 }
-
 button {
   display: inline-block;
   background-color: rgb(234, 56, 73, 0.8);
@@ -301,21 +324,20 @@ button:checked + label {
   background-color: red;
 }
 
-img.np_woman {
-  margin: -20px;
+img.ready {
+  margin: -0px;
   width: 90%;
-  height: 70%;
+  height:55%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
   opacity: 0;
 }
 
-img.heart_man {
-  margin: -20px;
-  width: 90%;
-  height: 70%;
-  object-fit: cover;
+img.readygo {
+  margin: 7px;
+  width: 95%;
+  height:50%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -338,19 +360,64 @@ img.heart_man {
 
 #chat-container {
   height: 40vh;
-  width: 30vw;
+  width: 25vw;
   max-width: 400px;
   position: fixed;
-  bottom: 12%;
-  left: 2%;
+  bottom: 14%;
+  right: 3%;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  z-index: 1;
+}
+
+#re-container{
+  height: 30vh;
+  width: 15vw;
+  max-width: 400px;
+  position: fixed;
+  bottom: 7%;
+  right: 3%;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  z-index: 1;
 }
 
 #chat-close-container {
   position: fixed;
-  width: 30vw;
-  max-width: 400px;
+  width: 70px;
+  height: 70px;
   bottom: 5%;
-  left: 2%;
+  right: 0%;
+  background: #fff;
+  border: 3.5px solid #efb0bb;
+  border-radius: 50px;
+  margin-right: 50px;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#re-close-container {
+  position: fixed;
+  width: 70px;
+  height: 70px;
+  bottom: 5%;
+  right: 100px;
+  background: #fff;
+  border: 3.5px solid #efb0bb;
+  border-radius: 50px;
+  margin-right: 50px;
+  animation-name: fadeInAnime;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  cursor: pointer;
 }
 
 #messages-container {
@@ -361,12 +428,13 @@ img.heart_man {
 #chat-header {
   padding: 6px;
   font-size: 16px;
-  height: 3vh;
+  height: 3.5vh;
   background: #ffc0cb;
   border: 1px solid #ea384955;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 10px 10px 0px 0px;
 }
 
 #chat-title {
@@ -375,21 +443,76 @@ img.heart_man {
   justify-content: left;
 }
 
-#chat-close-button {
+#chat-close-btn{
+  font-size: 25px;
+  cursor: pointer;
+  position: absolute;
+  top: 1px;
+  right: 10px;
+}
+
+.chat-btn{
   width: 8px;
   height: 8px;
   font-size: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #fff5;
+  border: 2px solid #efb0bb;
+  border-radius: 30px 30px 30px 0px;
+  margin-right: 50px;
+}
+
+.message-img{
+  display: block;
+  margin: 0 auto; 
+  width: 55px;
+  height: 55px; 
+  position: absolute;
+  top: 55%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+}
+
+.face-img{
+  display: block;
+  margin: 0 auto; 
+  width: 55px;
+  height: 55px; 
+  position: absolute;
+  top: 52%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
 }
 
 #messages {
   overflow: auto;
-  height: 100%;
+  height: 95%;
   border-right: 1px solid #ea384955;
   border-left: 1px solid #ea384955;
-  background-color: #fff5;
+  background-color: #ffffff60;
+}
+
+#reaction{
+  overflow: auto;
+  height: 90%;
+  border-right: 1px solid #ea384955;
+  border-left: 1px solid #ea384955;
+  border-bottom: 1px solid #ea384955;
+  background-color: #ffffff60;
+  border-radius: 0px 0px 10px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#reaction img{
+  width: 5vw;
+  height: 5vw;
+  margin: 10px;
+  display: block;
+  cursor: pointer;
 }
 
 .message {
@@ -449,14 +572,18 @@ img.heart_man {
   border-bottom: 1px solid #ea384955;
   height: 48px;
   padding: 4px;
+  border-radius: 0px 0px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 #send-message {
   resize: none;
   width: calc(100% - 75px);
   line-height: 16px;
-  height: 48px;
-  padding: 14px 6px 0px 6px;
+  height: 41px;
+  padding: 10px 6px 0px 6px;
   border: 1px solid #ea384955;
   border-radius: 8px;
   text-align: left;
@@ -464,17 +591,20 @@ img.heart_man {
 }
 
 #send-btn {
-  width: 64px;
+  width: 62px;
   height: 40px;
   font-size: 16px;
   float: right;
-  background: #ffc0cb;
-  border: 1px solid;
+  background: #ea384abe;
+  text-align: center;
+  padding: 5px 10px;
+  
 }
 
 #send-btn:hover {
-  background: #ea3849cc;
-  color: #fff;
-  cursor: pointer;
+  background-color: #fff;
+  color: #ea384abe;
+  transition: 0.5s;
+  border: 2px solid #ea384abe;
 }
 </style>

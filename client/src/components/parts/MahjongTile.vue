@@ -117,17 +117,20 @@ const getImagePath = (tile) => {
     {{ tile }}
   </div>
   <div v-else>
-    <div v-if="limit" class="limit-riichi getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }"
-      @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
-      <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
-      <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
-    </div>
-    <div v-else class="getTileClass(tile)" :style="{ ...getStyle, ...tileStyle }" @mouseover="handleTileHover(true)"
-      @mouseleave="handleTileHover(false)">
-      <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
-      <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
-    </div>
+  <div v-if="limit" class="limit-riichi getTileClass(tile)"
+    :style="{ ...getStyle, ...tileStyle, 'box-shadow': '2px 2px 4px rgba(128, 128, 128, 0.56), -2px -2px 4px rgb(255, 255, 255)' }"
+    @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
+    <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
+    <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
   </div>
+  <div v-else class="getTileClass(tile)"
+    :style="{ ...getStyle, ...tileStyle, 'box-shadow': '2px 2px 4px rgba(128, 128, 128, 0.56), -2px -2px 4px rgb(255, 255, 255)' }"
+    @mouseover="handleTileHover(true)" @mouseleave="handleTileHover(false)">
+    <div v-show="hovered" class="tile-value">{{ tileNames[tile] }}</div>
+    <img :style="{ ...getHighlight, ...getStyle }" :src="getImagePath(tile)" />
+  </div>
+</div>
+
 </template>
 
 <style>
