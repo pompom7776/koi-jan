@@ -51,7 +51,7 @@ const cancelGame = () => {
 const leaveRoom = () => {
   socket.emit("leave_room");
   sessionStorage.removeItem("socketId");
-  router.push(`/`);
+  router.push(`/room`);
   message.value = "";
 };
 
