@@ -15,9 +15,10 @@ const host = ref("false");
 const ready = ref(false);
 
 const chatFlag = ref(false);
-const reactionFlag = ref(false);
 const chatMessage = ref("");
 const chats = ref([]);
+
+const reactionFlag = ref(false);
 
 const route = useRoute();
 onMounted(() => {
@@ -119,9 +120,7 @@ socket.on("update_chat", (received_chats) => {
         <div id="messages-container">
           <div id="chat-header">
             <div id="chat-title">チャット</div>
-            <a id="chat-close-btn" @click="chatFlag = false">
-              ×
-            </a>
+            <a id="chat-close-btn" @click="chatFlag = false"> × </a>
           </div>
           <div id="messages">
             <div v-for="chat in chats">
@@ -149,32 +148,30 @@ socket.on("update_chat", (received_chats) => {
         <div id="messages-container">
           <div id="chat-header">
             <div id="chat-title">スタンプ</div>
-            <a id="chat-close-btn" @click="reactionFlag = false">
-              ×
-            </a>
+            <a id="chat-close-btn" @click="reactionFlag = false"> × </a>
           </div>
           <div id="reaction">
             <div>
-            <img src="/src/assets/face-happy.PNG" alt="face-happy">
-            <img src="/src/assets/face-straight.PNG" alt="face-straight">
-          </div>
-          <div>
-            <img src="/src/assets/face-beef.PNG" alt="face-beef">
-            <img src="/src/assets/face-woah.PNG" alt="face-woah">
-          </div>
+              <img src="/src/assets/face-happy.PNG" alt="face-happy" />
+              <img src="/src/assets/face-straight.PNG" alt="face-straight" />
+            </div>
+            <div>
+              <img src="/src/assets/face-beef.PNG" alt="face-beef" />
+              <img src="/src/assets/face-woah.PNG" alt="face-woah" />
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div v-else>
       <div id="chat-close-container">
-          <a id="chat-btn" @click="chatFlag = true">
-          <img src="/src/assets/message-love.PNG" alt="message" class="message-img">
+        <a id="chat-btn" @click="chatFlag = true">
+          <img src="/src/assets/message-love.PNG" alt="message" class="message-img" />
         </a>
       </div>
       <div id="re-close-container">
-          <a id="chat-btn" @click="reactionFlag = true">
-          <img src="/src/assets/face-love.PNG" alt="face" class="face-img">
+        <a id="chat-btn" @click="reactionFlag = true">
+          <img src="/src/assets/face-love.PNG" alt="face" class="face-img" />
         </a>
       </div>
     </div>
@@ -190,18 +187,8 @@ socket.on("update_chat", (received_chats) => {
       <ul>
         <p v-for="(player, index) in players" :key="index">
           Player{{ index + 1 }} : {{ player }}
-          <img
-            v-if="!readyPlayers[player]"
-            src="@/assets/ready.png"
-            alt="Pose NG Woman"
-            class="ready"
-          />
-          <img
-            v-if="readyPlayers[player]"
-            src="@/assets/ready_go.png"
-            alt="readygo"
-            class="readygo"
-          />
+          <img v-if="!readyPlayers[player]" src="@/assets/ready.png" alt="Pose NG Woman" class="ready" />
+          <img v-if="readyPlayers[player]" src="@/assets/ready_go.png" alt="readygo" class="readygo" />
         </p>
       </ul>
       <div class="button-group">
@@ -229,12 +216,10 @@ socket.on("update_chat", (received_chats) => {
   align-items: center;
   min-height: 100vh;
   /* background-image: url("@/assets/rose_wallpaper.jpg"); */
-  background: linear-gradient(
-    45deg,
-    rgba(250, 208, 196, 0.5),
-    rgba(255, 209, 255, 0.5),
-    rgba(168, 237, 234, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -320,14 +305,14 @@ button:enabled:hover {
   border: 3px solid rgb(234, 56, 73, 0.8);
 }
 
-button:checked + label {
+button:checked+label {
   background-color: red;
 }
 
 img.ready {
   margin: -0px;
   width: 90%;
-  height:55%;
+  height: 55%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -337,7 +322,7 @@ img.ready {
 img.readygo {
   margin: 7px;
   width: 95%;
-  height:50%;
+  height: 50%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -372,7 +357,7 @@ img.readygo {
   z-index: 1;
 }
 
-#re-container{
+#re-container {
   height: 30vh;
   width: 15vw;
   max-width: 400px;
@@ -443,7 +428,7 @@ img.readygo {
   justify-content: left;
 }
 
-#chat-close-btn{
+#chat-close-btn {
   font-size: 25px;
   cursor: pointer;
   position: absolute;
@@ -451,7 +436,7 @@ img.readygo {
   right: 10px;
 }
 
-.chat-btn{
+.chat-btn {
   width: 8px;
   height: 8px;
   font-size: 16px;
@@ -464,26 +449,26 @@ img.readygo {
   margin-right: 50px;
 }
 
-.message-img{
+.message-img {
   display: block;
-  margin: 0 auto; 
+  margin: 0 auto;
   width: 55px;
-  height: 55px; 
+  height: 55px;
   position: absolute;
-  top: 55%; 
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
 }
 
-.face-img{
+.face-img {
   display: block;
-  margin: 0 auto; 
+  margin: 0 auto;
   width: 55px;
-  height: 55px; 
+  height: 55px;
   position: absolute;
-  top: 52%; 
+  top: 52%;
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
 }
 
 #messages {
@@ -494,7 +479,7 @@ img.readygo {
   background-color: #ffffff60;
 }
 
-#reaction{
+#reaction {
   overflow: auto;
   height: 90%;
   border-right: 1px solid #ea384955;
@@ -507,7 +492,7 @@ img.readygo {
   align-items: center;
 }
 
-#reaction img{
+#reaction img {
   width: 5vw;
   height: 5vw;
   margin: 10px;
@@ -598,7 +583,6 @@ img.readygo {
   background: #ea384abe;
   text-align: center;
   padding: 5px 10px;
-  
 }
 
 #send-btn:hover {

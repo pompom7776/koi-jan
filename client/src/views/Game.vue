@@ -30,6 +30,25 @@ const selectCount = ref(0);
 const chatFlag = ref(false);
 const reactionFlag = ref(false);
 
+const reactions = {
+  beef: 1,
+  happy: 2,
+  straight: 3,
+  woah: 4,
+};
+const reactionFlags = ref({
+  top: false,
+  left: false,
+  right: false,
+  bottom: false,
+});
+const reactionNames = ref({
+  top: "happy",
+  left: "happy",
+  right: "happy",
+  bottom: "happy",
+});
+
 const showModal = ref(false);
 
 const canPon = ref(false);
@@ -124,6 +143,18 @@ const assignRelativeSeats = (myWind) => {
   relativeSeats.value = assignedRelativeSeats;
 };
 
+const getImgDirection = (player_id) => {
+  if (player_id == currentPlayerId.value) {
+    return {
+      width: "6vw",
+    };
+  } else {
+    return {
+      width: "4vw",
+    };
+  }
+};
+
 const clickTile = (tile) => {
   if (drawFlag.value) {
     socket.emit("discard_tile", tile.id, riichiFlag.value);
@@ -200,11 +231,16 @@ const sendMessage = () => {
   chatMessage.value = "";
 };
 
+const sendReaction = (name) => {
+  socket.emit("send_reaction", reactions[name]);
+};
+
 socket.on("reconnected", (socket_id) => {
   socketId.value = socket_id;
   sessionStorage.setItem("socketId", socket_id);
   if (host.value == "true") socket.emit("setup_round");
   socket.emit("get_messages");
+  socket.emit("get_round");
 });
 
 socket.on("update_game", (received_game) => {
@@ -236,7 +272,6 @@ socket.on("update_players", (received_players) => {
 });
 
 socket.on("update_player", (received_player) => {
-  console.log(received_player);
   for (var i = 0; i < players.value.length; i++) {
     if (players.value[i]["id"] == received_player["id"]) {
       players.value[i] = received_player;
@@ -290,7 +325,6 @@ socket.on("notice_can_tsumo", () => {
 });
 
 socket.on("notice_agari", () => {
-  console.log("agari");
   riichiFlag.value = false;
 
   reloadDisplay();
@@ -312,6 +346,10 @@ socket.on("notice_start_vote", () => {
 socket.on("notice_end_vote", () => {
   voteFlag.value = false;
   selectCount.value = 0;
+
+  if (host.value == "true") {
+    socket.emit("next_round");
+  }
 });
 
 socket.on("notice_selected", () => {
@@ -322,8 +360,43 @@ socket.on("notice_unselected", () => {
   selectCount.value -= 1;
 });
 
+socket.on("notice_end_game", () => {
+  voteFlag.value = false;
+  selectCount.value = 0;
+});
+
 socket.on("update_chat", (received_chats) => {
   chats.value = received_chats;
+});
+
+socket.on("update_reaction", (received_reaction) => {
+  const reactionName = received_reaction.name;
+  const reactionPlayer = received_reaction.player_id;
+  if (relativeSeats.value.top == reactionPlayer) {
+    reactionFlags.value.top = true;
+    reactionNames.value.top = reactionName;
+    setTimeout(() => {
+      reactionFlags.value.top = false;
+    }, 3000);
+  } else if (relativeSeats.value.left == reactionPlayer) {
+    reactionFlags.value.left = true;
+    reactionNames.value.left = reactionName;
+    setTimeout(() => {
+      reactionFlags.value.left = false;
+    }, 3000);
+  } else if (relativeSeats.value.right == reactionPlayer) {
+    reactionFlags.value.right = true;
+    reactionNames.value.right = reactionName;
+    setTimeout(() => {
+      reactionFlags.value.right = false;
+    }, 3000);
+  } else if (relativeSeats.value.bottom == reactionPlayer) {
+    reactionFlags.value.bottom = true;
+    reactionNames.value.bottom = reactionName;
+    setTimeout(() => {
+      reactionFlags.value.bottom = false;
+    }, 3000);
+  }
 });
 </script>
 
@@ -331,21 +404,20 @@ socket.on("update_chat", (received_chats) => {
   <div class="body">
     <div class="container" v-if="displayFlag">
       <div v-if="chatFlag">
-      <div id="chat-container">
-        <div id="messages-container">
-          <div id="chat-header">
-            <div id="chat-title">チャット</div>
-            <a id="chat-close-btn" @click="chatFlag = false">
-              ×
-            </a>
-          </div>
-          <div id="messages">
-            <div v-for="chat in chats">
-              <div class="message ms-left">
-                <div class="sender-name">{{ chat.player_name }}</div>
-                <div class="message-box">
-                  <div class="message-content">
-                    <div class="message-text">{{ chat.message }}</div>
+        <div id="chat-container">
+          <div id="messages-container">
+            <div id="chat-header">
+              <div id="chat-title">チャット</div>
+              <a id="chat-close-btn" @click="chatFlag = false"> × </a>
+            </div>
+            <div id="messages">
+              <div v-for="chat in chats">
+                <div class="message ms-left">
+                  <div class="sender-name">{{ chat.player_name }}</div>
+                  <div class="message-box">
+                    <div class="message-content">
+                      <div class="message-text">{{ chat.message }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -358,41 +430,38 @@ socket.on("update_chat", (received_chats) => {
           </div>
         </div>
       </div>
-    </div>
       <div v-else-if="reactionFlag">
-      <div id="re-container">
-        <div id="messages-container">
-          <div id="chat-header">
-            <div id="chat-title">スタンプ</div>
-            <a id="chat-close-btn" @click="reactionFlag = false">
-              ×
-            </a>
-          </div>
-          <div id="reaction">
-            <div>
-            <img src="/src/assets/face-happy.PNG" alt="face-happy">
-            <img src="/src/assets/face-straight.PNG" alt="face-straight">
-          </div>
-          <div>
-            <img src="/src/assets/face-beef.PNG" alt="face-beef">
-            <img src="/src/assets/face-woah.PNG" alt="face-woah">
-          </div>
+        <div id="re-container">
+          <div id="messages-container">
+            <div id="chat-header">
+              <div id="chat-title">スタンプ</div>
+              <a id="chat-close-btn" @click="reactionFlag = false"> × </a>
+            </div>
+            <div id="reaction">
+              <div>
+                <img @click="sendReaction('happy')" src="/src/assets/face-happy.png" alt="face-happy" />
+                <img @click="sendReaction('straight')" src="/src/assets/face-straight.png" alt="face-straight" />
+              </div>
+              <div>
+                <img @click="sendReaction('beef')" src="/src/assets/face-beef.png" alt="face-beef" />
+                <img @click="sendReaction('woah')" src="/src/assets/face-woah.png" alt="face-woah" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div v-else>
-      <div id="chat-close-container">
+      <div v-else>
+        <div id="chat-close-container">
           <a id="chat-btn" @click="chatFlag = true">
-          <img src="/src/assets/message-love.PNG" alt="message" class="message-img">
-        </a>
-      </div>
-      <div id="re-close-container">
+            <img src="/src/assets/message-love.PNG" alt="message" class="message-img" />
+          </a>
+        </div>
+        <div id="re-close-container">
           <a id="chat-btn" @click="reactionFlag = true">
-          <img src="/src/assets/face-love.PNG" alt="face" class="face-img">
-        </a>
+            <img src="/src/assets/face-love.PNG" alt="face" class="face-img" />
+          </a>
+        </div>
       </div>
-    </div>
 
       <div class="top-content content" v-if="topPlayer">
         <div class="tiles" v-for="_ in topPlayer.value.hand">
@@ -597,35 +666,31 @@ socket.on("update_chat", (received_chats) => {
       </div>
       <div class="all_direction">
         <div class="top-direction direction" v-if="topPlayer">
-          <!-- <img -->
-          <!--   :style="getImgDirection(topPlayer.id)" -->
-          <!--   :src="`/${topPlayer.seat_wind}.png`" -->
-          <!-- /> -->
+          <img :style="getImgDirection(topPlayer.value.id)" :src="`/${getWindByPlayerId(topPlayer.value.id)}.png`" />
           <p class="name-direction">{{ topPlayer.value.name }}</p>
+          <img v-if="reactionFlags.top" :src="`/src/assets/face-${reactionNames.top}.png`" class="notice-reaction-top" />
           <!-- <p class="score-direction">{{ topPlayer.score }}点</p> -->
         </div>
         <div class="left-direction direction" v-if="leftPlayer">
-          <!-- <img -->
-          <!--   :style="getImgDirection(leftPlayer.value.id)" -->
-          <!--   :src="`/${leftPlayer.seat_wind}.png`" -->
-          <!-- /> -->
+          <img :style="getImgDirection(leftPlayer.value.id)" :src="`/${getWindByPlayerId(leftPlayer.value.id)}.png`" />
           <p class="name-direction">{{ leftPlayer.value.name }}</p>
+          <img v-if="reactionFlags.left" :src="`/src/assets/face-${reactionNames.left}.png`"
+            class="notice-reaction-left" />
           <!-- <p class="score-direction">{{ leftPlayer.score }}点</p> -->
         </div>
         <div class="right-direction direction" v-if="rightPlayer">
-          <!-- <img -->
-          <!--   :style="getImgDirection(rightPlayer.id)" -->
-          <!--   :src="`/${rightPlayer.seat_wind}.png`" -->
-          <!-- /> -->
+          <img :style="getImgDirection(rightPlayer.value.id)" :src="`/${getWindByPlayerId(rightPlayer.value.id)}.png`" />
           <p class="name-direction">{{ rightPlayer.value.name }}</p>
+          <img v-if="reactionFlags.right" :src="`/src/assets/face-${reactionNames.right}.png`"
+            class="notice-reaction-right" />
           <!-- <p class="score-direction">{{ rightPlayer.score }}点</p> -->
         </div>
         <div class="bottom-direction direction" v-if="bottomPlayer">
-          <!-- <img -->
-          <!--   :style="getImgDirection(bottomPlayer.id)" -->
-          <!--   :src="`/${bottomPlayer.seat_wind}.png`" -->
-          <!-- /> -->
+          <img :style="getImgDirection(bottomPlayer.value.id)"
+            :src="`/${getWindByPlayerId(bottomPlayer.value.id)}.png`" />
           <p class="name-direction">{{ bottomPlayer.value.name }}</p>
+          <img v-if="reactionFlags.bottom" :src="`/src/assets/face-${reactionNames.bottom}.png`"
+            class="notice-reaction-bottom" />
           <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
         </div>
       </div>
@@ -1017,7 +1082,7 @@ button:hover {
   z-index: 1;
 }
 
-#re-container{
+#re-container {
   height: 30vh;
   width: 15vw;
   max-width: 400px;
@@ -1091,7 +1156,7 @@ button:hover {
   color: #fff;
 }
 
-#chat-close-btn{
+#chat-close-btn {
   font-size: 25px;
   cursor: pointer;
   position: absolute;
@@ -1100,7 +1165,7 @@ button:hover {
   color: #fff;
 }
 
-.chat-btn{
+.chat-btn {
   width: 8px;
   height: 8px;
   font-size: 16px;
@@ -1113,26 +1178,26 @@ button:hover {
   margin-right: 50px;
 }
 
-.message-img{
+.message-img {
   display: block;
-  margin: 0 auto; 
-  width: 3.5vw;
-  height: 3.5vw; 
-  position: absolute;
-  top: 55%; 
-  left: 50%;
-  transform: translate(-50%, -50%); 
-}
-
-.face-img{
-  display: block;
-  margin: 0 auto; 
+  margin: 0 auto;
   width: 3.5vw;
   height: 3.5vw;
   position: absolute;
-  top: 52%; 
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
+}
+
+.face-img {
+  display: block;
+  margin: 0 auto;
+  width: 3.5vw;
+  height: 3.5vw;
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 #messages {
@@ -1143,7 +1208,7 @@ button:hover {
   background-color: #fffa;
 }
 
-#reaction{
+#reaction {
   overflow: auto;
   height: 90%;
   border-right: 1px solid #ea384955;
@@ -1156,12 +1221,44 @@ button:hover {
   align-items: center;
 }
 
-#reaction img{
+#reaction img {
   width: 5vw;
   height: 5vw;
   margin: 10px;
   display: block;
   cursor: pointer;
+}
+
+.notice-reaction-top {
+  width: 3vw;
+  height: 3vw;
+  position: relative;
+  bottom: 1vw;
+  right: 5vw;
+}
+
+.notice-reaction-left {
+  width: 3vw;
+  height: 3vw;
+  position: relative;
+  bottom: 2vw;
+  left: 6vw;
+}
+
+.notice-reaction-right {
+  width: 3vw;
+  height: 3vw;
+  position: relative;
+  bottom: 12vw;
+  right: 6vw;
+}
+
+.notice-reaction-bottom {
+  width: 3vw;
+  height: 3vw;
+  position: relative;
+  bottom: 15vw;
+  left: 3vw;
 }
 
 .message {

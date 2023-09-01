@@ -34,8 +34,6 @@ def agari(player: Player,
         tiles.extend(call.tiles)
     char_tiles = convert_136_tiles(tiles)
     char_win_tile = convert_136_tile(win_tile)
-    print("tiles", char_tiles)
-    print("win", char_win_tile)
 
     calculator = HandCalculator()
 
@@ -53,10 +51,8 @@ def agari(player: Player,
         melds.extend(kans)
     else:
         melds = None
-    print("melds", melds)
 
     dora_indicators = [convert_136_tile(t) for t in dora]
-    print("dora", dora_indicators)
 
     winds = {
         "east": EAST,
@@ -77,7 +73,6 @@ def agari(player: Player,
                                             dora_indicators,
                                             config)
 
-    print("result", result)
     return result
 
 

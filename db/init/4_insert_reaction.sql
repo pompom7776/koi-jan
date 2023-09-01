@@ -1,5 +1,5 @@
 INSERT INTO reaction (name) VALUES
-('glad'),
-('angry'),
-('sad'),
-('excited');
+('beef'),
+('happy'),
+('straight'),
+('woah');

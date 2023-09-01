@@ -14,7 +14,7 @@ def send_reaction(room_id: int,
     execute_query(query, (room_id, player_id, reaction_id))
 
 
-def fetch_reaction(reaction_id: int) -> Reaction:
+def fetch_reaction(reaction_id: int, player_id: int) -> Reaction:
     query = (
         "SELECT id, name "
         "FROM reaction "
@@ -23,7 +23,7 @@ def fetch_reaction(reaction_id: int) -> Reaction:
     result = fetch_data(query, (reaction_id,))
 
     if result:
-        reaction = Reaction(result[0][0], result[0][1])
+        reaction = Reaction(result[0][0], result[0][1], player_id)
         return reaction
     else:
         return None
