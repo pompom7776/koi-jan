@@ -420,13 +420,13 @@ socket.on("update_reaction", (received_reaction) => {
                     </div>
                   </div>
                 </div>
-                <div class="ms-clear"></div>
               </div>
+              <div class="ms-clear"></div>
             </div>
-            <div id="ms-send">
-              <textarea id="send-message" v-model="chatMessage"></textarea>
-              <button id="send-btn" @click="sendMessage">送信</button>
-            </div>
+          </div>
+          <div id="ms-send">
+            <textarea id="send-message" v-model="chatMessage"></textarea>
+            <button id="send-btn" @click="sendMessage">送信</button>
           </div>
         </div>
       </div>
@@ -752,19 +752,19 @@ socket.on("update_reaction", (received_reaction) => {
   animation: bggradient 5s ease infinite;
 }
 
-@keyframes bggradient {
+@keyframes bggradient { 
   0% {
     background-position: 0% 50%;
   }
-
   50% {
     background-position: 100% 50%;
   }
-
   100% {
     background-position: 0% 50%;
   }
 }
+
+
 
 .top-content {
   top: 10%;

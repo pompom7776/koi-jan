@@ -55,7 +55,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app">
+  <div id="app" class="fade-in">
     <img class="logo-img" src="@/assets/koijan_1.png" alt="logo" />
     <div class="center">
       <div class="input-group">
@@ -108,10 +108,24 @@ onMounted(() => {
       rgba(255, 252, 220, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
+  animation-name: fadeInAnime;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards; /* アニメーション終了時のスタイルを保持 */
+  animation-iteration-count: 1;
   color: rgb(12, 30, 58);
   font-family: "M PLUS Rounded 1c", sans-serif;
   flex-direction: column;
 }
+@keyframes fadeInAnime {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes bggradient { 
   0% {
     background-position: 0% 50%;

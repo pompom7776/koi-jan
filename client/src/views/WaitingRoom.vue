@@ -227,7 +227,6 @@ socket.on("update_chat", (received_chats) => {
   color: rgb(234, 56, 73, 0.8);
   font-family: "M PLUS Rounded 1c", sans-serif;
 }
-
 @keyframes bggradient {
   0% {
     background-position: 0% 50%;
@@ -241,7 +240,6 @@ socket.on("update_chat", (received_chats) => {
     background-position: 0% 50%;
   }
 }
-
 .center {
   display: flex;
   flex-direction: column;
@@ -277,7 +275,6 @@ p {
 .button-group div {
   display: inline-block;
 }
-
 button:disabled {
   background-color: rgb(245, 235, 240);
 }
@@ -285,7 +282,6 @@ button:disabled {
 button input[type="radio"] {
   display: none;
 }
-
 button {
   display: inline-block;
   background-color: rgb(234, 56, 73, 0.8);
