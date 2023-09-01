@@ -37,7 +37,7 @@
     },
     methods: {
       StartGamge() {
-        router.push("/");
+        router.push("/room");
       }
     },
     mounted() {
@@ -151,14 +151,8 @@
 
   .fade-in {
   animation-name: fadeInAnime;
-  animation-duration: 1s;
+  animation-duration: 1.5s;
   animation-fill-mode: forwards; /* アニメーション終了時のスタイルを保持 */
-}
-  .fade-enter-active, .fade-leave-active {
-  transition: opacity 1s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-  opacity: 0;
 }
   
   /* ハートの大きくなるアニメーションを定義 */

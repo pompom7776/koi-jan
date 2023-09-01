@@ -6,10 +6,10 @@ import Game from "../views/Game.vue";
 import Home from "../views/Home.vue"
 
 const routes = [
-  { path: "/", component: Room },
+  { path: "/room", component: Room },
   { path: "/room/:roomId/waiting", component: WaitingRoom },
   { path: "/room/:roomId/game", component: Game },
-  { path: "/Home", component: Home },
+  { path: "/", component: Home },
 ];
 
 const router = createRouter({
