@@ -161,7 +161,7 @@ const getImagePath = (tile) => {
   transform: translate(-50%, -50%);
   z-index: 1;
   white-space: nowrap;
-  background-color: pink;
+  background-color: #ffc3cd;
   color: white;
   border-radius: 50%;
   padding: 10px;

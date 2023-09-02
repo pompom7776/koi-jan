@@ -55,7 +55,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app" class="fade-in">
+  <div id="app">
     <img class="logo-img" src="@/assets/koijan_1.png" alt="logo" />
     <div class="center">
       <div class="input-group">
