@@ -24,7 +24,7 @@ const chats = ref([]);
 
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
-const voteFlag = ref(false);
+const voteFlag = ref(true);
 const votedFlag = ref(false);
 const selectCount = ref(0);
 const chatFlag = ref(false);
@@ -791,7 +791,7 @@ socket.on("update_reaction", (received_reaction) => {
 
 .bottom-content {
   top: 90%;
-  left: 50%;
+  right: 6%;
   transform: translate(-50%, -50%);
 }
 
@@ -1024,12 +1024,15 @@ button:hover {
 
 .tsumo {
   /* display: inline-block; */
-  margin-left: 1vw;
+  /* margin-left: 3vw; */
+  position: absolute;
+  right: 106%;
 }
 
 .calls {
   /* display: inline-block; */
-  margin-left: 1vw;
+  margin-left: 6vw;
+  margin-right: -5.5vw;
 }
 
 .pon {
