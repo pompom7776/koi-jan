@@ -24,7 +24,7 @@ const chats = ref([]);
 
 const drawFlag = ref(false);
 const riichiFlag = ref(false);
-const voteFlag = ref(true);
+const voteFlag = ref(false);
 const votedFlag = ref(false);
 const selectCount = ref(0);
 const chatFlag = ref(false);
