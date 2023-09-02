@@ -193,6 +193,7 @@ socket.on("update_chat", (received_chats) => {
                 <li>勝利を目指してアガリを目指す</li>
                 <li>手牌の中から3つの牌を選択</li>
               </ol>
+              
             </div>
             <div v-else-if="currentRuleSection === 2" id="rule2" class="rule2 ru-section">
               <ol start="3">

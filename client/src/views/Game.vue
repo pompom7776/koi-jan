@@ -402,28 +402,35 @@ socket.on("update_chat", (received_chats) => {
         </div>
         <!-- ルール説明のセクション -->
         <div class="rule-div-sec">
-          <div v-if="currentRuleSection === 1" id="rule1" class="rule1 ru-section">
+          <div v-if="currentRuleSection === 1" id="rule1" class="ru-section">
             <ol>
               <li>勝利を目指してアガリを目指す</li>
               <li>手牌の中から3つの牌を選択</li>
             </ol>
+            <img src="/src/assets/hai-sentaku.png" alt="rule1" class="rule1-img">
           </div>
-          <div v-else-if="currentRuleSection === 2" id="rule2" class="rule2 ru-section">
+          <div v-else-if="currentRuleSection === 2" id="rule2" class="ru-section">
             <ol start="3">
               <li>選択した牌から理想のデートプランを考える</li>
               <li>作成した文章をチャットに送信</li>
             </ol>
+            <div class="rule2">
+              <img src="/src/assets/date-chat.png" alt="rule2" class="rule2-img">
+              <img src="/src/assets/date-chat2.png" alt="rule2" class="rule2-img">
+            </div>
           </div>
-          <div v-else-if="currentRuleSection === 3" id="rule3" class="rule3 ru-section">
+          <div v-else-if="currentRuleSection === 3" id="rule3" class="ru-section">
             <ol start="5">
               <li>一番キュンときた文章を作った人に投票</li>
               <li>麻雀点数 × 票数で点数が換算される</li>
             </ol>
+            <img src="/src/assets/vote-img.png" alt="rule3" class="rule3-img">
           </div>
-          <div v-else-if="currentRuleSection === 4" id="rule4" class="rule4 ru-section">
+          <div v-else-if="currentRuleSection === 4" id="rule4" class="ru-section">
             <ol start="7">
               <li>4ラウンドやって最も点数が高い人が勝ち</li>
             </ol>
+            <img src="/src/assets/couple.png" alt="rule4" class="rule4-img">
           </div>
         </div>
         <div class="dot-num">
@@ -1140,7 +1147,11 @@ button:hover {
   padding: 0;
   justify-content: center;
 }
-
+.ru-section{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .rule-div-sec ol{
   display: flex;
   flex-direction: column;
@@ -1277,6 +1288,33 @@ button:hover {
   top: 0px;
   right: 1vw;
   font-size: 2rem;
+}
+
+.rule1-img{
+  width: 400px;
+}
+
+rule2{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.rule2-img{
+  width: 150px;
+  margin: 0 30px;
+  position: relative;
+  top: -10px;
+}
+
+.rule3-img{
+  width: 410px;
+}
+.rule4-img{
+  width: 380px;
+  position: relative;
+  top: -13vh;
+  opacity: 0.8;
 }
 .btn{
   width: 7vw;
@@ -1437,7 +1475,7 @@ button {
   display: inline-block;
   background-color: #ffc3cd;
   color: #fff;
-  width: 12vw;
+  width: 15vw;
   border: 3px solid transparent;
   font-family: "M PLUS Rounded 1c", sans-serif;
   padding: 10px 15px;
