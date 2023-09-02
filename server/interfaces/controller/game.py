@@ -26,6 +26,24 @@ def set(socket_io: Server):
         round_usecase.setup_round(socket_io, room)
         round_usecase.deal_tiles(socket_io, room)
 
+    @socket_io.on("next_round")
+    def on_next_round(socket_id: str):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        room.players = player_util.get_players_in_room(room.number)
+        room.game = game_util.get_game_by_room_id(room.id)
+        round_usecase.next_round(socket_io, room)
+        round_usecase.deal_tiles(socket_io, room)
+
+    @socket_io.on("get_round")
+    def on_get_round(socket_id: str):
+        player = player_util.get_player_by_socket_id(socket_id)
+        room = room_util.get_room_by_player_id(player.id)
+        room.players = player_util.get_players_in_room(room.number)
+        round_id = round_util.get_round_id_by_room_id(room.id)
+        room.game = game_util.get_game_by_room_id(room.id)
+        round_usecase.get_round(socket_io, room, round_id, socket_id)
+
     @socket_io.on("discard_tile")
     def on_discard_tile(socket_id: str, tile_id: int, is_riichi: bool = False):
         player = player_util.get_player_by_socket_id(socket_id)

@@ -13,7 +13,7 @@ def send_reaction(socket_io: Server,
                   player_id: int,
                   reaction_id: int):
     reaction_repo.send_reaction(room_id, player_id, reaction_id)
-    reaction = reaction_repo.fetch_reaction(reaction_id)
+    reaction = reaction_repo.fetch_reaction(reaction_id, player_id)
     emit.update_reaction(socket_io,
                          [p.socket_id for p in players],
                          reaction)

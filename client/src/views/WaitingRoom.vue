@@ -16,7 +16,6 @@ const ready = ref(false);
 const displayFlag = ref(true);
 
 const chatFlag = ref(false);
-const reactionFlag = ref(false);
 const chatMessage = ref("");
 const chats = ref([]);
 const ruleFlag = ref(false);
@@ -38,6 +37,8 @@ displayFlag.value = false;
     displayFlag.value = true;
   });
 };
+
+const reactionFlag = ref(false);
 
 const route = useRoute();
 onMounted(() => {
@@ -242,18 +243,8 @@ socket.on("update_chat", (received_chats) => {
       <ul>
         <p v-for="(player, index) in players" :key="index">
           Player{{ index + 1 }} : {{ player }}
-          <img
-            v-if="!readyPlayers[player]"
-            src="@/assets/ready.png"
-            alt="Pose NG Woman"
-            class="ready"
-          />
-          <img
-            v-if="readyPlayers[player]"
-            src="@/assets/ready_go.png"
-            alt="readygo"
-            class="readygo"
-          />
+          <img v-if="!readyPlayers[player]" src="@/assets/ready.png" alt="Pose NG Woman" class="ready" />
+          <img v-if="readyPlayers[player]" src="@/assets/ready_go.png" alt="readygo" class="readygo" />
         </p>
       </ul>
       <div class="button-group">
@@ -282,12 +273,10 @@ socket.on("update_chat", (received_chats) => {
   align-items: center;
   min-height: 100vh;
   /* background-image: url("@/assets/rose_wallpaper.jpg"); */
-  background: linear-gradient(
-    45deg,
-    rgba(250, 208, 196, 0.5),
-    rgba(255, 209, 255, 0.5),
-    rgba(168, 237, 234, 0.5)
-  );
+  background: linear-gradient(45deg,
+      rgba(250, 208, 196, 0.5),
+      rgba(255, 209, 255, 0.5),
+      rgba(168, 237, 234, 0.5));
   background-size: 200% 200%;
   animation: bggradient 5s ease infinite;
 
@@ -373,14 +362,14 @@ button:enabled:hover {
   border: 3px solid rgb(234, 56, 73, 0.8);
 }
 
-button:checked + label {
+button:checked+label {
   background-color: red;
 }
 
 img.ready {
   margin: -0px;
   width: 90%;
-  height:55%;
+  height: 55%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -390,7 +379,7 @@ img.ready {
 img.readygo {
   margin: 7px;
   width: 95%;
-  height:50%;
+  height: 50%;
   animation-name: fadeInAnime;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -630,26 +619,27 @@ img.readygo {
   cursor: pointer;
   color:#ffc3cd;
 }
+
 .message-img{
   display: block;
   margin: 0 auto; 
   width: 3.5vw;
   height: 3.5vw; 
   position: absolute;
-  top: 55%; 
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
 }
 
-.face-img{
+.face-img {
   display: block;
   margin: 0 auto; 
   width: 3.5vw;
   height: 3.5vw;
   position: absolute;
-  top: 52%; 
+  top: 52%;
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
 }
 
 #messages {
@@ -660,7 +650,7 @@ img.readygo {
   background-color: #ffffffc1;
 }
 
-#reaction{
+#reaction {
   overflow: auto;
   height: 90%;
   border-right: 1px solid #ea384955;
