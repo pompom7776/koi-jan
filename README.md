@@ -17,12 +17,12 @@ docker-copose down
 
 serverのみ起動
 ```
-dokcer-compose up server
+docker-compose up server
 ```
 
 clientのみ起動
 ```
-dokcer-compose up client
+docker-compose up client
 ```
 
 DBをリセットしたい時(docker rmがされている状態で実行)
