@@ -1,4 +1,4 @@
-# loveMahjong
+# Koi-jan
 
 起動
 ```
