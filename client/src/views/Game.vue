@@ -521,267 +521,266 @@ socket.on("update_reaction", (received_reaction) => {
       <div @click="ruleFlag = true" class="btn rule-btn">?</div>
     </div>
 
-      <div class="top-content content" v-if="topPlayer">
-        <div class="tiles" v-for="_ in topPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="tsumo" v-if="topPlayer.value.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="calls" v-for="call in topPlayer.value.call">
-          <div class="pon" v-if="call.type == 'pon'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+    <div class="top-content content" v-if="topPlayer">
+      <div class="tiles" v-for="_ in topPlayer.value.hand">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="tsumo" v-if="topPlayer.value.tsumo">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="calls" v-for="call in topPlayer.value.call">
+        <div class="pon" v-if="call.type == 'pon'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'kan'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+        </div>
+        <div class="kan" v-if="call.type == 'kan'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
       </div>
-      <div class="left-content content" v-if="leftPlayer">
-        <div class="tiles" v-for="_ in leftPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="tsumo" v-if="leftPlayer.value.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="calls" v-for="call in leftPlayer.value.call">
-          <div class="pon" v-if="call.type == 'pon'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+    </div>
+    <div class="left-content content" v-if="leftPlayer">
+      <div class="tiles" v-for="_ in leftPlayer.value.hand">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="tsumo" v-if="leftPlayer.value.tsumo">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="calls" v-for="call in leftPlayer.value.call">
+        <div class="pon" v-if="call.type == 'pon'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'kan'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+        </div>
+        <div class="kan" v-if="call.type == 'kan'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
       </div>
-      <div class="right-content content" v-if="rightPlayer">
-        <div class="tiles" v-for="_ in rightPlayer.value.hand">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="tsumo" v-if="rightPlayer.value.tsumo">
-          <MahjongTile tile="-" :scale="0.5" :rotate="0" />
-        </div>
-        <div class="calls" v-for="call in rightPlayer.value.call">
-          <div class="pon" v-if="call.type == 'pon'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+    </div>
+    <div class="right-content content" v-if="rightPlayer">
+      <div class="tiles" v-for="_ in rightPlayer.value.hand">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="tsumo" v-if="rightPlayer.value.tsumo">
+        <MahjongTile tile="-" :scale="0.5" :rotate="0" />
+      </div>
+      <div class="calls" v-for="call in rightPlayer.value.call">
+        <div class="pon" v-if="call.type == 'pon'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'kan'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+        </div>
+        <div class="kan" v-if="call.type == 'kan'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
       </div>
-      <div class="bottom-content content" v-if="bottomPlayer">
-        <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+    </div>
+    <div class="bottom-content content" v-if="bottomPlayer">
+      <div v-if="!riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+        <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
+      </div>
+      <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
+        <div v-if="tile.can_riichi">
           <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
         </div>
-        <div v-if="riichiFlag" class="tiles" v-for="tile in bottomPlayer.value.hand">
-          <div v-if="tile.can_riichi">
-            <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" :limit="false" />
-          </div>
-          <div v-if="!tile.can_riichi">
-            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
-          </div>
+        <div v-if="!tile.can_riichi">
+          <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" :limit="true" />
         </div>
-        <div v-if="bottomPlayer.value.tsumo" class="tsumo">
-          <div v-if="riichiFlag">
-            <div v-if="!bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
-            </div>
-            <div v-if="bottomPlayer.value.tsumo.can_riichi">
-              <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
-                :rotate="0" :limit="false" />
-            </div>
+      </div>
+      <div v-if="bottomPlayer.value.tsumo" class="tsumo">
+        <div v-if="riichiFlag">
+          <div v-if="!bottomPlayer.value.tsumo.can_riichi">
+            <MahjongTile :tile="bottomPlayer.value.tsumo.name" :scale="0.5" :rotate="0" :limit="true" />
           </div>
-          <div v-if="!riichiFlag">
+          <div v-if="bottomPlayer.value.tsumo.can_riichi">
             <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
               :rotate="0" :limit="false" />
           </div>
         </div>
-        <div class="calls" v-for="call in bottomPlayer.value.call">
-          <div class="pon" v-if="call.type == 'pon'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div v-if="voteFlag">
-                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
-              <div v-else>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+        <div v-if="!riichiFlag">
+          <MahjongTile @click="clickTile(bottomPlayer.value.tsumo)" :tile="bottomPlayer.value.tsumo.name" :scale="0.5"
+            :rotate="0" :limit="false" />
+        </div>
+      </div>
+      <div class="calls" v-for="call in bottomPlayer.value.call">
+        <div class="pon" v-if="call.type == 'pon'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div v-if="voteFlag">
+              <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+            <div v-else>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
-          <div class="kan" v-if="call.type == 'kan'">
-            <div class="tiles" v-for="tile in call.tiles">
-              <div v-if="voteFlag">
-                <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
-              <div v-else>
-                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-              </div>
+        </div>
+        <div class="kan" v-if="call.type == 'kan'">
+          <div class="tiles" v-for="tile in call.tiles">
+            <div v-if="voteFlag">
+              <MahjongTile @click="clickTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
+            </div>
+            <div v-else>
+              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
             </div>
           </div>
         </div>
       </div>
-      <div v-if="voteFlag">
-        <div class="center-content-vote">
-          <div v-for="player in players">
-            <div v-if="player.id == myId">
-              <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected">
-                  <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
-                </div>
+    </div>
+    <div v-if="voteFlag">
+      <div class="center-content-vote">
+        <div v-for="player in players">
+          <div v-if="player.id == myId">
+            <div class="three-tiles-vote">
+              <div class="tiles" v-for="tile in player.selected">
+                <MahjongTile @click="cancelTile(tile)" :tile="tile.name" :scale="0.5" :rotate="0" />
               </div>
+            </div>
+            <button class="disable-vote" disabled>
+              {{ player.name }}に投票
+            </button>
+          </div>
+          <div v-else>
+            <div class="three-tiles-vote">
+              <div class="tiles" v-for="tile in player.selected">
+                <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+              </div>
+            </div>
+            <div v-if="votedFlag">
               <button class="disable-vote" disabled>
                 {{ player.name }}に投票
               </button>
             </div>
             <div v-else>
-              <div class="three-tiles-vote">
-                <div class="tiles" v-for="tile in player.selected">
-                  <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-                </div>
-              </div>
-              <div v-if="votedFlag">
-                <button class="disable-vote" disabled>
-                  {{ player.name }}に投票
-                </button>
-              </div>
-              <div v-else>
-                <button @click="vote(player.id)">
-                  {{ player.name }}に投票
-                </button>
-              </div>
+              <button @click="vote(player.id)">
+                {{ player.name }}に投票
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div v-else>
-        <div class="center-content">
-          <!-- 局・本場・順目・残り・東西南北・ドラ -->
-          <div class="all_tiles">
-            <div class="tiles" v-for="tile in dora">
-              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-            </div>
-          </div>
-          <div class="round-wind">{{ windDirections[roundWind] }}</div>
-          <div class="center-all">
-            <div>部屋番号 : {{ roomNumber }}</div>
-            <div>残り枚数 : {{ remainingNumber }}</div>
-            <div>現在の手番 : {{ getPlayerNameById(currentPlayerId) }}</div>
-            <div>親 : {{ dealerName }}</div>
-            <div>局 : {{ roundNumber }}</div>
+    </div>
+    <div v-else>
+      <div class="center-content">
+        <!-- 局・本場・順目・残り・東西南北・ドラ -->
+        <div class="all_tiles">
+          <div class="tiles" v-for="tile in dora">
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
           </div>
         </div>
-        <div class="top-discarded discarded" v-if="topPlayer">
-          <div class="discarded">
-            <div class="tiles" v-for="tile in topPlayer.value.discarded">
-              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-            </div>
-          </div>
+        <div class="round-wind">{{ windDirections[roundWind] }}</div>
+        <div class="center-all">
+          <div>部屋番号 : {{ roomNumber }}</div>
+          <div>残り枚数 : {{ remainingNumber }}</div>
+          <div>現在の手番 : {{ getPlayerNameById(currentPlayerId) }}</div>
+          <div>親 : {{ dealerName }}</div>
+          <div>局 : {{ roundNumber }}</div>
         </div>
-        <div class="left-discarded discarded" v-if="leftPlayer">
-          <div class="discarded">
-            <div class="tiles" v-for="tile in leftPlayer.value.discarded">
-              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-            </div>
-          </div>
-        </div>
-        <div class="right-discarded discarded" v-if="rightPlayer">
-          <div class="discarded">
-            <div class="tiles" v-for="tile in rightPlayer.value.discarded">
-              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-            </div>
-          </div>
-        </div>
-        <div class="bottom-discarded discarded" v-if="bottomPlayer">
-          <div class="discarded">
-            <div class="tiles" v-for="tile in bottomPlayer.value.discarded">
-              <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
-            </div>
+      </div>
+      <div class="top-discarded discarded" v-if="topPlayer">
+        <div class="discarded">
+          <div class="tiles" v-for="tile in topPlayer.value.discarded">
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
           </div>
         </div>
       </div>
-      <div class="all_direction">
-        <div class="top-direction direction" v-if="topPlayer">
-          <img :style="getImgDirection(topPlayer.value.id)" :src="`/${getWindByPlayerId(topPlayer.value.id)}.png`" />
-          <p class="name-direction">{{ topPlayer.value.name }}</p>
-          <img v-if="reactionFlags.top" :src="`/src/assets/face-${reactionNames.top}.png`" class="notice-reaction-top" />
-          <!-- <p class="score-direction">{{ topPlayer.score }}点</p> -->
-        </div>
-        <div class="left-direction direction" v-if="leftPlayer">
-          <img :style="getImgDirection(leftPlayer.value.id)" :src="`/${getWindByPlayerId(leftPlayer.value.id)}.png`" />
-          <p class="name-direction">{{ leftPlayer.value.name }}</p>
-          <img v-if="reactionFlags.left" :src="`/src/assets/face-${reactionNames.left}.png`"
-            class="notice-reaction-left" />
-          <!-- <p class="score-direction">{{ leftPlayer.score }}点</p> -->
-        </div>
-        <div class="right-direction direction" v-if="rightPlayer">
-          <img :style="getImgDirection(rightPlayer.value.id)" :src="`/${getWindByPlayerId(rightPlayer.value.id)}.png`" />
-          <p class="name-direction">{{ rightPlayer.value.name }}</p>
-          <img v-if="reactionFlags.right" :src="`/src/assets/face-${reactionNames.right}.png`"
-            class="notice-reaction-right" />
-          <!-- <p class="score-direction">{{ rightPlayer.score }}点</p> -->
-        </div>
-        <div class="bottom-direction direction" v-if="bottomPlayer">
-          <img :style="getImgDirection(bottomPlayer.value.id)"
-            :src="`/${getWindByPlayerId(bottomPlayer.value.id)}.png`" />
-          <p class="name-direction">{{ bottomPlayer.value.name }}</p>
-          <img v-if="reactionFlags.bottom" :src="`/src/assets/face-${reactionNames.bottom}.png`"
-            class="notice-reaction-bottom" />
-          <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
-        </div>
-      </div>
-      <div class="all_button">
-        <div class="button-container">
-          <button @click="call('pon')" v-if="canPon">ポン</button>
-          <button @click="call('kan')" v-if="canKan">カン</button>
-          <button @click="riichi" v-if="canRiichi && riichiFlag && !canTsumo">
-            リーチ: ON
-          </button>
-          <button @click="riichi" v-if="canRiichi && !riichiFlag && !canTsumo">
-            リーチ: OFF
-          </button>
-          <button @click="tsumo" v-if="canTsumo">ツモ</button>
-          <button @click="ron" v-if="canRon">ロン</button>
-          <button @click="skip" v-if="canPon || canKan || canRon || canTsumo">
-            スキップ
-          </button>
-        </div>
-      </div>
-      <div class="modal" :class="{ 'show-modal': showModal }">
-        <div class="modal-content">
-          <h2>Final Score Results</h2>
-          <div v-for="player in players">
-            <div v-if="player.score">
-              <p>{{ player.name }}: {{ player.score.score }}</p>
-              <p>{{ player.score.han }}翻　{{ player.score.fu }}符</p>
-              <p v-for="yaku in player.score.yaku">{{ yaku }}</p>
-              <hr />
-            </div>
+      <div class="left-discarded discarded" v-if="leftPlayer">
+        <div class="discarded">
+          <div class="tiles" v-for="tile in leftPlayer.value.discarded">
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
           </div>
-          <button class="modal-close-button" @click="closeModal">Close</button>
         </div>
+      </div>
+      <div class="right-discarded discarded" v-if="rightPlayer">
+        <div class="discarded">
+          <div class="tiles" v-for="tile in rightPlayer.value.discarded">
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+          </div>
+        </div>
+      </div>
+      <div class="bottom-discarded discarded" v-if="bottomPlayer">
+        <div class="discarded">
+          <div class="tiles" v-for="tile in bottomPlayer.value.discarded">
+            <MahjongTile :tile="tile.name" :scale="0.5" :rotate="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="all_direction">
+      <div class="top-direction direction" v-if="topPlayer">
+        <img :style="getImgDirection(topPlayer.value.id)" :src="`/${getWindByPlayerId(topPlayer.value.id)}.png`" />
+        <p class="name-direction">{{ topPlayer.value.name }}</p>
+        <img v-if="reactionFlags.top" :src="`/src/assets/face-${reactionNames.top}.png`" class="notice-reaction-top" />
+        <!-- <p class="score-direction">{{ topPlayer.score }}点</p> -->
+      </div>
+      <div class="left-direction direction" v-if="leftPlayer">
+        <img :style="getImgDirection(leftPlayer.value.id)" :src="`/${getWindByPlayerId(leftPlayer.value.id)}.png`" />
+        <p class="name-direction">{{ leftPlayer.value.name }}</p>
+        <img v-if="reactionFlags.left" :src="`/src/assets/face-${reactionNames.left}.png`"
+          class="notice-reaction-left" />
+        <!-- <p class="score-direction">{{ leftPlayer.score }}点</p> -->
+      </div>
+      <div class="right-direction direction" v-if="rightPlayer">
+        <img :style="getImgDirection(rightPlayer.value.id)" :src="`/${getWindByPlayerId(rightPlayer.value.id)}.png`" />
+        <p class="name-direction">{{ rightPlayer.value.name }}</p>
+        <img v-if="reactionFlags.right" :src="`/src/assets/face-${reactionNames.right}.png`"
+          class="notice-reaction-right" />
+        <!-- <p class="score-direction">{{ rightPlayer.score }}点</p> -->
+      </div>
+      <div class="bottom-direction direction" v-if="bottomPlayer">
+        <img :style="getImgDirection(bottomPlayer.value.id)"
+          :src="`/${getWindByPlayerId(bottomPlayer.value.id)}.png`" />
+        <p class="name-direction">{{ bottomPlayer.value.name }}</p>
+        <img v-if="reactionFlags.bottom" :src="`/src/assets/face-${reactionNames.bottom}.png`"
+          class="notice-reaction-bottom" />
+        <!-- <p class="score-direction">{{ bottomPlayer.score }}点</p> -->
+      </div>
+    </div>
+    <div class="all_button">
+      <div class="button-container">
+        <button @click="call('pon')" v-if="canPon">ポン</button>
+        <button @click="call('kan')" v-if="canKan">カン</button>
+        <button @click="riichi" v-if="canRiichi && riichiFlag && !canTsumo">
+          リーチ: ON
+        </button>
+        <button @click="riichi" v-if="canRiichi && !riichiFlag && !canTsumo">
+          リーチ: OFF
+        </button>
+        <button @click="tsumo" v-if="canTsumo">ツモ</button>
+        <button @click="ron" v-if="canRon">ロン</button>
+        <button @click="skip" v-if="canPon || canKan || canRon || canTsumo">
+          スキップ
+        </button>
+      </div>
+    </div>
+    <div class="modal" :class="{ 'show-modal': showModal }">
+      <div class="modal-content">
+        <h2>Final Score Results</h2>
+        <div v-for="player in players">
+          <div v-if="player.score">
+            <p>{{ player.name }}: {{ player.score.score }}</p>
+            <p>{{ player.score.han }}翻　{{ player.score.fu }}符</p>
+            <p v-for="yaku in player.score.yaku">{{ yaku }}</p>
+            <hr />
+          </div>
+        </div>
+        <button class="modal-close-button" @click="closeModal">Close</button>
       </div>
     </div>
   </div>
